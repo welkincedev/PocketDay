@@ -4,6 +4,18 @@ PocketDay is a modern, portfolio-quality personal finance application built with
 
 ---
 
+# ScreenShots
+
+![Home Light Mode](assets/screenshots/home.png)
+![Home Dark Mode](assets/screenshots/home2.png)
+![Splash](assets/screenshots/splash.png)
+![Profile](assets/screenshots/profile.png)
+![Login](assets/screenshots/login.png)
+![Transcation](assets/screenshots/trans.png)
+
+
+---
+
 ## 🌟 Key Features
 
 - 💼 **Total Balance & Summary Cards**: Real-time balance calculations (`Total Balance = Income - Expense`) with hide/show balance privacy mode (`₹••••••`).
