@@ -8,13 +8,11 @@ class GoalsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(AppStrings.navGoals),
-      ),
+      appBar: AppBar(title: const Text(AppStrings.navGoals)),
       body: const EmptyStateWidget(
         icon: Icons.savings_rounded,
         title: 'Savings Goals Tracker',
-        description: 'Track custom savings targets and milestones in Phase 6.',
+        description: 'Track custom savings targets and milestones',
       ),
     );
   }

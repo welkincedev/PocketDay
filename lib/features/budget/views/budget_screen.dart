@@ -8,13 +8,12 @@ class BudgetScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(AppStrings.navBudget),
-      ),
+      appBar: AppBar(title: const Text(AppStrings.navBudget)),
       body: const EmptyStateWidget(
         icon: Icons.pie_chart_rounded,
         title: 'Monthly Budget Planning',
-        description: 'Category budget management and spending alerts will be configured in Phase 5.',
+        description:
+            'Category budget management and spending alerts will be comming soon',
       ),
     );
   }

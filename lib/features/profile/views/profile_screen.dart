@@ -17,9 +17,7 @@ class ProfileScreen extends ConsumerWidget {
     final hideBalance = ref.watch(hideBalanceProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(AppStrings.navProfile),
-      ),
+      appBar: AppBar(title: const Text(AppStrings.navProfile)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -72,7 +70,9 @@ class ProfileScreen extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.lightTextSecondary,
                   letterSpacing: 1.2,
                 ),
               ),
@@ -89,7 +89,7 @@ class ProfileScreen extends ConsumerWidget {
                   color: AppColors.primary,
                 ),
                 title: const Text('Dark Theme'),
-                subtitle: const Text('Switch between dark and light appearance'),
+
                 value: isDark,
                 activeTrackColor: AppColors.primary,
                 onChanged: (_) {
@@ -105,11 +105,13 @@ class ProfileScreen extends ConsumerWidget {
               child: SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 secondary: Icon(
-                  hideBalance ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                  hideBalance
+                      ? Icons.visibility_off_rounded
+                      : Icons.visibility_rounded,
                   color: AppColors.primary,
                 ),
                 title: const Text('Hide Financial Balances'),
-                subtitle: const Text('Mask amount values on dashboard as \$***'),
+                subtitle: const Text('Mask values as \$***'),
                 value: hideBalance,
                 activeTrackColor: AppColors.primary,
                 onChanged: (_) {
@@ -127,7 +129,9 @@ class ProfileScreen extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.lightTextSecondary,
                   letterSpacing: 1.2,
                 ),
               ),
