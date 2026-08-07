@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import '../../../core/routes/app_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/services/hive_service.dart';
@@ -40,7 +40,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void _onComplete() async {
     await HiveService.setHasOnboarded(true);
     if (mounted) {
-      context.go('/login');
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
     }
   }
 

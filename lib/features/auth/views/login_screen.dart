@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../core/routes/app_router.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../providers/auth_provider.dart';
@@ -33,7 +33,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             _passwordController.text,
           );
       if (success && mounted) {
-        context.go('/dashboard');
+        Navigator.pushReplacementNamed(context, AppRoutes.main);
       }
     }
   }
@@ -41,7 +41,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void _handleGoogleLogin() async {
     final success = await ref.read(authProvider.notifier).loginWithGoogle();
     if (success && mounted) {
-      context.go('/dashboard');
+      Navigator.pushReplacementNamed(context, AppRoutes.main);
     }
   }
 
@@ -134,7 +134,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
-                        onPressed: () => context.push('/forgot-password'),
+                        onPressed: () => Navigator.pushNamed(context, AppRoutes.forgotPassword),
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           minimumSize: Size.zero,
@@ -218,7 +218,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () => context.push('/register'),
+                          onTap: () => Navigator.pushNamed(context, AppRoutes.register),
                           child: const Text(
                             AppStrings.signUp,
                             style: TextStyle(

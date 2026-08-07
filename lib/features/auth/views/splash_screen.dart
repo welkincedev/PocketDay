@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../core/routes/app_router.dart';
 import '../../../core/services/hive_service.dart';
 import '../providers/auth_provider.dart';
 
@@ -29,11 +29,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     final user = ref.read(authProvider).value;
 
     if (!hasOnboarded) {
-      context.go('/onboarding');
+      Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
     } else if (user != null) {
-      context.go('/dashboard');
+      Navigator.pushReplacementNamed(context, AppRoutes.main);
     } else {
-      context.go('/login');
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
     }
   }
 

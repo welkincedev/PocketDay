@@ -11,7 +11,7 @@ PocketDay is a modern, portfolio-quality personal finance application built with
 ![Splash](assets/screenshots/splash.png)
 ![Profile](assets/screenshots/profile.png)
 ![Login](assets/screenshots/login.png)
-![Transcation](assets/screenshots/trans.png)
+![Transcation](assets/screenshots/trans.png)   
 
 
 ---

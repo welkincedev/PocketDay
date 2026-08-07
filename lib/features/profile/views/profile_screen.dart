@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import '../../../core/routes/app_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/theme/theme_provider.dart';
@@ -142,7 +142,7 @@ class ProfileScreen extends ConsumerWidget {
               onTap: () async {
                 await ref.read(authProvider.notifier).logout();
                 if (context.mounted) {
-                  context.go('/login');
+                  Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login, (route) => false);
                 }
               },
               child: const Row(

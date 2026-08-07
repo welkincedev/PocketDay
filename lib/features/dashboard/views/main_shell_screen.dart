@@ -1,27 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../budget/views/budget_screen.dart';
+import '../../goals/views/goals_screen.dart';
+import '../../profile/views/profile_screen.dart';
+import '../../transactions/views/transactions_screen.dart';
+import 'dashboard_screen.dart';
 
-class MainShellScreen extends StatelessWidget {
-  final StatefulNavigationShell navigationShell;
+class MainShellScreen extends StatefulWidget {
+  const MainShellScreen({super.key});
 
-  const MainShellScreen({
-    super.key,
-    required this.navigationShell,
-  });
+  @override
+  State<MainShellScreen> createState() => _MainShellScreenState();
+}
+
+class _MainShellScreenState extends State<MainShellScreen> {
+  int _currentIndex = 0;
+
+  final List<Widget> _pages = const [
+    DashboardScreen(),
+    TransactionsScreen(),
+    BudgetScreen(),
+    GoalsScreen(),
+    ProfileScreen(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: navigationShell,
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _pages,
+      ),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
+        selectedIndex: _currentIndex,
         labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
         onDestinationSelected: (index) {
-          navigationShell.goBranch(
-            index,
-            initialLocation: index == navigationShell.currentIndex,
-          );
+          setState(() => _currentIndex = index);
         },
         destinations: const [
           NavigationDestination(
