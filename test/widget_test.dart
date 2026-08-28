@@ -12,6 +12,7 @@ void main() {
     await Hive.openBox(AppConstants.settingsBox);
     await Hive.openBox(AppConstants.userBox);
     await Hive.openBox(AppConstants.transactionsBox);
+    await Hive.openBox(AppConstants.budgetBox);
 
     await tester.pumpWidget(
       const ProviderScope(

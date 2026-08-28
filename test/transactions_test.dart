@@ -15,7 +15,10 @@ void main() {
     Hive.init(tempDir.path);
     await Hive.openBox(AppConstants.settingsBox);
     await Hive.openBox(AppConstants.userBox);
-    await Hive.openBox(AppConstants.transactionsBox);
+    final box = await Hive.openBox(AppConstants.transactionsBox);
+    await box.clear();
+    final bBox = await Hive.openBox(AppConstants.budgetBox);
+    await bBox.clear();
   });
 
   tearDown(() async {

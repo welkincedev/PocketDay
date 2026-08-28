@@ -1,22 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../budget/views/budget_screen.dart';
 import '../../goals/views/goals_screen.dart';
 import '../../profile/views/profile_screen.dart';
 import '../../transactions/views/transactions_screen.dart';
+import '../providers/navigation_provider.dart';
 import 'dashboard_screen.dart';
 
-class MainShellScreen extends StatefulWidget {
+class MainShellScreen extends ConsumerWidget {
   const MainShellScreen({super.key});
 
-  @override
-  State<MainShellScreen> createState() => _MainShellScreenState();
-}
-
-class _MainShellScreenState extends State<MainShellScreen> {
-  int _currentIndex = 0;
-
-  final List<Widget> _pages = const [
+  static const List<Widget> _pages = [
     DashboardScreen(),
     TransactionsScreen(),
     BudgetScreen(),
@@ -25,17 +20,19 @@ class _MainShellScreenState extends State<MainShellScreen> {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentIndex = ref.watch(navigationProvider);
+
     return Scaffold(
       body: IndexedStack(
-        index: _currentIndex,
+        index: currentIndex,
         children: _pages,
       ),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
+        selectedIndex: currentIndex,
         labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
         onDestinationSelected: (index) {
-          setState(() => _currentIndex = index);
+          ref.read(navigationProvider.notifier).state = index;
         },
         destinations: const [
           NavigationDestination(
