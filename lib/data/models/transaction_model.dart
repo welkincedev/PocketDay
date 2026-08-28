@@ -9,6 +9,7 @@ class TransactionModel {
   final String categoryName;
   final DateTime date;
   final String? notes;
+  final String? goalId;
 
   TransactionModel({
     required this.id,
@@ -19,6 +20,7 @@ class TransactionModel {
     required this.categoryName,
     required this.date,
     this.notes,
+    this.goalId,
   });
 
   Map<String, dynamic> toMap() {
@@ -31,6 +33,7 @@ class TransactionModel {
       'categoryName': categoryName,
       'date': date.toIso8601String(),
       'notes': notes,
+      'goalId': goalId,
     };
   }
 
@@ -44,6 +47,31 @@ class TransactionModel {
       categoryName: map['categoryName'] ?? 'Other',
       date: map['date'] != null ? DateTime.parse(map['date']) : DateTime.now(),
       notes: map['notes'],
+      goalId: map['goalId'],
+    );
+  }
+
+  TransactionModel copyWith({
+    String? id,
+    String? title,
+    double? amount,
+    TransactionType? type,
+    String? categoryId,
+    String? categoryName,
+    DateTime? date,
+    String? notes,
+    String? goalId,
+  }) {
+    return TransactionModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      amount: amount ?? this.amount,
+      type: type ?? this.type,
+      categoryId: categoryId ?? this.categoryId,
+      categoryName: categoryName ?? this.categoryName,
+      date: date ?? this.date,
+      notes: notes ?? this.notes,
+      goalId: goalId ?? this.goalId,
     );
   }
 }

@@ -8,6 +8,7 @@ import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../data/repositories/transaction_repository.dart';
+import '../../../features/goals/widgets/goal_selector.dart';
 
 class AddTransactionBottomSheet extends ConsumerStatefulWidget {
   final TransactionType initialType;
@@ -34,6 +35,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
   late TransactionType _type;
   late String _selectedCategoryId;
   late DateTime _selectedDate;
+  String? _selectedGoalId;
 
   @override
   void initState() {
@@ -48,6 +50,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
           ? editTxn.amount.toInt().toString()
           : editTxn.amount.toString();
       _notesController.text = editTxn.notes ?? '';
+      _selectedGoalId = editTxn.goalId;
     } else {
       _type = widget.initialType;
       _selectedCategoryId = _type == TransactionType.income ? 'salary' : 'food';
@@ -101,6 +104,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
         categoryName: categoryMeta['name'] as String,
         date: _selectedDate,
         notes: _notesController.text.trim().isNotEmpty ? _notesController.text.trim() : null,
+        goalId: _type == TransactionType.expense ? _selectedGoalId : null,
       );
 
       final repo = ref.read(transactionRepositoryProvider);
@@ -351,7 +355,17 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                   controller: _notesController,
                   maxLines: 2,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
+
+                // Goal Selector (expenses only)
+                if (_type == TransactionType.expense) ...[                  
+                  GoalSelector(
+                    selectedGoalId: _selectedGoalId,
+                    onChanged: (val) => setState(() => _selectedGoalId = val),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                const SizedBox(height: 8),
 
                 // Save Transaction Button
                 AppButton(

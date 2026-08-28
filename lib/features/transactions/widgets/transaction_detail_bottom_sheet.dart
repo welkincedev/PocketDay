@@ -14,10 +14,7 @@ import '../providers/transactions_provider.dart';
 class TransactionDetailBottomSheet extends ConsumerWidget {
   final TransactionModel transaction;
 
-  const TransactionDetailBottomSheet({
-    super.key,
-    required this.transaction,
-  });
+  const TransactionDetailBottomSheet({super.key, required this.transaction});
 
   void _confirmDelete(BuildContext context, WidgetRef ref) {
     showDialog(
@@ -36,11 +33,16 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
             onPressed: () {
               Navigator.pop(ctx); // Close dialog
               Navigator.pop(context); // Close details sheet
-              ref.read(transactionsProvider.notifier).deleteTransaction(transaction.id);
+              ref
+                  .read(transactionsProvider.notifier)
+                  .deleteTransaction(transaction.id);
             },
             child: const Text(
               'Delete',
-              style: TextStyle(color: AppColors.expense, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: AppColors.expense,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
@@ -57,6 +59,9 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
       builder: (context) => AddTransactionBottomSheet(
         initialType: transaction.type,
         transactionToEdit: transaction,
+        onAdd: (updatedTxn) {
+          ref.read(transactionsProvider.notifier).updateTransaction(updatedTxn);
+        },
       ),
     );
   }
@@ -71,7 +76,9 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
     final categoryMeta = AppConstants.defaultCategories.firstWhere(
       (cat) => cat['id'] == transaction.categoryId,
       orElse: () => {
-        'icon': isIncome ? Icons.account_balance_wallet_rounded : Icons.shopping_bag_rounded,
+        'icon': isIncome
+            ? Icons.account_balance_wallet_rounded
+            : Icons.shopping_bag_rounded,
         'color': isIncome ? AppColors.income : AppColors.expense,
       },
     );
@@ -84,12 +91,7 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
         color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      padding: const EdgeInsets.only(
-        top: 12,
-        bottom: 28,
-        left: 24,
-        right: 24,
-      ),
+      padding: const EdgeInsets.only(top: 12, bottom: 28, left: 24, right: 24),
       child: SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -120,25 +122,25 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                         color: categoryColor.withAlpha(25),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
-                        categoryIcon,
-                        color: categoryColor,
-                        size: 20,
-                      ),
+                      child: Icon(categoryIcon, color: categoryColor, size: 20),
                     ),
                     const SizedBox(width: 12),
                     Text(
                       transaction.categoryName,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: (isIncome ? AppColors.income : AppColors.expense).withAlpha(25),
+                    color: (isIncome ? AppColors.income : AppColors.expense)
+                        .withAlpha(25),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -157,9 +159,9 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
             // Transaction Title
             Text(
               transaction.title,
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
 
@@ -168,7 +170,9 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
               '${DateFormatter.formatFull(transaction.date)} at ${DateFormatter.formatTime(transaction.date)}',
               style: TextStyle(
                 fontSize: 13,
-                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.lightTextSecondary,
               ),
             ),
             const SizedBox(height: 24),
@@ -180,7 +184,11 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1.1,
-                color: (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary).withAlpha(180),
+                color:
+                    (isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary)
+                        .withAlpha(180),
               ),
             ),
             const SizedBox(height: 4),
@@ -189,7 +197,11 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.w800,
-                color: isIncome ? AppColors.income : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
+                color: isIncome
+                    ? AppColors.income
+                    : (isDark
+                          ? AppColors.darkTextPrimary
+                          : AppColors.lightTextPrimary),
                 letterSpacing: -0.5,
               ),
             ),
@@ -203,7 +215,11 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.1,
-                  color: (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary).withAlpha(180),
+                  color:
+                      (isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary)
+                          .withAlpha(180),
                 ),
               ),
               const SizedBox(height: 8),
@@ -215,7 +231,9 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                     Icon(
                       Icons.notes_rounded,
                       size: 16,
-                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
                     ),
                     const SizedBox(width: 8),
                     Expanded(
@@ -224,7 +242,9 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 14,
                           height: 1.4,
-                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary,
                         ),
                       ),
                     ),
@@ -253,7 +273,10 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
                       children: [
                         Icon(Icons.delete_outline_rounded, size: 18),
                         SizedBox(width: 8),
-                        Text('Delete', style: TextStyle(fontWeight: FontWeight.w600)),
+                        Text(
+                          'Delete',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
                       ],
                     ),
                   ),

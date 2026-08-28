@@ -2,50 +2,56 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/empty_state_widget.dart';
-import '../providers/savings_goals_provider.dart';
-import '../widgets/add_savings_goal_bottom_sheet.dart';
-import '../widgets/savings_goal_card.dart';
-import '../widgets/savings_goal_detail_bottom_sheet.dart';
+import '../../../data/models/goal_model.dart';
+import '../providers/goals_provider.dart';
+import '../widgets/create_goal_sheet.dart';
+import '../widgets/goal_card.dart';
+import 'goal_detail_screen.dart';
 
-class SavingsGoalsScreen extends ConsumerWidget {
-  const SavingsGoalsScreen({super.key});
+class GoalsScreen extends ConsumerWidget {
+  const GoalsScreen({super.key});
 
-  void _openAddGoalSheet(BuildContext context) {
+  void _openCreateSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => const AddSavingsGoalBottomSheet(),
+      builder: (context) => const CreateGoalSheet(),
     );
   }
 
-  void _openDetailSheet(BuildContext context, widgetRef) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => SavingsGoalDetailBottomSheet(goal: widgetRef),
+  void _openDetailScreen(BuildContext context, GoalModel goal) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => GoalDetailScreen(goal: goal)),
     );
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(savingsGoalsProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final state = ref.watch(goalsProvider);
+    final transactions = state.transactions;
 
-    final activeGoals = state.goals.where((g) => !g.isCompleted).toList();
-    final completedGoals = state.goals.where((g) => g.isCompleted).toList();
+    // Separate active and completed, computed dynamically
+    final activeGoals = state.goals
+        .where((g) => !g.isGoalCompleted(g.calculateCurrentAmount(transactions)))
+        .toList();
+    final completedGoals = state.goals
+        .where((g) => g.isGoalCompleted(g.calculateCurrentAmount(transactions)))
+        .toList();
 
     Widget body;
+
     if (state.isLoading) {
       body = const Center(child: CircularProgressIndicator());
     } else if (state.goals.isEmpty) {
       body = EmptyStateWidget(
-        title: "Nothing you're saving for yet.",
-        description: "Create a goal and give your money somewhere to go.",
-        icon: Icons.savings_outlined,
+        title: "No goals yet.",
+        description: "Create a goal and give your money a purpose.",
+        icon: Icons.flag_outlined,
         actionText: 'Create Goal',
-        onActionPressed: () => _openAddGoalSheet(context),
+        onActionPressed: () => _openCreateSheet(context),
       );
     } else {
       body = SingleChildScrollView(
@@ -59,7 +65,7 @@ class SavingsGoalsScreen extends ConsumerWidget {
               children: [
                 if (activeGoals.isNotEmpty) ...[
                   Text(
-                    'Active Goals',
+                    'Active',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
@@ -70,24 +76,27 @@ class SavingsGoalsScreen extends ConsumerWidget {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: activeGoals.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 12),
+                    separatorBuilder: (_, i) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final goal = activeGoals[index];
-                      return SavingsGoalCard(
+                      final current = goal.calculateCurrentAmount(transactions);
+                      return GoalCard(
                         goal: goal,
-                        onTap: () => _openDetailSheet(context, goal),
+                        currentAmount: current,
+                        onTap: () => _openDetailScreen(context, goal),
                       );
                     },
                   ),
-                  const SizedBox(height: 28),
+                  if (completedGoals.isNotEmpty) const SizedBox(height: 28),
                 ],
+
                 if (completedGoals.isNotEmpty) ...[
                   Row(
                     children: [
-                      const Icon(Icons.check_circle_outline_rounded, size: 16, color: AppColors.primary),
+                      const Icon(Icons.check_circle_outline_rounded, size: 15, color: AppColors.primary),
                       const SizedBox(width: 6),
                       Text(
-                        'Completed Goals',
+                        'Completed',
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
@@ -100,19 +109,22 @@ class SavingsGoalsScreen extends ConsumerWidget {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: completedGoals.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 12),
+                    separatorBuilder: (_, i) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final goal = completedGoals[index];
+                      final current = goal.calculateCurrentAmount(transactions);
                       return Opacity(
-                        opacity: 0.75, // Subdued look for completed goals
-                        child: SavingsGoalCard(
+                        opacity: 0.72,
+                        child: GoalCard(
                           goal: goal,
-                          onTap: () => _openDetailSheet(context, goal),
+                          currentAmount: current,
+                          onTap: () => _openDetailScreen(context, goal),
                         ),
                       );
                     },
                   ),
                 ],
+                const SizedBox(height: 80), // FAB clearance
               ],
             ),
           ),
@@ -122,22 +134,13 @@ class SavingsGoalsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Savings Goals'),
-        actions: [
-          if (state.goals.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.add_rounded),
-              onPressed: () => _openAddGoalSheet(context),
-            ),
-        ],
+        title: const Text('Goals'),
       ),
       body: body,
-      floatingActionButton: state.goals.isNotEmpty
-          ? FloatingActionButton(
-              onPressed: () => _openAddGoalSheet(context),
-              child: const Icon(Icons.add_rounded),
-            )
-          : null,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _openCreateSheet(context),
+        child: const Icon(Icons.add_rounded),
+      ),
     );
   }
 }

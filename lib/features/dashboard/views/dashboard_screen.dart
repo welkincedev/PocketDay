@@ -110,7 +110,7 @@ class DashboardScreen extends ConsumerWidget {
                 ],
                 const DashboardBudgetProgressWidget(),
                 const SizedBox(height: 20),
-                const DashboardSavingsSummaryWidget(),
+                const DashboardGoalsSummaryWidget(),
                 const SizedBox(height: 20),
 
                 // Quick Actions Bar

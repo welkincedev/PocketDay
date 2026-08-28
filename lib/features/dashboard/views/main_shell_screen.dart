@@ -15,7 +15,7 @@ class MainShellScreen extends ConsumerWidget {
     DashboardScreen(),
     TransactionsScreen(),
     BudgetScreen(),
-    SavingsGoalsScreen(),
+    GoalsScreen(),
     ProfileScreen(),
   ];
 
