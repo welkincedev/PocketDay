@@ -22,7 +22,6 @@ class DashboardBudgetProgressWidget extends ConsumerWidget {
     final spent = state.currentMonthExpense;
     final remaining = limit - spent;
     final percent = limit > 0 ? (spent / limit).clamp(0.0, 1.0) : 0.0;
-    final percentText = (percent * 100).toStringAsFixed(0);
 
     // Determine color based on threshold
     Color statusColor;
@@ -44,66 +43,82 @@ class DashboardBudgetProgressWidget extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Top Row: Section title on the left, remaining balance on the right
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Monthly Budget Progress',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+              Expanded(
+                child: Text(
+                  'Monthly Budget',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              Text(
-                '$percentText% used',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: statusColor,
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  spent > limit
+                      ? '${CurrencyFormatter.format(spent - limit)} Over'
+                      : '${CurrencyFormatter.format(remaining)} Left',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: spent > limit ? AppColors.expense : statusColor,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
+
+          // Middle Row: Full-width LinearProgressIndicator
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: SizedBox(
+              height: 8,
+              child: LinearProgressIndicator(
+                value: percent,
+                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                valueColor: AlwaysStoppedAnimation<Color>(statusColor),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Bottom Row: Spent amount on the left, budget limit target on the right
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '${CurrencyFormatter.format(spent)} spent of ${CurrencyFormatter.format(limit)}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+              Expanded(
+                child: Text(
+                  '${CurrencyFormatter.format(spent)} spent',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Text(
-                spent > limit
-                    ? '${CurrencyFormatter.format(spent - limit)} over'
-                    : '${CurrencyFormatter.format(remaining)} remaining',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: spent > limit ? AppColors.expense : statusColor,
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  'Target: ${CurrencyFormatter.format(limit)}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: Stack(
-              children: [
-                Container(
-                  height: 6,
-                  color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                ),
-                FractionallySizedBox(
-                  widthFactor: percent,
-                  child: Container(
-                    height: 6,
-                    color: statusColor,
-                  ),
-                ),
-              ],
-            ),
           ),
         ],
       ),

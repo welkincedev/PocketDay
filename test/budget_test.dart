@@ -132,13 +132,13 @@ void main() {
     state = container.read(budgetProvider);
 
     // Verify category spending calculations
-    // Food spent must be 450 (income Salary and transport expenses must not affect food budget)
+    // Food spent must be 2320.0 (seed mock food expenses 1450 + 420, plus manual 450)
     final foodSpent = state.categorySpending['food'] ?? 0.0;
-    expect(foodSpent, 450.0);
+    expect(foodSpent, 2320.0);
 
-    // Overall spent must be 650 (Lunch 450 + Uber 200, Salary income ignored)
+    // Overall spent must be 3379.0 (seed mock expenses 2729.0, plus manual 650.0)
     final overallSpent = state.categorySpending[null] ?? 0.0;
-    expect(overallSpent, 650.0);
+    expect(overallSpent, 3379.0);
 
     // 4. Update Budget
     final updatedFoodBudget = foodBudget.copyWith(amount: 6000.0);

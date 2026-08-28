@@ -21,6 +21,9 @@ void main() {
     );
     expect(find.byType(PocketDayApp), findsOneWidget);
 
+    // Pump to complete splash screen navigation timer
+    await tester.pump(const Duration(seconds: 3));
+
     await Hive.close();
     await tempDir.delete(recursive: true);
   });

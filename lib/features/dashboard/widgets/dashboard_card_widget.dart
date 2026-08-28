@@ -77,7 +77,7 @@ class DashboardCardWidget extends ConsumerWidget {
           ),
           const SizedBox(height: 6),
 
-          // Total Balance Amount (FittedBox prevents any text overflow)
+          // Total Balance Amount in monospaced display typography
           BalanceDisplayWidget(
             amount: balance,
             isHidden: hideBalance,
@@ -85,6 +85,7 @@ class DashboardCardWidget extends ConsumerWidget {
               fontSize: 32,
               fontWeight: FontWeight.w800,
               color: Colors.white,
+              fontFamily: 'monospace',
               letterSpacing: -0.5,
             ),
           ),
@@ -97,7 +98,7 @@ class DashboardCardWidget extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
 
-          // Metrics Container Row (Income, Expense, Remaining Budget)
+          // Two-column cash flow breakdown (Income & Expense only)
           Row(
             children: [
               Expanded(
@@ -106,29 +107,18 @@ class DashboardCardWidget extends ConsumerWidget {
                   label: AppStrings.monthlyIncome,
                   amount: income,
                   icon: Icons.arrow_downward_rounded,
-                  accentColor: const Color(0xFFA7F3D0), // Light Emerald
+                  accentColor: const Color(0xFFA7F3D0), // Desaturated green tone
                   isHidden: hideBalance,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 12),
               Expanded(
                 child: _buildMetricTile(
                   context: context,
                   label: AppStrings.monthlyExpense,
                   amount: expense,
                   icon: Icons.arrow_upward_rounded,
-                  accentColor: const Color(0xFFFCA5A5), // Light Red
-                  isHidden: hideBalance,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildMetricTile(
-                  context: context,
-                  label: AppStrings.remainingBudget,
-                  amount: budgetRemaining,
-                  icon: Icons.account_balance_wallet_rounded,
-                  accentColor: const Color(0xFFBAE6FD), // Light Blue
+                  accentColor: const Color(0xFFFCA5A5), // Desaturated red tone
                   isHidden: hideBalance,
                 ),
               ),
@@ -148,7 +138,7 @@ class DashboardCardWidget extends ConsumerWidget {
     required bool isHidden,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
       decoration: BoxDecoration(
         color: Colors.white.withAlpha(20),
         borderRadius: BorderRadius.circular(14),
@@ -160,13 +150,13 @@ class DashboardCardWidget extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 12, color: accentColor),
-              const SizedBox(width: 4),
+              Icon(icon, size: 14, color: accentColor),
+              const SizedBox(width: 6),
               Flexible(
                 child: Text(
                   label,
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: FontWeight.w500,
                     color: Colors.white.withAlpha(220),
                   ),
@@ -176,13 +166,14 @@ class DashboardCardWidget extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           BalanceDisplayWidget(
             amount: amount,
             isHidden: isHidden,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 15,
               fontWeight: FontWeight.bold,
+              fontFamily: 'monospace',
               color: accentColor,
             ),
           ),
