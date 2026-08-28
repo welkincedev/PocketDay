@@ -110,12 +110,43 @@ This document tracks the implementation progress of PocketDay features phase by 
 
 ---
 
-### Next Tasks (Phase 5: Budget Management)
+### Phase 5: Budget Management
+- **Status**: `[x] Complete`
 - **Tasks**:
-  - `[ ]` Define budget models and register Hive adapters or map adapters.
-  - `[ ]` Implement monthly budget limit setter.
-  - `[ ]` Support custom category budgets (e.g. food limit, transport limit).
-  - `[ ]` Create budget progress meters showing dynamic spent and remaining amounts.
-  - `[ ]` Connect Dashboard budget card and budget category progress widget to pull real values instead of static mocks.
-  - `[ ]` Add warning states for categories exceeding 80% and 100% of limits.
-
+  - `[x]` Define budget models and register Hive adapters or map adapters.
+  - `[x]` Implement monthly budget limit setter.
+  - `[x]` Support custom category budgets (e.g. food limit, transport limit).
+  - `[x]` Create budget progress meters showing dynamic spent and remaining amounts.
+  - `[x]` Connect Dashboard budget card and budget category progress widget to pull real values instead of static mocks.
+  - `[x]` Add warning states for categories exceeding 80% and 100% of limits.
+- **Files Changed**:
+  - `[NEW]` [budget_model.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/data/models/budget_model.dart)
+  - `[NEW]` [budget_repository.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/data/repositories/budget_repository.dart)
+  - `[NEW]` [budget_provider.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/budget/providers/budget_provider.dart)
+  - `[NEW]` [navigation_provider.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/dashboard/providers/navigation_provider.dart)
+  - `[NEW]` [add_budget_bottom_sheet.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/budget/widgets/add_budget_bottom_sheet.dart)
+  - `[NEW]` [budget_card_widget.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/budget/widgets/budget_card_widget.dart)
+  - `[NEW]` [budget_detail_bottom_sheet.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/budget/widgets/budget_detail_bottom_sheet.dart)
+  - `[NEW]` [dashboard_budget_progress_widget.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/dashboard/widgets/dashboard_budget_progress_widget.dart)
+  - `[MODIFY]` [budget_screen.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/budget/views/budget_screen.dart)
+  - `[MODIFY]` [dashboard_provider.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/dashboard/providers/dashboard_provider.dart)
+  - `[MODIFY]` [dashboard_screen.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/dashboard/views/dashboard_screen.dart)
+  - `[MODIFY]` [main_shell_screen.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/dashboard/views/main_shell_screen.dart)
+  - `[MODIFY]` [category_budget_progress_widget.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/dashboard/widgets/category_budget_progress_widget.dart)
+  - `[NEW]` [budget_test.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/test/budget_test.dart)
+  - `[MODIFY]` [transactions_test.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/test/transactions_test.dart)
+  - `[MODIFY]` [widget_test.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/test/widget_test.dart)
+- **Features Added**:
+  - Visually engaging month selector (`‹ August 2026 ›`) with simple month switching.
+  - Overall monthly budget limit configuration and category-specific budget limits (e.g. Food, Shopping, Transport).
+  - Dynamic calculations derived directly from the transaction database (Expense transactions only, Income ignored).
+  - Interactive category rows opening high-fidelity budget detail sheets showing related items.
+  - Warning States: Safe (0-69%), Warning (70-89%), Critical (90-99%), Exceeded (100%+).
+  - Home Page Integration: Compact dashboard budget progress widget showing current spending against active limit.
+- **Database Changes**:
+  - Utilizes standard `budgetBox` Hive box.
+- **Testing**:
+  - `flutter analyze`: PASS (Clean check, no warnings)
+  - `flutter test`: PASS (All smoke, transactions, and budget unit tests passed)
+- **Known Issues**:
+  - None.
