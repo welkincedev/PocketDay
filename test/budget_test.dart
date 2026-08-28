@@ -118,11 +118,14 @@ void main() {
       date: DateTime(2026, 8, 1),
     );
 
-    // Write to Hive Box directly to simulate repository sync
+    // Write to Hive Box directly to simulate repository sync in a single operation
     final txnBox = Hive.box(AppConstants.transactionsBox);
-    await txnBox.put(t1.id, t1.toMap());
-    await txnBox.put(t2.id, t2.toMap());
-    await txnBox.put(t3.id, t3.toMap());
+    await txnBox.putAll({
+      t1.id: t1.toMap(),
+      t2.id: t2.toMap(),
+      t3.id: t3.toMap(),
+    });
+
 
     // Trigger notifier reload
     await container.read(transactionsProvider.notifier).loadTransactions();

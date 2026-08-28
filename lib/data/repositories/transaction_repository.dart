@@ -90,10 +90,12 @@ class TransactionRepositoryImpl implements TransactionRepository {
       return txns..sort((a, b) => b.date.compareTo(a.date));
     }
 
-    // Seed Hive with mock data if empty
+    // Seed Hive with mock data if empty in a single batch operation to prevent race conditions
+    final Map<String, dynamic> entries = {};
     for (var txn in _mockTransactions) {
-      await box.put(txn.id, txn.toMap());
+      entries[txn.id] = txn.toMap();
     }
+    await box.putAll(entries);
     return List.from(_mockTransactions)..sort((a, b) => b.date.compareTo(a.date));
   }
 
