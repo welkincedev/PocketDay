@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:pocketday/core/constants/app_constants.dart';
+import 'package:pocketday/core/routes/app_router.dart';
 import 'package:pocketday/main.dart';
 
 void main() {
@@ -17,7 +18,7 @@ void main() {
 
     await tester.pumpWidget(
       const ProviderScope(
-        child: PocketDayApp(),
+        child: PocketDayApp(initialRoute: AppRoutes.main),
       ),
     );
     expect(find.byType(PocketDayApp), findsOneWidget);

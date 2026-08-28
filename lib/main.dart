@@ -20,7 +20,9 @@ void main() async {
 }
 
 class PocketDayApp extends ConsumerWidget {
-  const PocketDayApp({super.key});
+  final String? initialRoute;
+
+  const PocketDayApp({super.key, this.initialRoute});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,7 +34,7 @@ class PocketDayApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
-      initialRoute: AppRoutes.splash,
+      initialRoute: initialRoute ?? AppRoutes.splash,
       routes: AppRoutes.routes,
     );
   }
