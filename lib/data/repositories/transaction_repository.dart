@@ -1,5 +1,10 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/transaction_model.dart';
 import '../../core/services/hive_service.dart';
+
+final transactionRepositoryProvider = Provider<TransactionRepository>((ref) {
+  return TransactionRepositoryImpl();
+});
 
 abstract class TransactionRepository {
   Future<List<TransactionModel>> getTransactions();

@@ -7,15 +7,18 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../data/models/transaction_model.dart';
+import '../../../data/repositories/transaction_repository.dart';
 
 class AddTransactionBottomSheet extends ConsumerStatefulWidget {
   final TransactionType initialType;
-  final Function(TransactionModel) onAdd;
+  final TransactionModel? transactionToEdit;
+  final Function(TransactionModel)? onAdd;
 
   const AddTransactionBottomSheet({
     super.key,
     required this.initialType,
-    required this.onAdd,
+    this.transactionToEdit,
+    this.onAdd,
   });
 
   @override
@@ -35,9 +38,21 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
   @override
   void initState() {
     super.initState();
-    _type = widget.initialType;
-    _selectedCategoryId = _type == TransactionType.income ? 'salary' : 'food';
-    _selectedDate = DateTime.now();
+    final editTxn = widget.transactionToEdit;
+    if (editTxn != null) {
+      _type = editTxn.type;
+      _selectedCategoryId = editTxn.categoryId;
+      _selectedDate = editTxn.date;
+      _titleController.text = editTxn.title;
+      _amountController.text = editTxn.amount % 1 == 0
+          ? editTxn.amount.toInt().toString()
+          : editTxn.amount.toString();
+      _notesController.text = editTxn.notes ?? '';
+    } else {
+      _type = widget.initialType;
+      _selectedCategoryId = _type == TransactionType.income ? 'salary' : 'food';
+      _selectedDate = DateTime.now();
+    }
   }
 
   @override
@@ -70,7 +85,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
     }
   }
 
-  void _submit() {
+  void _submit() async {
     if (_formKey.currentState!.validate()) {
       final categoryMeta = AppConstants.defaultCategories.firstWhere(
         (c) => c['id'] == _selectedCategoryId,
@@ -78,7 +93,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
       );
 
       final txn = TransactionModel(
-        id: const Uuid().v4(),
+        id: widget.transactionToEdit?.id ?? const Uuid().v4(),
         title: _titleController.text.trim(),
         amount: double.parse(_amountController.text.trim()),
         type: _type,
@@ -88,8 +103,20 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
         notes: _notesController.text.trim().isNotEmpty ? _notesController.text.trim() : null,
       );
 
-      widget.onAdd(txn);
-      Navigator.pop(context);
+      final repo = ref.read(transactionRepositoryProvider);
+      if (widget.transactionToEdit != null) {
+        await repo.updateTransaction(txn);
+      } else {
+        await repo.addTransaction(txn);
+      }
+
+      if (widget.onAdd != null) {
+        widget.onAdd!(txn);
+      }
+      
+      if (mounted) {
+        Navigator.pop(context);
+      }
     }
   }
 
@@ -151,7 +178,9 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          _type == TransactionType.income ? 'Add Income' : 'Add Expense',
+                          widget.transactionToEdit != null
+                              ? (_type == TransactionType.income ? 'Edit Income' : 'Edit Expense')
+                              : (_type == TransactionType.income ? 'Add Income' : 'Add Expense'),
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -313,11 +342,20 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                     ),
                   ],
                 ),
+                const SizedBox(height: 16),
+
+                // Notes Input (Optional)
+                AppTextField(
+                  label: 'Notes (Optional)',
+                  hint: 'Add additional details...',
+                  controller: _notesController,
+                  maxLines: 2,
+                ),
                 const SizedBox(height: 24),
 
                 // Save Transaction Button
                 AppButton(
-                  text: 'Save Transaction',
+                  text: widget.transactionToEdit != null ? 'Save Changes' : 'Save Transaction',
                   onPressed: _submit,
                 ),
               ],

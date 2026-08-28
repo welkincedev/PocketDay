@@ -1,10 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import '../../../core/services/hive_service.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../data/repositories/transaction_repository.dart';
 
-final transactionRepositoryProvider = Provider<TransactionRepository>((ref) {
-  return TransactionRepositoryImpl();
-});
 
 class DashboardState {
   final double totalIncome;
@@ -55,6 +54,17 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
   DashboardNotifier(this._repo) : super(DashboardState()) {
     loadDashboardData();
+    HiveService.transactionsBox.listenable().addListener(_onTransactionsChanged);
+  }
+
+  void _onTransactionsChanged() {
+    loadDashboardData();
+  }
+
+  @override
+  void dispose() {
+    HiveService.transactionsBox.listenable().removeListener(_onTransactionsChanged);
+    super.dispose();
   }
 
   Future<void> loadDashboardData() async {
@@ -89,6 +99,5 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
   Future<void> addTransaction(TransactionModel txn) async {
     await _repo.addTransaction(txn);
-    await loadDashboardData();
   }
 }
