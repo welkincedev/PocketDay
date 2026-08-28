@@ -10,6 +10,7 @@ import '../widgets/add_transaction_bottom_sheet.dart';
 import '../widgets/category_budget_progress_widget.dart';
 import '../widgets/dashboard_card_widget.dart';
 import '../widgets/dashboard_budget_progress_widget.dart';
+import '../widgets/dashboard_savings_summary_widget.dart';
 import '../widgets/quick_actions_widget.dart';
 import '../widgets/spending_chart_widget.dart';
 
@@ -107,8 +108,9 @@ class DashboardScreen extends ConsumerWidget {
                     budgetRemaining: dashboardState.remainingBudget,
                   ),
                 ],
-                const SizedBox(height: 20),
                 const DashboardBudgetProgressWidget(),
+                const SizedBox(height: 20),
+                const DashboardSavingsSummaryWidget(),
                 const SizedBox(height: 20),
 
                 // Quick Actions Bar

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../budget/views/budget_screen.dart';
-import '../../goals/views/goals_screen.dart';
+import '../../goals/views/savings_goals_screen.dart';
 import '../../profile/views/profile_screen.dart';
 import '../../transactions/views/transactions_screen.dart';
 import '../providers/navigation_provider.dart';
@@ -15,7 +15,7 @@ class MainShellScreen extends ConsumerWidget {
     DashboardScreen(),
     TransactionsScreen(),
     BudgetScreen(),
-    GoalsScreen(),
+    SavingsGoalsScreen(),
     ProfileScreen(),
   ];
 
