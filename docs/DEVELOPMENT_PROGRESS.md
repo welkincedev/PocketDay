@@ -150,3 +150,43 @@ This document tracks the implementation progress of PocketDay features phase by 
   - `flutter test`: PASS (All smoke, transactions, and budget unit tests passed)
 - **Known Issues**:
   - None.
+
+---
+
+### Phase 6: Savings Goals
+- **Status**: `[x] Complete`
+- **Tasks**:
+  - `[x]` Define savings goal model with target amounts, emojis, and optional dates.
+  - `[x]` Implement Hive storage in standard `goalsBox`.
+  - `[x]` Create SavingsGoalRepository interface and implementation.
+  - `[x]` Create Riverpod SavingsGoalsNotifier state manager.
+  - `[x]` Build mobile, tablet, and desktop responsive savings goals overview screen.
+  - `[x]` Implement Goal Card, Goal Creation sheet, Add Savings sheet, and Goal Detail sheet.
+  - `[x]` Integrate compact savings summary card on Dashboard linking to Savings Goals tab.
+- **Files Changed**:
+  - `[NEW]` [savings_goal_model.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/data/models/savings_goal_model.dart)
+  - `[NEW]` [savings_goal_repository.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/data/repositories/savings_goal_repository.dart)
+  - `[NEW]` [savings_goals_provider.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/goals/providers/savings_goals_provider.dart)
+  - `[NEW]` [savings_goals_screen.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/goals/views/savings_goals_screen.dart)
+  - `[NEW]` [add_savings_bottom_sheet.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/goals/widgets/add_savings_bottom_sheet.dart)
+  - `[NEW]` [add_savings_goal_bottom_sheet.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/goals/widgets/add_savings_goal_bottom_sheet.dart)
+  - `[NEW]` [savings_goal_card.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/goals/widgets/savings_goal_card.dart)
+  - `[NEW]` [savings_goal_detail_bottom_sheet.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/goals/widgets/savings_goal_detail_bottom_sheet.dart)
+  - `[NEW]` [dashboard_savings_summary_widget.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/dashboard/widgets/dashboard_savings_summary_widget.dart)
+  - `[DELETE]` [goals_screen.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/goals/views/goals_screen.dart)
+  - `[MODIFY]` [main_shell_screen.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/dashboard/views/main_shell_screen.dart)
+  - `[MODIFY]` [dashboard_screen.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/dashboard/views/dashboard_screen.dart)
+  - `[NEW]` [savings_goal_test.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/test/savings_goal_test.dart)
+  - `[MODIFY]` [widget_test.dart](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/test/widget_test.dart)
+- **Features Added**:
+  - Distinct active and completed goal grouping with subdue styling for reached targets.
+  - Quick action sheets allowing users to allocate money toward selected goals with over-budget confirmation alerts.
+  - Smart date indicators computing days remaining and monthly contribution targets (e.g. `₹5,500/month needed`).
+  - Home Page Integration: Compact dashboard summary showing overall progress across all goals.
+- **Database Changes**:
+  - Uses standard `goalsBox` Hive box.
+- **Testing**:
+  - `flutter analyze`: PASS (Clean check, no warnings)
+  - `flutter test`: PASS (All smoke, transactions, budget, and savings goal unit tests passed)
+- **Known Issues**:
+  - None.
