@@ -5,12 +5,7 @@ import '../../../core/services/hive_service.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../data/repositories/transaction_repository.dart';
 
-enum TransactionSortBy {
-  dateDesc,
-  dateAsc,
-  amountDesc,
-  amountAsc,
-}
+enum TransactionSortBy { dateDesc, dateAsc, amountDesc, amountAsc }
 
 class TransactionsState {
   final List<TransactionModel> transactions;
@@ -64,17 +59,20 @@ class TransactionsState {
   }
 }
 
-final transactionsProvider = StateNotifierProvider<TransactionsNotifier, TransactionsState>((ref) {
-  final repo = ref.watch(transactionRepositoryProvider);
-  return TransactionsNotifier(repo);
-});
+final transactionsProvider =
+    StateNotifierProvider<TransactionsNotifier, TransactionsState>((ref) {
+      final repo = ref.watch(transactionRepositoryProvider);
+      return TransactionsNotifier(repo);
+    });
 
 class TransactionsNotifier extends StateNotifier<TransactionsState> {
   final TransactionRepository _repo;
 
   TransactionsNotifier(this._repo) : super(TransactionsState()) {
     loadTransactions();
-    HiveService.transactionsBox.listenable().addListener(_onTransactionsChanged);
+    HiveService.transactionsBox.listenable().addListener(
+      _onTransactionsChanged,
+    );
   }
 
   void _onTransactionsChanged() {
@@ -83,7 +81,9 @@ class TransactionsNotifier extends StateNotifier<TransactionsState> {
 
   @override
   void dispose() {
-    HiveService.transactionsBox.listenable().removeListener(_onTransactionsChanged);
+    HiveService.transactionsBox.listenable().removeListener(
+      _onTransactionsChanged,
+    );
     super.dispose();
   }
 
@@ -91,16 +91,10 @@ class TransactionsNotifier extends StateNotifier<TransactionsState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final txns = await _repo.getTransactions();
-      state = state.copyWith(
-        transactions: txns,
-        isLoading: false,
-      );
+      state = state.copyWith(transactions: txns, isLoading: false);
       _applyFilters();
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
@@ -256,7 +250,9 @@ class TransactionsNotifier extends StateNotifier<TransactionsState> {
 
     // 2. Category
     if (state.selectedCategoryId != null) {
-      list = list.where((t) => t.categoryId == state.selectedCategoryId).toList();
+      list = list
+          .where((t) => t.categoryId == state.selectedCategoryId)
+          .toList();
     }
 
     // 3. Type (Income/Expense)
@@ -267,9 +263,23 @@ class TransactionsNotifier extends StateNotifier<TransactionsState> {
     // 4. Date Range
     if (state.selectedDateRange != null) {
       final range = state.selectedDateRange!;
-      final start = DateTime(range.start.year, range.start.month, range.start.day);
-      final end = DateTime(range.end.year, range.end.month, range.end.day, 23, 59, 59, 999);
-      list = list.where((t) => !t.date.isBefore(start) && !t.date.isAfter(end)).toList();
+      final start = DateTime(
+        range.start.year,
+        range.start.month,
+        range.start.day,
+      );
+      final end = DateTime(
+        range.end.year,
+        range.end.month,
+        range.end.day,
+        23,
+        59,
+        59,
+        999,
+      );
+      list = list
+          .where((t) => !t.date.isBefore(start) && !t.date.isAfter(end))
+          .toList();
     }
 
     // 5. Sorting

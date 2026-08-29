@@ -16,10 +16,7 @@ import 'add_budget_bottom_sheet.dart';
 class BudgetDetailBottomSheet extends ConsumerWidget {
   final BudgetModel budget;
 
-  const BudgetDetailBottomSheet({
-    super.key,
-    required this.budget,
-  });
+  const BudgetDetailBottomSheet({super.key, required this.budget});
 
   void _openEditSheet(BuildContext context, DateTime selectedMonth) {
     Navigator.pop(context); // Close details
@@ -27,10 +24,8 @@ class BudgetDetailBottomSheet extends ConsumerWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => AddBudgetBottomSheet(
-        month: selectedMonth,
-        budgetToEdit: budget,
-      ),
+      builder: (context) =>
+          AddBudgetBottomSheet(month: selectedMonth, budgetToEdit: budget),
     );
   }
 
@@ -40,18 +35,26 @@ class BudgetDetailBottomSheet extends ConsumerWidget {
       builder: (ctx) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
         return AlertDialog(
-          backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+          backgroundColor: isDark
+              ? AppColors.darkSurface
+              : AppColors.lightSurface,
           title: Text(
-            budget.categoryId == null ? 'Delete Overall Budget?' : 'Delete Category Budget?',
+            budget.categoryId == null
+                ? 'Delete Overall Budget?'
+                : 'Delete Category Budget?',
             style: TextStyle(
-              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+              color: isDark
+                  ? AppColors.darkTextPrimary
+                  : AppColors.lightTextPrimary,
               fontWeight: FontWeight.bold,
             ),
           ),
           content: Text(
             'Are you sure you want to delete this budget? Your transaction history will not be deleted.',
             style: TextStyle(
-              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+              color: isDark
+                  ? AppColors.darkTextSecondary
+                  : AppColors.lightTextSecondary,
             ),
           ),
           actions: [
@@ -94,12 +97,22 @@ class BudgetDetailBottomSheet extends ConsumerWidget {
         ? null
         : AppConstants.defaultCategories.firstWhere(
             (c) => c['id'] == budget.categoryId,
-            orElse: () => {'name': 'Other', 'icon': Icons.category_rounded, 'color': AppColors.primary},
+            orElse: () => {
+              'name': 'Other',
+              'icon': Icons.category_rounded,
+              'color': AppColors.primary,
+            },
           );
 
-    final title = isOverall ? 'Overall Monthly Budget' : (budget.categoryName ?? categoryMeta?['name'] as String);
-    final icon = isOverall ? Icons.all_inclusive_rounded : (categoryMeta?['icon'] as IconData);
-    final color = isOverall ? AppColors.primary : (categoryMeta?['color'] as Color);
+    final title = isOverall
+        ? 'Overall Monthly Budget'
+        : (budget.categoryName ?? categoryMeta?['name'] as String);
+    final icon = isOverall
+        ? Icons.all_inclusive_rounded
+        : (categoryMeta?['icon'] as IconData);
+    final color = isOverall
+        ? AppColors.primary
+        : (categoryMeta?['color'] as Color);
 
     // Filter transactions for this month & category scope
     final expenses = txnsState.transactions.where((t) {
@@ -115,13 +128,16 @@ class BudgetDetailBottomSheet extends ConsumerWidget {
     String statusText;
     if (percent >= 1.0) {
       statusColor = AppColors.expense;
-      statusText = 'Budget exceeded by ${CurrencyFormatter.format(spent - budget.amount)}';
+      statusText =
+          'Budget exceeded by ${CurrencyFormatter.format(spent - budget.amount)}';
     } else if (percent >= 0.90) {
       statusColor = Colors.orange;
-      statusText = 'Almost used up • ${CurrencyFormatter.format(remaining)} left';
+      statusText =
+          'Almost used up • ${CurrencyFormatter.format(remaining)} left';
     } else if (percent >= 0.70) {
       statusColor = Colors.amber;
-      statusText = 'Getting close • ${CurrencyFormatter.format(remaining)} left';
+      statusText =
+          'Getting close • ${CurrencyFormatter.format(remaining)} left';
     } else {
       statusColor = AppColors.primary;
       statusText = 'On track • ${CurrencyFormatter.format(remaining)} left';
@@ -176,16 +192,20 @@ class BudgetDetailBottomSheet extends ConsumerWidget {
                     Text(
                       title,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                          ),
+                        fontWeight: FontWeight.bold,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'Budget Scope for ${DateFormat('MMMM yyyy').format(budgetState.selectedMonth)}',
                       style: TextStyle(
                         fontSize: 12,
-                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
                       ),
                     ),
                   ],
@@ -258,14 +278,13 @@ class BudgetDetailBottomSheet extends ConsumerWidget {
                     children: [
                       Container(
                         height: 6,
-                        color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                        color: isDark
+                            ? AppColors.darkBorder
+                            : AppColors.lightBorder,
                       ),
                       FractionallySizedBox(
                         widthFactor: percent.clamp(0.0, 1.0),
-                        child: Container(
-                          height: 6,
-                          color: statusColor,
-                        ),
+                        child: Container(height: 6, color: statusColor),
                       ),
                     ],
                   ),
@@ -280,12 +299,15 @@ class BudgetDetailBottomSheet extends ConsumerWidget {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () => _openEditSheet(context, budgetState.selectedMonth),
+                  onPressed: () =>
+                      _openEditSheet(context, budgetState.selectedMonth),
                   icon: const Icon(Icons.edit_rounded, size: 18),
                   label: const Text('Edit Budget'),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ),
@@ -293,12 +315,21 @@ class BudgetDetailBottomSheet extends ConsumerWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () => _confirmDelete(context, ref),
-                  icon: const Icon(Icons.delete_forever_rounded, size: 18, color: AppColors.expense),
-                  label: const Text('Delete', style: TextStyle(color: AppColors.expense)),
+                  icon: const Icon(
+                    Icons.delete_forever_rounded,
+                    size: 18,
+                    color: AppColors.expense,
+                  ),
+                  label: const Text(
+                    'Delete',
+                    style: TextStyle(color: AppColors.expense),
+                  ),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     side: const BorderSide(color: AppColors.expense),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ),
@@ -310,9 +341,11 @@ class BudgetDetailBottomSheet extends ConsumerWidget {
           Text(
             'Related Expenses (${expenses.length})',
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                ),
+              fontWeight: FontWeight.bold,
+              color: isDark
+                  ? AppColors.darkTextPrimary
+                  : AppColors.lightTextPrimary,
+            ),
           ),
           const SizedBox(height: 10),
 
@@ -326,7 +359,9 @@ class BudgetDetailBottomSheet extends ConsumerWidget {
                         'No spending transactions this month.',
                         style: TextStyle(
                           fontSize: 13,
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
                         ),
                       ),
                     ),
@@ -368,16 +403,22 @@ class BudgetDetailBottomSheet extends ConsumerWidget {
             label,
             style: TextStyle(
               fontSize: 11,
-              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+              color: isDark
+                  ? AppColors.darkTextSecondary
+                  : AppColors.lightTextSecondary,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             value,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: valueColor ?? (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
-                ),
+              fontWeight: FontWeight.bold,
+              color:
+                  valueColor ??
+                  (isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary),
+            ),
           ),
         ],
       ),

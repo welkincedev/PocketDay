@@ -10,7 +10,8 @@ class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
 
   @override
-  ConsumerState<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+  ConsumerState<ForgotPasswordScreen> createState() =>
+      _ForgotPasswordScreenState();
 }
 
 class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
@@ -28,7 +29,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   void _handleReset() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
-      await ref.read(authProvider.notifier).sendPasswordReset(_emailController.text.trim());
+      await ref
+          .read(authProvider.notifier)
+          .sendPasswordReset(_emailController.text.trim());
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -73,14 +76,18 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                   ),
                   child: const Row(
                     children: [
-                      Icon(Icons.check_circle_rounded, color: AppColors.primary),
+                      Icon(
+                        Icons.check_circle_rounded,
+                        color: AppColors.primary,
+                      ),
                       SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           'Password reset email sent! Check your inbox.',
                           style: TextStyle(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w600),
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
@@ -101,7 +108,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                     prefixIcon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
                     validator: (val) {
-                      if (val == null || val.isEmpty) return 'Email is required';
+                      if (val == null || val.isEmpty) {
+                        return 'Email is required';
+                      }
                       if (!val.contains('@')) return 'Enter a valid email';
                       return null;
                     },
@@ -113,7 +122,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                   isLoading: _isLoading,
                   onPressed: _handleReset,
                 ),
-              ]
+              ],
             ],
           ),
         ),

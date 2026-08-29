@@ -5,6 +5,15 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../data/models/goal_model.dart';
 
+/// A card representing a single Goal in the Goals list.
+///
+/// Displays the goal emoji, name, optional target-date countdown,
+/// progress bar, and key financial metrics in a layout that is safe
+/// on screens as narrow as 360 px.
+///
+/// All monetary values are derived from [currentAmount], which is
+/// calculated by [GoalsProvider] from linked transactions — this widget
+/// only renders, never computes.
 class GoalCard extends StatelessWidget {
   final GoalModel goal;
   final double currentAmount;
@@ -29,19 +38,20 @@ class GoalCard extends StatelessWidget {
         ? AppColors.primary
         : (progressVal >= 0.8 ? Colors.orange : AppColors.primary);
 
+    // Build date line
     String? dateText;
     if (goal.targetDate != null) {
       final now = DateTime.now();
       final difference = goal.targetDate!.difference(now);
+      final monthLabel = DateFormat('MMM yyyy').format(goal.targetDate!);
       if (difference.isNegative) {
-        dateText = 'Target passed';
+        dateText = '$monthLabel · past due';
       } else {
         final months = (difference.inDays / 30).round();
-        if (months <= 0) {
-          dateText = '${difference.inDays} days left';
-        } else {
-          dateText = '$months months left';
-        }
+        final timeLeft = months <= 0
+            ? '${difference.inDays}d left'
+            : '${months}mo left';
+        dateText = '$monthLabel · $timeLeft';
       }
     }
 
@@ -49,49 +59,48 @@ class GoalCard extends StatelessWidget {
       onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
+          // ─── Title Row ─────────────────────────────────────────────────
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Emoji Icon
+              // Emoji icon
               Container(
-                width: 48,
-                height: 48,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
                   color: stateColor.withAlpha(20),
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: stateColor.withAlpha(40),
-                    width: 1,
-                  ),
                 ),
                 alignment: Alignment.center,
-                child: Text(
-                  goal.emoji,
-                  style: const TextStyle(fontSize: 22),
-                ),
+                child: Text(goal.emoji, style: const TextStyle(fontSize: 20)),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 12),
 
-              // Goal name and target date
+              // Name + date
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       goal.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     if (dateText != null) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Text(
-                        'Target: ${DateFormat('MMM yyyy').format(goal.targetDate!)} • $dateText',
+                        dateText,
                         style: TextStyle(
-                          fontSize: 12,
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                          fontSize: 11,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -101,14 +110,16 @@ class GoalCard extends StatelessWidget {
                 ),
               ),
 
-              // Percentage status
+              // Percentage badge
+              const SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     '${percentVal.toStringAsFixed(0)}%',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 15,
                       fontWeight: FontWeight.w800,
                       fontFamily: 'monospace',
                       color: stateColor,
@@ -118,10 +129,14 @@ class GoalCard extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.check_circle_rounded, size: 12, color: stateColor),
+                        Icon(
+                          Icons.check_circle_rounded,
+                          size: 11,
+                          color: stateColor,
+                        ),
                         const SizedBox(width: 2),
                         Text(
-                          'Reached',
+                          'Done',
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
@@ -134,46 +149,80 @@ class GoalCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
 
-          // Progress indicator
+          // ─── Progress Bar ───────────────────────────────────────────────
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: SizedBox(
-              height: 6,
+              height: 5,
               child: LinearProgressIndicator(
                 value: progressVal,
-                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest,
                 valueColor: AlwaysStoppedAnimation<Color>(stateColor),
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
-          // Bottom metrics
+          // ─── Amounts (stacked, not side-by-side) ───────────────────────
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '${CurrencyFormatter.format(currentAmount)} of ${CurrencyFormatter.format(goal.targetAmount)}',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      CurrencyFormatter.format(currentAmount),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'monospace',
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      'of ${CurrencyFormatter.format(goal.targetAmount)}',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
               ),
-              Text(
-                isCompleted
-                    ? 'Goal achieved!'
-                    : '${CurrencyFormatter.format(remainingAmount)} remaining',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: isCompleted
-                      ? stateColor
-                      : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary),
+              if (!isCompleted)
+                Text(
+                  '${CurrencyFormatter.format(remainingAmount)} left',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.lightTextSecondary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                )
+              else
+                Text(
+                  'Goal achieved!',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: stateColor,
+                  ),
                 ),
-              ),
             ],
           ),
         ],

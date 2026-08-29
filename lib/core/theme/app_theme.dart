@@ -68,7 +68,10 @@ class AppTheme {
         backgroundColor: AppColors.lightBackground,
         elevation: 0,
         centerTitle: false,
-        iconTheme: const IconThemeData(color: AppColors.lightTextPrimary, size: 20),
+        iconTheme: const IconThemeData(
+          color: AppColors.lightTextPrimary,
+          size: 20,
+        ),
         titleTextStyle: GoogleFonts.outfit(
           fontSize: 24,
           fontWeight: FontWeight.bold,
@@ -93,7 +96,10 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.lightSurface,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.lightBorder),
@@ -110,7 +116,10 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.expense),
         ),
-        hintStyle: GoogleFonts.inter(color: AppColors.lightTextSecondary, fontSize: 14),
+        hintStyle: GoogleFonts.inter(
+          color: AppColors.lightTextSecondary,
+          fontSize: 14,
+        ),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.lightSurface,
@@ -118,15 +127,26 @@ class AppTheme {
         elevation: 2,
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primaryDark);
+            return GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primaryDark,
+            );
           }
-          return GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.normal, color: AppColors.lightTextSecondary);
+          return GoogleFonts.inter(
+            fontSize: 10,
+            fontWeight: FontWeight.normal,
+            color: AppColors.lightTextSecondary,
+          );
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return const IconThemeData(color: AppColors.primaryDark, size: 22);
           }
-          return const IconThemeData(color: AppColors.lightTextSecondary, size: 22);
+          return const IconThemeData(
+            color: AppColors.lightTextSecondary,
+            size: 22,
+          );
         }),
       ),
     );
@@ -197,7 +217,10 @@ class AppTheme {
         backgroundColor: AppColors.darkBackground,
         elevation: 0,
         centerTitle: false,
-        iconTheme: const IconThemeData(color: AppColors.darkTextPrimary, size: 20),
+        iconTheme: const IconThemeData(
+          color: AppColors.darkTextPrimary,
+          size: 20,
+        ),
         titleTextStyle: GoogleFonts.outfit(
           fontSize: 24,
           fontWeight: FontWeight.bold,
@@ -222,7 +245,10 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.darkSurface,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.darkBorder),
@@ -239,7 +265,10 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.expense),
         ),
-        hintStyle: GoogleFonts.inter(color: AppColors.darkTextSecondary, fontSize: 14),
+        hintStyle: GoogleFonts.inter(
+          color: AppColors.darkTextSecondary,
+          fontSize: 14,
+        ),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.darkSurface,
@@ -247,15 +276,26 @@ class AppTheme {
         elevation: 2,
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primary);
+            return GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
+            );
           }
-          return GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.normal, color: AppColors.darkTextSecondary);
+          return GoogleFonts.inter(
+            fontSize: 10,
+            fontWeight: FontWeight.normal,
+            color: AppColors.darkTextSecondary,
+          );
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return const IconThemeData(color: AppColors.primary, size: 22);
           }
-          return const IconThemeData(color: AppColors.darkTextSecondary, size: 22);
+          return const IconThemeData(
+            color: AppColors.darkTextSecondary,
+            size: 22,
+          );
         }),
       ),
     );

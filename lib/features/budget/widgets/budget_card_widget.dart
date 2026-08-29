@@ -32,7 +32,7 @@ class BudgetCardWidget extends StatelessWidget {
     // Determine status & styling
     Color statusColor;
     String statusText;
-    
+
     if (percent >= 1.0) {
       statusColor = AppColors.expense;
       statusText = budgetAmount > 0
@@ -40,13 +40,16 @@ class BudgetCardWidget extends StatelessWidget {
           : 'Budget is ₹0';
     } else if (percent >= 0.90) {
       statusColor = Colors.orange;
-      statusText = 'Almost used up • ${CurrencyFormatter.format(remaining)} remaining';
+      statusText =
+          'Almost used up • ${CurrencyFormatter.format(remaining)} remaining';
     } else if (percent >= 0.70) {
       statusColor = Colors.amber;
-      statusText = 'Getting close • ${CurrencyFormatter.format(remaining)} remaining';
+      statusText =
+          'Getting close • ${CurrencyFormatter.format(remaining)} remaining';
     } else {
       statusColor = AppColors.primary;
-      statusText = 'On track • ${CurrencyFormatter.format(remaining)} remaining';
+      statusText =
+          'On track • ${CurrencyFormatter.format(remaining)} remaining';
     }
 
     // Cap visual progress at 100%
@@ -67,11 +70,7 @@ class BudgetCardWidget extends StatelessWidget {
                     color: (iconColor ?? statusColor).withAlpha(30),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    icon,
-                    size: 18,
-                    color: iconColor ?? statusColor,
-                  ),
+                  child: Icon(icon, size: 18, color: iconColor ?? statusColor),
                 ),
                 const SizedBox(width: 12),
               ],
@@ -79,14 +78,19 @@ class BudgetCardWidget extends StatelessWidget {
                 child: Text(
                   title,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                      ),
+                    fontWeight: FontWeight.bold,
+                    color: isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.lightTextPrimary,
+                  ),
                 ),
               ),
               if (percent >= 1.0)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.expense.withAlpha(30),
                     borderRadius: BorderRadius.circular(8),
@@ -102,7 +106,10 @@ class BudgetCardWidget extends StatelessWidget {
                 )
               else if (percent >= 0.90)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.orange.withAlpha(30),
                     borderRadius: BorderRadius.circular(8),
@@ -133,16 +140,20 @@ class BudgetCardWidget extends StatelessWidget {
                     'Budget Limit',
                     style: TextStyle(
                       fontSize: 12,
-                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     CurrencyFormatter.format(budgetAmount),
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: isDark
+                          ? AppColors.darkTextPrimary
+                          : AppColors.lightTextPrimary,
+                    ),
                   ),
                 ],
               ),
@@ -153,18 +164,22 @@ class BudgetCardWidget extends StatelessWidget {
                     'Spent',
                     style: TextStyle(
                       fontSize: 12,
-                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     CurrencyFormatter.format(spentAmount),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: percent >= 1.0
-                              ? AppColors.expense
-                              : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: percent >= 1.0
+                          ? AppColors.expense
+                          : (isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.lightTextPrimary),
+                    ),
                   ),
                 ],
               ),
@@ -207,7 +222,9 @@ class BudgetCardWidget extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                   color: percent >= 1.0
                       ? AppColors.expense
-                      : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary),
+                      : (isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary),
                 ),
               ),
               Text(

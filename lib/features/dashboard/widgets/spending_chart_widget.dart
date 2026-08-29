@@ -26,7 +26,9 @@ class SpendingChartWidget extends ConsumerWidget {
 
     final limit = dashboardState.monthlyBudget;
     final spent = dashboardState.currentMonthExpense;
-    final budgetUsedPercentage = limit > 0 ? ((spent / limit) * 100).round() : 0;
+    final budgetUsedPercentage = limit > 0
+        ? ((spent / limit) * 100).round()
+        : 0;
 
     final categorySpending = budgetState.categorySpending;
     // We only care about category keys (strings, excluding null which is overall spending)
@@ -51,9 +53,7 @@ class SpendingChartWidget extends ConsumerWidget {
         final amount = entry.value;
         final categoryMeta = AppConstants.defaultCategories.firstWhere(
           (cat) => cat['id'] == categoryId,
-          orElse: () => {
-            'color': AppColors.primary,
-          },
+          orElse: () => {'color': AppColors.primary},
         );
         final color = categoryMeta['color'] as Color;
 
@@ -77,11 +77,14 @@ class SpendingChartWidget extends ConsumerWidget {
             children: [
               Text(
                 'Spending Analytics',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
-              const Icon(Icons.pie_chart_outline_rounded, color: AppColors.primary),
+              const Icon(
+                Icons.pie_chart_outline_rounded,
+                color: AppColors.primary,
+              ),
             ],
           ),
           const SizedBox(height: 20),
@@ -96,7 +99,8 @@ class SpendingChartWidget extends ConsumerWidget {
                   PieChart(
                     PieChartData(
                       sectionsSpace: 4,
-                      centerSpaceRadius: 52, // Expanded inner radius to make room for indicator
+                      centerSpaceRadius:
+                          52, // Expanded inner radius to make room for indicator
                       sections: sections,
                     ),
                   ),
@@ -110,7 +114,9 @@ class SpendingChartWidget extends ConsumerWidget {
                             fontSize: 26,
                             fontWeight: FontWeight.w800,
                             fontFamily: 'monospace',
-                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                            color: isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.lightTextPrimary,
                           ),
                         ),
                         Text(
@@ -118,7 +124,9 @@ class SpendingChartWidget extends ConsumerWidget {
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
-                            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
                           ),
                         ),
                       ],
@@ -140,7 +148,9 @@ class SpendingChartWidget extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: 12,
                       fontStyle: FontStyle.italic,
-                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
                     ),
                   )
                 : Wrap(
@@ -150,14 +160,15 @@ class SpendingChartWidget extends ConsumerWidget {
                     children: activeCategories.map((entry) {
                       final categoryId = entry.key!;
                       final amount = entry.value;
-                      final categoryMeta = AppConstants.defaultCategories.firstWhere(
-                        (cat) => cat['id'] == categoryId,
-                        orElse: () => {
-                          'name': categoryId,
-                          'icon': Icons.category_rounded,
-                          'color': AppColors.primary,
-                        },
-                      );
+                      final categoryMeta = AppConstants.defaultCategories
+                          .firstWhere(
+                            (cat) => cat['id'] == categoryId,
+                            orElse: () => {
+                              'name': categoryId,
+                              'icon': Icons.category_rounded,
+                              'color': AppColors.primary,
+                            },
+                          );
                       final name = categoryMeta['name'] as String;
                       final color = categoryMeta['color'] as Color;
 
@@ -178,7 +189,9 @@ class SpendingChartWidget extends ConsumerWidget {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                              color: isDark
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.lightTextSecondary,
                             ),
                           ),
                           Text(
@@ -187,7 +200,9 @@ class SpendingChartWidget extends ConsumerWidget {
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                               fontFamily: 'monospace',
-                              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                              color: isDark
+                                  ? AppColors.darkTextPrimary
+                                  : AppColors.lightTextPrimary,
                             ),
                           ),
                         ],

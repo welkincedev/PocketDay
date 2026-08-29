@@ -23,7 +23,18 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
   DateTime? _selectedDate;
   late String _selectedEmoji;
 
-  final List<String> _emojiPresets = ['🎯', '💰', '📱', '✈️', '🏠', '🚗', '🎓', '🛟', '🎁', '🏖️'];
+  final List<String> _emojiPresets = [
+    '🎯',
+    '💰',
+    '📱',
+    '✈️',
+    '🏠',
+    '🚗',
+    '🎓',
+    '🛟',
+    '🎁',
+    '🏖️',
+  ];
 
   @override
   void initState() {
@@ -120,7 +131,9 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -128,7 +141,9 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
               const SizedBox(height: 16),
               Text(
                 'Edit Goal',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
 
@@ -137,7 +152,9 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
                 label: 'Goal name',
                 hint: 'e.g. Trip to Goa',
                 validator: (val) {
-                  if (val == null || val.trim().isEmpty) return 'Goal name is required';
+                  if (val == null || val.trim().isEmpty) {
+                    return 'Goal name is required';
+                  }
                   if (val.trim().length > 30) return 'Too long (max 30 chars)';
                   return null;
                 },
@@ -148,12 +165,18 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
                 controller: _amountController,
                 label: 'Target amount',
                 hint: 'Enter target amount (₹)',
-                keyboardType: const TextInputType.numberWithOptions(decimal: false),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: false,
+                ),
                 prefixIcon: Icons.currency_rupee_rounded,
                 validator: (val) {
-                  if (val == null || val.trim().isEmpty) return 'Target amount is required';
+                  if (val == null || val.trim().isEmpty) {
+                    return 'Target amount is required';
+                  }
                   final numVal = double.tryParse(val.trim());
-                  if (numVal == null || numVal <= 0) return 'Enter a valid positive amount';
+                  if (numVal == null || numVal <= 0) {
+                    return 'Enter a valid positive amount';
+                  }
                   return null;
                 },
               ),
@@ -165,7 +188,9 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
                 ),
               ),
               const SizedBox(height: 8),
@@ -187,17 +212,24 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
                         decoration: BoxDecoration(
                           color: isSelected
                               ? AppColors.primary.withAlpha(40)
-                              : (isDark ? AppColors.darkCard : AppColors.lightCard),
+                              : (isDark
+                                    ? AppColors.darkCard
+                                    : AppColors.lightCard),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: isSelected
                                 ? AppColors.primary
-                                : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                                : (isDark
+                                      ? AppColors.darkBorder
+                                      : AppColors.lightBorder),
                             width: isSelected ? 2 : 1,
                           ),
                         ),
                         alignment: Alignment.center,
-                        child: Text(emoji, style: const TextStyle(fontSize: 20)),
+                        child: Text(
+                          emoji,
+                          style: const TextStyle(fontSize: 20),
+                        ),
                       ),
                     );
                   },
@@ -211,7 +243,9 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
                 ),
               ),
               const SizedBox(height: 8),
@@ -219,30 +253,45 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
                 onTap: _pickDate,
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   decoration: BoxDecoration(
                     color: isDark ? AppColors.darkCard : AppColors.lightCard,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                    border: Border.all(
+                      color: isDark
+                          ? AppColors.darkBorder
+                          : AppColors.lightBorder,
+                    ),
                   ),
                   child: Row(
                     children: [
                       Icon(
                         Icons.calendar_today_rounded,
                         size: 18,
-                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           _selectedDate != null
-                              ? DateFormat('MMMM dd, yyyy').format(_selectedDate!)
+                              ? DateFormat(
+                                  'MMMM dd, yyyy',
+                                ).format(_selectedDate!)
                               : 'No target date selected',
                           style: TextStyle(
                             fontSize: 14,
                             color: _selectedDate != null
-                                ? (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary)
-                                : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary),
+                                ? (isDark
+                                      ? AppColors.darkTextPrimary
+                                      : AppColors.lightTextPrimary)
+                                : (isDark
+                                      ? AppColors.darkTextSecondary
+                                      : AppColors.lightTextSecondary),
                           ),
                         ),
                       ),

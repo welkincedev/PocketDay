@@ -40,18 +40,19 @@ class BudgetScreen extends ConsumerWidget {
 
     BudgetModel? overallBudget;
     try {
-      overallBudget = state.currentBudgets.firstWhere((b) => b.categoryId == null);
+      overallBudget = state.currentBudgets.firstWhere(
+        (b) => b.categoryId == null,
+      );
     } catch (_) {
       overallBudget = null;
     }
 
-    final categoryBudgets = state.currentBudgets.where((b) => b.categoryId != null).toList();
+    final categoryBudgets = state.currentBudgets
+        .where((b) => b.categoryId != null)
+        .toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Budgets'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('Budgets'), elevation: 0),
       body: Column(
         children: [
           // Persistent Month Selector
@@ -61,57 +62,70 @@ class BudgetScreen extends ConsumerWidget {
             child: state.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : state.currentBudgets.isEmpty
-                    ? _buildEmptyState(context, state.selectedMonth)
-                    : ListView(
-                        padding: const EdgeInsets.all(16),
-                        physics: const BouncingScrollPhysics(),
-                        children: [
-                          // 1. Overall Budget Summary Card
-                          if (overallBudget != null) ...[
-                            _buildSectionHeader(context, 'Monthly Summary', isDark),
-                            BudgetCardWidget(
-                              title: 'Overall Limit',
-                              budgetAmount: overallBudget.amount,
-                              spentAmount: state.categorySpending[null] ?? 0.0,
-                              icon: Icons.all_inclusive_rounded,
-                              iconColor: AppColors.primary,
-                              onTap: () => _showDetailBottomSheet(context, overallBudget!),
-                            ),
-                            const SizedBox(height: 24),
-                          ] else ...[
-                            _buildSectionHeader(context, 'Monthly Summary', isDark),
-                            _buildAddOverallPrompt(context, state.selectedMonth, isDark),
-                            const SizedBox(height: 24),
-                          ],
+                ? _buildEmptyState(context, state.selectedMonth)
+                : ListView(
+                    padding: const EdgeInsets.all(16),
+                    physics: const BouncingScrollPhysics(),
+                    children: [
+                      // 1. Overall Budget Summary Card
+                      if (overallBudget != null) ...[
+                        _buildSectionHeader(context, 'Monthly Summary', isDark),
+                        BudgetCardWidget(
+                          title: 'Overall Limit',
+                          budgetAmount: overallBudget.amount,
+                          spentAmount: state.categorySpending[null] ?? 0.0,
+                          icon: Icons.all_inclusive_rounded,
+                          iconColor: AppColors.primary,
+                          onTap: () =>
+                              _showDetailBottomSheet(context, overallBudget!),
+                        ),
+                        const SizedBox(height: 24),
+                      ] else ...[
+                        _buildSectionHeader(context, 'Monthly Summary', isDark),
+                        _buildAddOverallPrompt(
+                          context,
+                          state.selectedMonth,
+                          isDark,
+                        ),
+                        const SizedBox(height: 24),
+                      ],
 
-                          // 2. Category Budgets Section
-                          if (categoryBudgets.isNotEmpty) ...[
-                            _buildSectionHeader(context, 'Category Limits', isDark),
-                            ListView.separated(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: categoryBudgets.length,
-                              separatorBuilder: (context, index) => const SizedBox(height: 14),
-                              itemBuilder: (context, index) {
-                                final budget = categoryBudgets[index];
-                                final spent = state.categorySpending[budget.categoryId] ?? 0.0;
-                                final catMeta = AppConstants.defaultCategories.firstWhere(
+                      // 2. Category Budgets Section
+                      if (categoryBudgets.isNotEmpty) ...[
+                        _buildSectionHeader(context, 'Category Limits', isDark),
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: categoryBudgets.length,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 14),
+                          itemBuilder: (context, index) {
+                            final budget = categoryBudgets[index];
+                            final spent =
+                                state.categorySpending[budget.categoryId] ??
+                                0.0;
+                            final catMeta = AppConstants.defaultCategories
+                                .firstWhere(
                                   (c) => c['id'] == budget.categoryId,
-                                  orElse: () => {'icon': Icons.category_rounded, 'color': AppColors.primary},
+                                  orElse: () => {
+                                    'icon': Icons.category_rounded,
+                                    'color': AppColors.primary,
+                                  },
                                 );
-                                return BudgetCardWidget(
-                                  title: budget.categoryName ?? '',
-                                  budgetAmount: budget.amount,
-                                  spentAmount: spent,
-                                  icon: catMeta['icon'] as IconData,
-                                  iconColor: catMeta['color'] as Color,
-                                  onTap: () => _showDetailBottomSheet(context, budget),
-                                );
-                              },
-                            ),
-                          ],
-                        ],
-                      ),
+                            return BudgetCardWidget(
+                              title: budget.categoryName ?? '',
+                              budgetAmount: budget.amount,
+                              spentAmount: spent,
+                              icon: catMeta['icon'] as IconData,
+                              iconColor: catMeta['color'] as Color,
+                              onTap: () =>
+                                  _showDetailBottomSheet(context, budget),
+                            );
+                          },
+                        ),
+                      ],
+                    ],
+                  ),
           ),
         ],
       ),
@@ -146,21 +160,31 @@ class BudgetScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.chevron_left_rounded),
             onPressed: () {
-              final prev = DateTime(state.selectedMonth.year, state.selectedMonth.month - 1, 1);
+              final prev = DateTime(
+                state.selectedMonth.year,
+                state.selectedMonth.month - 1,
+                1,
+              );
               notifier.setSelectedMonth(prev);
             },
           ),
           Text(
             DateFormat('MMMM yyyy').format(state.selectedMonth),
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                ),
+              fontWeight: FontWeight.bold,
+              color: isDark
+                  ? AppColors.darkTextPrimary
+                  : AppColors.lightTextPrimary,
+            ),
           ),
           IconButton(
             icon: const Icon(Icons.chevron_right_rounded),
             onPressed: () {
-              final next = DateTime(state.selectedMonth.year, state.selectedMonth.month + 1, 1);
+              final next = DateTime(
+                state.selectedMonth.year,
+                state.selectedMonth.month + 1,
+                1,
+              );
               notifier.setSelectedMonth(next);
             },
           ),
@@ -175,15 +199,21 @@ class BudgetScreen extends ConsumerWidget {
       child: Text(
         title,
         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-              letterSpacing: 1.1,
-            ),
+          fontWeight: FontWeight.bold,
+          color: isDark
+              ? AppColors.darkTextSecondary
+              : AppColors.lightTextSecondary,
+          letterSpacing: 1.1,
+        ),
       ),
     );
   }
 
-  Widget _buildAddOverallPrompt(BuildContext context, DateTime selectedMonth, bool isDark) {
+  Widget _buildAddOverallPrompt(
+    BuildContext context,
+    DateTime selectedMonth,
+    bool isDark,
+  ) {
     return AppCard(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -197,7 +227,11 @@ class BudgetScreen extends ConsumerWidget {
                   color: AppColors.primary.withAlpha(20),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.all_inclusive_rounded, color: AppColors.primary, size: 20),
+                child: const Icon(
+                  Icons.all_inclusive_rounded,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -205,7 +239,9 @@ class BudgetScreen extends ConsumerWidget {
                   'No Overall Limit Set',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                    color: isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.lightTextPrimary,
                   ),
                 ),
               ),
@@ -216,7 +252,9 @@ class BudgetScreen extends ConsumerWidget {
             'Set an overall monthly budget to track your complete spending pace and remain on target.',
             style: TextStyle(
               fontSize: 13,
-              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+              color: isDark
+                  ? AppColors.darkTextSecondary
+                  : AppColors.lightTextSecondary,
             ),
           ),
           const SizedBox(height: 16),
@@ -225,7 +263,9 @@ class BudgetScreen extends ConsumerWidget {
             icon: const Icon(Icons.add_rounded, size: 18),
             label: const Text('Set Overall Budget'),
             style: OutlinedButton.styleFrom(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
         ],
@@ -242,8 +282,10 @@ class BudgetScreen extends ConsumerWidget {
           children: [
             EmptyStateWidget(
               icon: Icons.pie_chart_rounded,
-              title: 'No budget for ${DateFormat('MMMM').format(selectedMonth)}',
-              description: 'Set spending limits for this month to monitor your category expenses.',
+              title:
+                  'No budget for ${DateFormat('MMMM').format(selectedMonth)}',
+              description:
+                  'Set spending limits for this month to monitor your category expenses.',
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
@@ -253,8 +295,13 @@ class BudgetScreen extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ],

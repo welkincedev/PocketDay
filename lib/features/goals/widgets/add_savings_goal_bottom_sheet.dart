@@ -10,30 +10,44 @@ import '../providers/savings_goals_provider.dart';
 class AddSavingsGoalBottomSheet extends ConsumerStatefulWidget {
   final SavingsGoalModel? goalToEdit;
 
-  const AddSavingsGoalBottomSheet({
-    super.key,
-    this.goalToEdit,
-  });
+  const AddSavingsGoalBottomSheet({super.key, this.goalToEdit});
 
   @override
-  ConsumerState<AddSavingsGoalBottomSheet> createState() => _AddSavingsGoalBottomSheetState();
+  ConsumerState<AddSavingsGoalBottomSheet> createState() =>
+      _AddSavingsGoalBottomSheetState();
 }
 
-class _AddSavingsGoalBottomSheetState extends ConsumerState<AddSavingsGoalBottomSheet> {
+class _AddSavingsGoalBottomSheetState
+    extends ConsumerState<AddSavingsGoalBottomSheet> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late final TextEditingController _amountController;
   DateTime? _selectedDate;
   String _selectedEmoji = '💰';
 
-  final List<String> _emojiPresets = ['💰', '📱', '✈️', '🏠', '🚗', '🎓', '🛟', '💍', '🎁', '🏖️'];
+  final List<String> _emojiPresets = [
+    '💰',
+    '📱',
+    '✈️',
+    '🏠',
+    '🚗',
+    '🎓',
+    '🛟',
+    '💍',
+    '🎁',
+    '🏖️',
+  ];
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.goalToEdit?.name ?? '');
+    _nameController = TextEditingController(
+      text: widget.goalToEdit?.name ?? '',
+    );
     _amountController = TextEditingController(
-      text: widget.goalToEdit != null ? widget.goalToEdit!.targetAmount.toStringAsFixed(0) : '',
+      text: widget.goalToEdit != null
+          ? widget.goalToEdit!.targetAmount.toStringAsFixed(0)
+          : '',
     );
     _selectedDate = widget.goalToEdit?.targetDate;
     _selectedEmoji = widget.goalToEdit?.emoji ?? '💰';
@@ -100,7 +114,9 @@ class _AddSavingsGoalBottomSheetState extends ConsumerState<AddSavingsGoalBottom
       );
       ref.read(savingsGoalsProvider.notifier).updateGoal(updatedGoal);
     } else {
-      ref.read(savingsGoalsProvider.notifier).addGoal(
+      ref
+          .read(savingsGoalsProvider.notifier)
+          .addGoal(
             name: name,
             targetAmount: targetAmount,
             emoji: _selectedEmoji,
@@ -140,7 +156,9 @@ class _AddSavingsGoalBottomSheetState extends ConsumerState<AddSavingsGoalBottom
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -150,9 +168,11 @@ class _AddSavingsGoalBottomSheetState extends ConsumerState<AddSavingsGoalBottom
               Text(
                 isEditing ? 'Edit Savings Goal' : 'Create Savings Goal',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
+                ),
               ),
               const SizedBox(height: 20),
 
@@ -178,7 +198,9 @@ class _AddSavingsGoalBottomSheetState extends ConsumerState<AddSavingsGoalBottom
                 controller: _amountController,
                 label: 'Target amount',
                 hint: 'Enter target amount (₹)',
-                keyboardType: const TextInputType.numberWithOptions(decimal: false),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: false,
+                ),
                 prefixIcon: Icons.currency_rupee_rounded,
                 validator: (val) {
                   if (val == null || val.trim().isEmpty) {
@@ -199,7 +221,9 @@ class _AddSavingsGoalBottomSheetState extends ConsumerState<AddSavingsGoalBottom
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
                 ),
               ),
               const SizedBox(height: 8),
@@ -208,7 +232,8 @@ class _AddSavingsGoalBottomSheetState extends ConsumerState<AddSavingsGoalBottom
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: _emojiPresets.length,
-                  separatorBuilder: (context, index) => const SizedBox(width: 8),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: 8),
                   itemBuilder: (context, index) {
                     final emoji = _emojiPresets[index];
                     final isSelected = emoji == _selectedEmoji;
@@ -221,12 +246,16 @@ class _AddSavingsGoalBottomSheetState extends ConsumerState<AddSavingsGoalBottom
                         decoration: BoxDecoration(
                           color: isSelected
                               ? AppColors.primary.withAlpha(40)
-                              : (isDark ? AppColors.darkCard : AppColors.lightCard),
+                              : (isDark
+                                    ? AppColors.darkCard
+                                    : AppColors.lightCard),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: isSelected
                                 ? AppColors.primary
-                                : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                                : (isDark
+                                      ? AppColors.darkBorder
+                                      : AppColors.lightBorder),
                             width: isSelected ? 2 : 1,
                           ),
                         ),
@@ -248,7 +277,9 @@ class _AddSavingsGoalBottomSheetState extends ConsumerState<AddSavingsGoalBottom
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
                 ),
               ),
               const SizedBox(height: 8),
@@ -256,12 +287,17 @@ class _AddSavingsGoalBottomSheetState extends ConsumerState<AddSavingsGoalBottom
                 onTap: _pickDate,
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   decoration: BoxDecoration(
                     color: isDark ? AppColors.darkCard : AppColors.lightCard,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                      color: isDark
+                          ? AppColors.darkBorder
+                          : AppColors.lightBorder,
                     ),
                   ),
                   child: Row(
@@ -269,19 +305,27 @@ class _AddSavingsGoalBottomSheetState extends ConsumerState<AddSavingsGoalBottom
                       Icon(
                         Icons.calendar_today_rounded,
                         size: 18,
-                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           _selectedDate != null
-                              ? DateFormat('MMMM dd, yyyy').format(_selectedDate!)
+                              ? DateFormat(
+                                  'MMMM dd, yyyy',
+                                ).format(_selectedDate!)
                               : 'No target date selected',
                           style: TextStyle(
                             fontSize: 14,
                             color: _selectedDate != null
-                                ? (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary)
-                                : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary),
+                                ? (isDark
+                                      ? AppColors.darkTextPrimary
+                                      : AppColors.lightTextPrimary)
+                                : (isDark
+                                      ? AppColors.darkTextSecondary
+                                      : AppColors.lightTextSecondary),
                           ),
                         ),
                       ),

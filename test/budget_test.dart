@@ -32,7 +32,9 @@ void main() {
   test('Budget CRUD and calculations works correctly', () async {
     final container = ProviderContainer(
       overrides: [
-        transactionRepositoryProvider.overrideWithValue(TransactionRepositoryImpl()),
+        transactionRepositoryProvider.overrideWithValue(
+          TransactionRepositoryImpl(),
+        ),
         budgetRepositoryProvider.overrideWithValue(BudgetRepositoryImpl()),
       ],
     );
@@ -126,7 +128,6 @@ void main() {
       t3.id: t3.toMap(),
     });
 
-
     // Trigger notifier reload
     await container.read(transactionsProvider.notifier).loadTransactions();
     state = container.read(budgetProvider);
@@ -145,7 +146,9 @@ void main() {
     await container.read(budgetProvider.notifier).saveBudget(updatedFoodBudget);
 
     state = container.read(budgetProvider);
-    final foodLimit = state.currentBudgets.firstWhere((b) => b.categoryId == 'food').amount;
+    final foodLimit = state.currentBudgets
+        .firstWhere((b) => b.categoryId == 'food')
+        .amount;
     expect(foodLimit, 6000.0);
 
     // 5. Delete Budget

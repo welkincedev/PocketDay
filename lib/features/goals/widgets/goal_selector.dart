@@ -32,7 +32,9 @@ class GoalSelector extends ConsumerWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+            color: isDark
+                ? AppColors.darkTextPrimary
+                : AppColors.lightTextPrimary,
           ),
         ),
         const SizedBox(height: 8),
@@ -48,14 +50,21 @@ class GoalSelector extends ConsumerWidget {
             initialValue: selectedGoalId,
             isExpanded: true,
             decoration: const InputDecoration(
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
               border: InputBorder.none,
             ),
-            dropdownColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            dropdownColor: isDark
+                ? AppColors.darkSurface
+                : AppColors.lightSurface,
             hint: Text(
               'None',
               style: TextStyle(
-                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.lightTextSecondary,
               ),
             ),
             items: [
@@ -65,7 +74,9 @@ class GoalSelector extends ConsumerWidget {
                   'None',
                   style: TextStyle(
                     fontSize: 14,
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.lightTextSecondary,
                   ),
                 ),
               ),
@@ -74,17 +85,16 @@ class GoalSelector extends ConsumerWidget {
                   value: goal.id,
                   child: Row(
                     children: [
-                      Text(
-                        goal.emoji,
-                        style: const TextStyle(fontSize: 16),
-                      ),
+                      Text(goal.emoji, style: const TextStyle(fontSize: 16)),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           goal.name,
                           style: TextStyle(
                             fontSize: 14,
-                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                            color: isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.lightTextPrimary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

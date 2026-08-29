@@ -30,7 +30,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   void _handleRegister() async {
     if (_formKey.currentState!.validate()) {
-      final success = await ref.read(authProvider.notifier).registerWithEmail(
+      final success = await ref
+          .read(authProvider.notifier)
+          .registerWithEmail(
             _emailController.text.trim(),
             _passwordController.text,
             _nameController.text.trim(),
@@ -80,7 +82,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     controller: _nameController,
                     prefixIcon: Icons.person_outline_rounded,
                     validator: (val) {
-                      if (val == null || val.isEmpty) return 'Full name is required';
+                      if (val == null || val.isEmpty) {
+                        return 'Full name is required';
+                      }
                       return null;
                     },
                   ),
@@ -94,7 +98,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     prefixIcon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
                     validator: (val) {
-                      if (val == null || val.isEmpty) return 'Email is required';
+                      if (val == null || val.isEmpty) {
+                        return 'Email is required';
+                      }
                       if (!val.contains('@')) return 'Enter a valid email';
                       return null;
                     },
@@ -127,7 +133,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ),
                       child: Text(
                         authState.error.toString(),
-                        style: const TextStyle(color: AppColors.expense, fontSize: 13),
+                        style: const TextStyle(
+                          color: AppColors.expense,
+                          fontSize: 13,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ),

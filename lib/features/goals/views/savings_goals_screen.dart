@@ -35,7 +35,9 @@ class GoalsScreen extends ConsumerWidget {
 
     // Separate active and completed, computed dynamically
     final activeGoals = state.goals
-        .where((g) => !g.isGoalCompleted(g.calculateCurrentAmount(transactions)))
+        .where(
+          (g) => !g.isGoalCompleted(g.calculateCurrentAmount(transactions)),
+        )
         .toList();
     final completedGoals = state.goals
         .where((g) => g.isGoalCompleted(g.calculateCurrentAmount(transactions)))
@@ -67,9 +69,11 @@ class GoalsScreen extends ConsumerWidget {
                   Text(
                     'Active',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   ListView.separated(
@@ -93,14 +97,20 @@ class GoalsScreen extends ConsumerWidget {
                 if (completedGoals.isNotEmpty) ...[
                   Row(
                     children: [
-                      const Icon(Icons.check_circle_outline_rounded, size: 15, color: AppColors.primary),
+                      const Icon(
+                        Icons.check_circle_outline_rounded,
+                        size: 15,
+                        color: AppColors.primary,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         'Completed',
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                            ),
+                          fontWeight: FontWeight.bold,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
+                        ),
                       ),
                     ],
                   ),
@@ -133,9 +143,7 @@ class GoalsScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Goals'),
-      ),
+      appBar: AppBar(title: const Text('Goals')),
       body: body,
       floatingActionButton: FloatingActionButton(
         onPressed: () => _openCreateSheet(context),

@@ -2,6 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/services/hive_service.dart';
 import '../models/goal_model.dart';
 
+/// Riverpod provider that exposes the [GoalRepository] implementation.
+///
+/// The UI and [GoalsProvider] should read goals through this provider rather
+/// than accessing Hive directly, keeping persistence logic in one place.
 final goalRepositoryProvider = Provider<GoalRepository>((ref) {
   return GoalRepositoryImpl();
 });

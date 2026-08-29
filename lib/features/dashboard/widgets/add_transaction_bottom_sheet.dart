@@ -23,10 +23,12 @@ class AddTransactionBottomSheet extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AddTransactionBottomSheet> createState() => _AddTransactionBottomSheetState();
+  ConsumerState<AddTransactionBottomSheet> createState() =>
+      _AddTransactionBottomSheetState();
 }
 
-class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottomSheet> {
+class _AddTransactionBottomSheetState
+    extends ConsumerState<AddTransactionBottomSheet> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _amountController = TextEditingController();
@@ -76,8 +78,10 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: _type == TransactionType.income ? AppColors.income : AppColors.expense,
-                ),
+              primary: _type == TransactionType.income
+                  ? AppColors.income
+                  : AppColors.expense,
+            ),
           ),
           child: child!,
         );
@@ -103,7 +107,9 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
         categoryId: _selectedCategoryId,
         categoryName: categoryMeta['name'] as String,
         date: _selectedDate,
-        notes: _notesController.text.trim().isNotEmpty ? _notesController.text.trim() : null,
+        notes: _notesController.text.trim().isNotEmpty
+            ? _notesController.text.trim()
+            : null,
         goalId: _type == TransactionType.expense ? _selectedGoalId : null,
       );
 
@@ -117,7 +123,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
       if (widget.onAdd != null) {
         widget.onAdd!(txn);
       }
-      
+
       if (mounted) {
         Navigator.pop(context);
       }
@@ -127,7 +133,9 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final accentColor = _type == TransactionType.income ? AppColors.income : AppColors.expense;
+    final accentColor = _type == TransactionType.income
+        ? AppColors.income
+        : AppColors.expense;
 
     return Container(
       decoration: BoxDecoration(
@@ -156,7 +164,9 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                     height: 4,
                     margin: const EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
-                      color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                      color: isDark
+                          ? AppColors.darkBorder
+                          : AppColors.lightBorder,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -175,7 +185,9 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
-                            _type == TransactionType.income ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
+                            _type == TransactionType.income
+                                ? Icons.arrow_downward_rounded
+                                : Icons.arrow_upward_rounded,
                             color: accentColor,
                             size: 18,
                           ),
@@ -183,11 +195,14 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                         const SizedBox(width: 12),
                         Text(
                           widget.transactionToEdit != null
-                              ? (_type == TransactionType.income ? 'Edit Income' : 'Edit Expense')
-                              : (_type == TransactionType.income ? 'Add Income' : 'Add Expense'),
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              ? (_type == TransactionType.income
+                                    ? 'Edit Income'
+                                    : 'Edit Expense')
+                              : (_type == TransactionType.income
+                                    ? 'Add Income'
+                                    : 'Add Expense'),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -204,11 +219,20 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                   children: [
                     Expanded(
                       child: ChoiceChip(
-                        label: const Center(child: Text('Income', style: TextStyle(fontWeight: FontWeight.w600))),
+                        label: const Center(
+                          child: Text(
+                            'Income',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ),
                         selected: _type == TransactionType.income,
                         selectedColor: AppColors.income.withAlpha(40),
                         side: BorderSide(
-                          color: _type == TransactionType.income ? AppColors.income : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                          color: _type == TransactionType.income
+                              ? AppColors.income
+                              : (isDark
+                                    ? AppColors.darkBorder
+                                    : AppColors.lightBorder),
                         ),
                         onSelected: (selected) {
                           if (selected) {
@@ -223,11 +247,20 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                     const SizedBox(width: 12),
                     Expanded(
                       child: ChoiceChip(
-                        label: const Center(child: Text('Expense', style: TextStyle(fontWeight: FontWeight.w600))),
+                        label: const Center(
+                          child: Text(
+                            'Expense',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ),
                         selected: _type == TransactionType.expense,
                         selectedColor: AppColors.expense.withAlpha(40),
                         side: BorderSide(
-                          color: _type == TransactionType.expense ? AppColors.expense : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                          color: _type == TransactionType.expense
+                              ? AppColors.expense
+                              : (isDark
+                                    ? AppColors.darkBorder
+                                    : AppColors.lightBorder),
                         ),
                         onSelected: (selected) {
                           if (selected) {
@@ -246,10 +279,14 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                 // Title Input
                 AppTextField(
                   label: 'Title',
-                  hint: _type == TransactionType.income ? 'e.g., Monthly Salary' : 'e.g., Swiggy Food Order',
+                  hint: _type == TransactionType.income
+                      ? 'e.g., Monthly Salary'
+                      : 'e.g., Swiggy Food Order',
                   controller: _titleController,
                   validator: (val) {
-                    if (val == null || val.trim().isEmpty) return 'Title is required';
+                    if (val == null || val.trim().isEmpty) {
+                      return 'Title is required';
+                    }
                     return null;
                   },
                 ),
@@ -260,11 +297,16 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                   label: 'Amount (₹)',
                   hint: '0.00',
                   controller: _amountController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   prefixIcon: Icons.currency_rupee_rounded,
                   validator: (val) {
-                    if (val == null || val.trim().isEmpty) return 'Amount is required';
-                    if (double.tryParse(val.trim()) == null || double.parse(val.trim()) <= 0) {
+                    if (val == null || val.trim().isEmpty) {
+                      return 'Amount is required';
+                    }
+                    if (double.tryParse(val.trim()) == null ||
+                        double.parse(val.trim()) <= 0) {
                       return 'Enter a valid positive amount';
                     }
                     return null;
@@ -278,32 +320,49 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                    color: isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.lightTextPrimary,
                   ),
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
                   initialValue: _selectedCategoryId,
                   decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                      borderSide: BorderSide(
+                        color: isDark
+                            ? AppColors.darkBorder
+                            : AppColors.lightBorder,
+                      ),
                     ),
                   ),
-                  dropdownColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+                  dropdownColor: isDark
+                      ? AppColors.darkSurface
+                      : AppColors.lightSurface,
                   items: AppConstants.defaultCategories.map((cat) {
                     return DropdownMenuItem<String>(
                       value: cat['id'] as String,
                       child: Row(
                         children: [
-                          Icon(cat['icon'] as IconData, color: cat['color'] as Color, size: 18),
+                          Icon(
+                            cat['icon'] as IconData,
+                            color: cat['color'] as Color,
+                            size: 18,
+                          ),
                           const SizedBox(width: 12),
                           Text(
                             cat['name'] as String,
                             style: TextStyle(
                               fontSize: 14,
-                              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                              color: isDark
+                                  ? AppColors.darkTextPrimary
+                                  : AppColors.lightTextPrimary,
                             ),
                           ),
                         ],
@@ -325,16 +384,27 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
                     ),
                     OutlinedButton.icon(
                       onPressed: _pickDate,
                       style: OutlinedButton.styleFrom(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                       ),
-                      icon: Icon(Icons.calendar_today_rounded, size: 16, color: accentColor),
+                      icon: Icon(
+                        Icons.calendar_today_rounded,
+                        size: 16,
+                        color: accentColor,
+                      ),
                       label: Text(
                         DateFormat('MMM dd, yyyy').format(_selectedDate),
                         style: TextStyle(
@@ -358,7 +428,7 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
                 const SizedBox(height: 16),
 
                 // Goal Selector (expenses only)
-                if (_type == TransactionType.expense) ...[                  
+                if (_type == TransactionType.expense) ...[
                   GoalSelector(
                     selectedGoalId: _selectedGoalId,
                     onChanged: (val) => setState(() => _selectedGoalId = val),
@@ -369,7 +439,9 @@ class _AddTransactionBottomSheetState extends ConsumerState<AddTransactionBottom
 
                 // Save Transaction Button
                 AppButton(
-                  text: widget.transactionToEdit != null ? 'Save Changes' : 'Save Transaction',
+                  text: widget.transactionToEdit != null
+                      ? 'Save Changes'
+                      : 'Save Transaction',
                   onPressed: _submit,
                 ),
               ],

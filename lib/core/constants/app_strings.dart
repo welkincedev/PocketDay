@@ -4,13 +4,16 @@ class AppStrings {
 
   // Auth & Onboarding
   static const String onboardingTitle1 = 'Master Your Money';
-  static const String onboardingDesc1 = 'Track income, expenses, and monthly spending effortlessly with clear insights.';
-  
+  static const String onboardingDesc1 =
+      'Track income, expenses, and monthly spending effortlessly with clear insights.';
+
   static const String onboardingTitle2 = 'Smart Budget Planning';
-  static const String onboardingDesc2 = 'Set category budgets and receive real-time alerts before you overspend.';
-  
+  static const String onboardingDesc2 =
+      'Set category budgets and receive real-time alerts before you overspend.';
+
   static const String onboardingTitle3 = 'Reach Financial Goals';
-  static const String onboardingDesc3 = 'Set savings targets and monitor progress to achieve your financial dreams.';
+  static const String onboardingDesc3 =
+      'Set savings targets and monitor progress to achieve your financial dreams.';
 
   static const String getStarted = 'Get Started';
   static const String skip = 'Skip';
@@ -47,7 +50,9 @@ class AppStrings {
 
   // Errors & Empty States
   static const String noTransactionsYet = 'No transactions recorded yet.';
-  static const String addFirstTransaction = 'Tap + to add your first expense or income!';
-  static const String somethingWentWrong = 'Something went wrong. Please try again.';
+  static const String addFirstTransaction =
+      'Tap + to add your first expense or income!';
+  static const String somethingWentWrong =
+      'Something went wrong. Please try again.';
   static const String retry = 'Retry';
 }

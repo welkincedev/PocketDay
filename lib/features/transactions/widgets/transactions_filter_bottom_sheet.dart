@@ -55,7 +55,8 @@ class TransactionsFilterBottomSheet extends ConsumerWidget {
     final state = ref.watch(transactionsProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final hasActiveFilters = state.selectedCategoryId != null ||
+    final hasActiveFilters =
+        state.selectedCategoryId != null ||
         state.selectedType != null ||
         state.selectedDateRange != null;
 
@@ -93,9 +94,9 @@ class TransactionsFilterBottomSheet extends ConsumerWidget {
             children: [
               Text(
                 'Filters',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               Row(
                 children: [
@@ -138,19 +139,25 @@ class TransactionsFilterBottomSheet extends ConsumerWidget {
                       _buildChip(
                         label: 'All Types',
                         selected: state.selectedType == null,
-                        onSelected: (_) => ref.read(transactionsProvider.notifier).setSelectedType(null),
+                        onSelected: (_) => ref
+                            .read(transactionsProvider.notifier)
+                            .setSelectedType(null),
                       ),
                       _buildChip(
                         label: 'Income',
                         selected: state.selectedType == TransactionType.income,
                         activeColor: AppColors.income,
-                        onSelected: (_) => ref.read(transactionsProvider.notifier).setSelectedType(TransactionType.income),
+                        onSelected: (_) => ref
+                            .read(transactionsProvider.notifier)
+                            .setSelectedType(TransactionType.income),
                       ),
                       _buildChip(
                         label: 'Expense',
                         selected: state.selectedType == TransactionType.expense,
                         activeColor: AppColors.expense,
-                        onSelected: (_) => ref.read(transactionsProvider.notifier).setSelectedType(TransactionType.expense),
+                        onSelected: (_) => ref
+                            .read(transactionsProvider.notifier)
+                            .setSelectedType(TransactionType.expense),
                       ),
                     ],
                   ),
@@ -165,7 +172,9 @@ class TransactionsFilterBottomSheet extends ConsumerWidget {
                       _buildChip(
                         label: 'All Categories',
                         selected: state.selectedCategoryId == null,
-                        onSelected: (_) => ref.read(transactionsProvider.notifier).setSelectedCategory(null),
+                        onSelected: (_) => ref
+                            .read(transactionsProvider.notifier)
+                            .setSelectedCategory(null),
                       ),
                       ...AppConstants.defaultCategories.map((cat) {
                         final id = cat['id'] as String;
@@ -176,7 +185,9 @@ class TransactionsFilterBottomSheet extends ConsumerWidget {
                           selected: state.selectedCategoryId == id,
                           activeColor: color,
                           icon: cat['icon'] as IconData,
-                          onSelected: (_) => ref.read(transactionsProvider.notifier).setSelectedCategory(id),
+                          onSelected: (_) => ref
+                              .read(transactionsProvider.notifier)
+                              .setSelectedCategory(id),
                         );
                       }),
                     ],
@@ -192,22 +203,30 @@ class TransactionsFilterBottomSheet extends ConsumerWidget {
                       _buildChip(
                         label: 'All Dates',
                         selected: state.datePreset == 'all',
-                        onSelected: (_) => ref.read(transactionsProvider.notifier).setDatePreset('all'),
+                        onSelected: (_) => ref
+                            .read(transactionsProvider.notifier)
+                            .setDatePreset('all'),
                       ),
                       _buildChip(
                         label: 'Today',
                         selected: state.datePreset == 'today',
-                        onSelected: (_) => ref.read(transactionsProvider.notifier).setDatePreset('today'),
+                        onSelected: (_) => ref
+                            .read(transactionsProvider.notifier)
+                            .setDatePreset('today'),
                       ),
                       _buildChip(
                         label: 'This Week',
                         selected: state.datePreset == 'week',
-                        onSelected: (_) => ref.read(transactionsProvider.notifier).setDatePreset('week'),
+                        onSelected: (_) => ref
+                            .read(transactionsProvider.notifier)
+                            .setDatePreset('week'),
                       ),
                       _buildChip(
                         label: 'This Month',
                         selected: state.datePreset == 'month',
-                        onSelected: (_) => ref.read(transactionsProvider.notifier).setDatePreset('month'),
+                        onSelected: (_) => ref
+                            .read(transactionsProvider.notifier)
+                            .setDatePreset('month'),
                       ),
                       _buildChip(
                         label: 'Custom Range',
@@ -219,12 +238,19 @@ class TransactionsFilterBottomSheet extends ConsumerWidget {
                   if (state.selectedDateRange != null) ...[
                     const SizedBox(height: 10),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+                        color: isDark
+                            ? AppColors.darkBackground
+                            : AppColors.lightBackground,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                          color: isDark
+                              ? AppColors.darkBorder
+                              : AppColors.lightBorder,
                         ),
                       ),
                       child: Row(
@@ -233,7 +259,9 @@ class TransactionsFilterBottomSheet extends ConsumerWidget {
                           Icon(
                             Icons.date_range_rounded,
                             size: 14,
-                            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
                           ),
                           const SizedBox(width: 8),
                           Text(
@@ -241,7 +269,9 @@ class TransactionsFilterBottomSheet extends ConsumerWidget {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                              color: isDark
+                                  ? AppColors.darkTextPrimary
+                                  : AppColors.lightTextPrimary,
                             ),
                           ),
                         ],
@@ -259,22 +289,30 @@ class TransactionsFilterBottomSheet extends ConsumerWidget {
                       _buildChip(
                         label: 'Newest First',
                         selected: state.sortBy == TransactionSortBy.dateDesc,
-                        onSelected: (_) => ref.read(transactionsProvider.notifier).setSortBy(TransactionSortBy.dateDesc),
+                        onSelected: (_) => ref
+                            .read(transactionsProvider.notifier)
+                            .setSortBy(TransactionSortBy.dateDesc),
                       ),
                       _buildChip(
                         label: 'Oldest First',
                         selected: state.sortBy == TransactionSortBy.dateAsc,
-                        onSelected: (_) => ref.read(transactionsProvider.notifier).setSortBy(TransactionSortBy.dateAsc),
+                        onSelected: (_) => ref
+                            .read(transactionsProvider.notifier)
+                            .setSortBy(TransactionSortBy.dateAsc),
                       ),
                       _buildChip(
                         label: 'Highest Amount',
                         selected: state.sortBy == TransactionSortBy.amountDesc,
-                        onSelected: (_) => ref.read(transactionsProvider.notifier).setSortBy(TransactionSortBy.amountDesc),
+                        onSelected: (_) => ref
+                            .read(transactionsProvider.notifier)
+                            .setSortBy(TransactionSortBy.amountDesc),
                       ),
                       _buildChip(
                         label: 'Lowest Amount',
                         selected: state.sortBy == TransactionSortBy.amountAsc,
-                        onSelected: (_) => ref.read(transactionsProvider.notifier).setSortBy(TransactionSortBy.amountAsc),
+                        onSelected: (_) => ref
+                            .read(transactionsProvider.notifier)
+                            .setSortBy(TransactionSortBy.amountAsc),
                       ),
                     ],
                   ),
@@ -299,9 +337,9 @@ class TransactionsFilterBottomSheet extends ConsumerWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         title,
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+        style: Theme.of(
+          context,
+        ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -318,17 +356,18 @@ class TransactionsFilterBottomSheet extends ConsumerWidget {
           ? Icon(
               icon,
               size: 14,
-              color: selected ? Colors.white : (activeColor ?? AppColors.primary),
+              color: selected
+                  ? Colors.white
+                  : (activeColor ?? AppColors.primary),
             )
           : null,
       label: Text(label),
       selected: selected,
-      selectedColor: activeColor?.withAlpha(40) ?? AppColors.primary.withAlpha(40),
+      selectedColor:
+          activeColor?.withAlpha(40) ?? AppColors.primary.withAlpha(40),
       labelStyle: TextStyle(
         fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-        color: selected
-            ? (activeColor ?? AppColors.primary)
-            : null,
+        color: selected ? (activeColor ?? AppColors.primary) : null,
       ),
       side: BorderSide(
         color: selected

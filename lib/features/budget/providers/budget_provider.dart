@@ -43,7 +43,9 @@ class BudgetState {
   }
 }
 
-final budgetProvider = StateNotifierProvider<BudgetNotifier, BudgetState>((ref) {
+final budgetProvider = StateNotifierProvider<BudgetNotifier, BudgetState>((
+  ref,
+) {
   final repo = ref.watch(budgetRepositoryProvider);
   final notifier = BudgetNotifier(repo);
 
@@ -63,7 +65,8 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
   final BudgetRepository _repo;
   List<TransactionModel> _transactions = [];
 
-  BudgetNotifier(this._repo) : super(BudgetState(selectedMonth: DateTime.now())) {
+  BudgetNotifier(this._repo)
+    : super(BudgetState(selectedMonth: DateTime.now())) {
     loadBudgets();
     HiveService.budgetBox.listenable().addListener(_onBudgetsBoxChanged);
   }
@@ -82,16 +85,10 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final budgets = await _repo.getBudgets();
-      state = state.copyWith(
-        allBudgets: budgets,
-        isLoading: false,
-      );
+      state = state.copyWith(allBudgets: budgets, isLoading: false);
       _calculateAndApply();
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
@@ -109,7 +106,9 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
     final monthStr = DateFormat('yyyy-MM').format(state.selectedMonth);
 
     // Filter budgets for the selected month
-    final monthlyBudgets = state.allBudgets.where((b) => b.month == monthStr).toList();
+    final monthlyBudgets = state.allBudgets
+        .where((b) => b.month == monthStr)
+        .toList();
 
     // Calculate spending per category
     final Map<String?, double> spending = {};

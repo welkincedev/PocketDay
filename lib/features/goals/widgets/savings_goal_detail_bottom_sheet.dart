@@ -13,10 +13,7 @@ import 'add_savings_goal_bottom_sheet.dart';
 class SavingsGoalDetailBottomSheet extends ConsumerWidget {
   final SavingsGoalModel goal;
 
-  const SavingsGoalDetailBottomSheet({
-    super.key,
-    required this.goal,
-  });
+  const SavingsGoalDetailBottomSheet({super.key, required this.goal});
 
   void _openAddSavingsSheet(BuildContext context) {
     Navigator.pop(context); // Close details sheet
@@ -92,11 +89,14 @@ class SavingsGoalDetailBottomSheet extends ConsumerWidget {
       } else {
         final days = difference.inDays;
         final months = (days / 30).ceil();
-        dateText = months <= 0 ? '$days days remaining' : '$months months remaining';
+        dateText = months <= 0
+            ? '$days days remaining'
+            : '$months months remaining';
 
         if (months > 0 && goal.remainingAmount > 0) {
           final monthlyAmount = goal.remainingAmount / months;
-          neededMonthlyText = '${CurrencyFormatter.format(monthlyAmount)}/month needed';
+          neededMonthlyText =
+              '${CurrencyFormatter.format(monthlyAmount)}/month needed';
         }
       }
     }
@@ -141,10 +141,7 @@ class SavingsGoalDetailBottomSheet extends ConsumerWidget {
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
-                  child: Text(
-                    goal.emoji,
-                    style: const TextStyle(fontSize: 24),
-                  ),
+                  child: Text(goal.emoji, style: const TextStyle(fontSize: 24)),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -154,9 +151,11 @@ class SavingsGoalDetailBottomSheet extends ConsumerWidget {
                       Text(
                         goal.name,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                            ),
+                          fontWeight: FontWeight.bold,
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -164,7 +163,11 @@ class SavingsGoalDetailBottomSheet extends ConsumerWidget {
                         const SizedBox(height: 2),
                         Row(
                           children: [
-                            Icon(Icons.check_circle_rounded, size: 14, color: stateColor),
+                            Icon(
+                              Icons.check_circle_rounded,
+                              size: 14,
+                              color: stateColor,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               'Goal reached!',
@@ -182,7 +185,9 @@ class SavingsGoalDetailBottomSheet extends ConsumerWidget {
                           'In progress',
                           style: TextStyle(
                             fontSize: 12,
-                            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
                           ),
                         ),
                       ],
@@ -205,7 +210,9 @@ class SavingsGoalDetailBottomSheet extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
                         ),
                       ),
                       Text(
@@ -228,7 +235,9 @@ class SavingsGoalDetailBottomSheet extends ConsumerWidget {
                       height: 8,
                       child: LinearProgressIndicator(
                         value: progressVal,
-                        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
                         valueColor: AlwaysStoppedAnimation<Color>(stateColor),
                       ),
                     ),
@@ -245,7 +254,9 @@ class SavingsGoalDetailBottomSheet extends ConsumerWidget {
                             'Saved',
                             style: TextStyle(
                               fontSize: 11,
-                              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                              color: isDark
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.lightTextSecondary,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -266,7 +277,9 @@ class SavingsGoalDetailBottomSheet extends ConsumerWidget {
                             'Target',
                             style: TextStyle(
                               fontSize: 11,
-                              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                              color: isDark
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.lightTextSecondary,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -311,7 +324,9 @@ class SavingsGoalDetailBottomSheet extends ConsumerWidget {
                               neededMonthlyText,
                               style: TextStyle(
                                 fontSize: 12,
-                                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                color: isDark
+                                    ? AppColors.darkTextSecondary
+                                    : AppColors.lightTextSecondary,
                               ),
                             ),
                           ],

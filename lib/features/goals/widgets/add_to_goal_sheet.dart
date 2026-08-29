@@ -65,7 +65,9 @@ class _AddToGoalSheetState extends ConsumerState<AddToGoalSheet> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final enteredAmount = double.tryParse(_amountController.text.trim()) ?? 0.0;
-    final remainingAmount = widget.goal.calculateRemainingAmount(widget.currentAmount);
+    final remainingAmount = widget.goal.calculateRemainingAmount(
+      widget.currentAmount,
+    );
 
     return Container(
       padding: EdgeInsets.only(
@@ -91,7 +93,9 @@ class _AddToGoalSheetState extends ConsumerState<AddToGoalSheet> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -101,17 +105,14 @@ class _AddToGoalSheetState extends ConsumerState<AddToGoalSheet> {
               // Title
               Row(
                 children: [
-                  Text(
-                    widget.goal.emoji,
-                    style: const TextStyle(fontSize: 24),
-                  ),
+                  Text(widget.goal.emoji, style: const TextStyle(fontSize: 24)),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       'Add to ${widget.goal.name}',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -131,12 +132,17 @@ class _AddToGoalSheetState extends ConsumerState<AddToGoalSheet> {
                         'Current',
                         style: TextStyle(
                           fontSize: 12,
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
                         ),
                       ),
                       Text(
                         CurrencyFormatter.format(widget.currentAmount),
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
                     ],
                   ),
@@ -147,7 +153,9 @@ class _AddToGoalSheetState extends ConsumerState<AddToGoalSheet> {
                         'Remaining',
                         style: TextStyle(
                           fontSize: 12,
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
                         ),
                       ),
                       Text(
@@ -157,7 +165,9 @@ class _AddToGoalSheetState extends ConsumerState<AddToGoalSheet> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
-                          color: remainingAmount <= 0 ? AppColors.primary : null,
+                          color: remainingAmount <= 0
+                              ? AppColors.primary
+                              : null,
                         ),
                       ),
                     ],
@@ -171,13 +181,19 @@ class _AddToGoalSheetState extends ConsumerState<AddToGoalSheet> {
                 controller: _amountController,
                 label: 'Amount to add',
                 hint: 'Enter amount (₹)',
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 prefixIcon: Icons.currency_rupee_rounded,
                 onChanged: (_) => setState(() {}),
                 validator: (val) {
-                  if (val == null || val.trim().isEmpty) return 'Amount is required';
+                  if (val == null || val.trim().isEmpty) {
+                    return 'Amount is required';
+                  }
                   final numVal = double.tryParse(val.trim());
-                  if (numVal == null || numVal <= 0) return 'Enter a valid positive amount';
+                  if (numVal == null || numVal <= 0) {
+                    return 'Enter a valid positive amount';
+                  }
                   return null;
                 },
               ),

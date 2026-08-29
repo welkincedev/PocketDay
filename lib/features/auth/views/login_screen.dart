@@ -28,7 +28,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   void _handleLogin() async {
     if (_formKey.currentState!.validate()) {
-      final success = await ref.read(authProvider.notifier).loginWithEmail(
+      final success = await ref
+          .read(authProvider.notifier)
+          .loginWithEmail(
             _emailController.text.trim(),
             _passwordController.text,
           );
@@ -83,7 +85,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     // Welcome Headline
                     Text(
                       AppStrings.welcomeBack,
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(
                             fontWeight: FontWeight.bold,
                             letterSpacing: -0.5,
                           ),
@@ -93,8 +96,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     Text(
                       'Sign in to manage your budget & track expenses',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                          ),
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 36),
@@ -107,7 +112,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       prefixIcon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (val) {
-                        if (val == null || val.isEmpty) return 'Email is required';
+                        if (val == null || val.isEmpty) {
+                          return 'Email is required';
+                        }
                         if (!val.contains('@')) return 'Enter a valid email';
                         return null;
                       },
@@ -134,9 +141,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
-                        onPressed: () => Navigator.pushNamed(context, AppRoutes.forgotPassword),
+                        onPressed: () => Navigator.pushNamed(
+                          context,
+                          AppRoutes.forgotPassword,
+                        ),
                         style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           minimumSize: Size.zero,
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
@@ -162,7 +175,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         child: Text(
                           authState.error.toString(),
-                          style: const TextStyle(color: AppColors.expense, fontSize: 13),
+                          style: const TextStyle(
+                            color: AppColors.expense,
+                            fontSize: 13,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -180,19 +196,33 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     // Divider
                     Row(
                       children: [
-                        Expanded(child: Divider(color: isDark ? AppColors.darkBorder : AppColors.lightBorder)),
+                        Expanded(
+                          child: Divider(
+                            color: isDark
+                                ? AppColors.darkBorder
+                                : AppColors.lightBorder,
+                          ),
+                        ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
                             'OR',
                             style: TextStyle(
-                              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                              color: isDark
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.lightTextSecondary,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
-                        Expanded(child: Divider(color: isDark ? AppColors.darkBorder : AppColors.lightBorder)),
+                        Expanded(
+                          child: Divider(
+                            color: isDark
+                                ? AppColors.darkBorder
+                                : AppColors.lightBorder,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 24),
@@ -213,12 +243,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         Text(
                           AppStrings.dontHaveAccount,
                           style: TextStyle(
-                            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
                             fontSize: 14,
                           ),
                         ),
                         GestureDetector(
-                          onTap: () => Navigator.pushNamed(context, AppRoutes.register),
+                          onTap: () =>
+                              Navigator.pushNamed(context, AppRoutes.register),
                           child: const Text(
                             AppStrings.signUp,
                             style: TextStyle(

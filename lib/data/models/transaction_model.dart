@@ -1,5 +1,16 @@
+/// Defines whether a transaction adds to or subtracts from the user's balance.
 enum TransactionType { income, expense }
 
+/// Represents a single financial event recorded by the user.
+///
+/// Important rule: A transaction may carry an optional [goalId] linking it
+/// to a [GoalModel]. When present:
+/// - The transaction still counts toward **global totals** (income or expense
+///   in Dashboard / Budget). It must NOT be excluded to avoid double-counting.
+/// - The Goal provider uses [goalId] to calculate the goal's current balance.
+///
+/// Transactions are stored in Hive via [TransactionRepository] and exposed
+/// to the UI through [TransactionsProvider].
 class TransactionModel {
   final String id;
   final String title;
@@ -42,7 +53,9 @@ class TransactionModel {
       id: map['id'] ?? '',
       title: map['title'] ?? '',
       amount: (map['amount'] as num?)?.toDouble() ?? 0.0,
-      type: map['type'] == 'income' ? TransactionType.income : TransactionType.expense,
+      type: map['type'] == 'income'
+          ? TransactionType.income
+          : TransactionType.expense,
       categoryId: map['categoryId'] ?? 'other',
       categoryName: map['categoryName'] ?? 'Other',
       date: map['date'] != null ? DateTime.parse(map['date']) : DateTime.now(),

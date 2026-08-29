@@ -29,7 +29,9 @@ void main() {
   test('TransactionsNotifier filters and sorts correctly', () async {
     final container = ProviderContainer(
       overrides: [
-        transactionRepositoryProvider.overrideWithValue(TransactionRepositoryImpl()),
+        transactionRepositoryProvider.overrideWithValue(
+          TransactionRepositoryImpl(),
+        ),
       ],
     );
 
@@ -44,16 +46,24 @@ void main() {
     expect(state.filteredTransactions.length, 6);
 
     // Filter by type: Income
-    container.read(transactionsProvider.notifier).setSelectedType(TransactionType.income);
+    container
+        .read(transactionsProvider.notifier)
+        .setSelectedType(TransactionType.income);
     state = container.read(transactionsProvider);
-    expect(state.filteredTransactions.every((t) => t.type == TransactionType.income), true);
+    expect(
+      state.filteredTransactions.every((t) => t.type == TransactionType.income),
+      true,
+    );
     expect(state.filteredTransactions.length, 2); // Salary, Freelance
 
     // Clear type filter, filter by Category: Food
     container.read(transactionsProvider.notifier).setSelectedType(null);
     container.read(transactionsProvider.notifier).setSelectedCategory('food');
     state = container.read(transactionsProvider);
-    expect(state.filteredTransactions.every((t) => t.categoryId == 'food'), true);
+    expect(
+      state.filteredTransactions.every((t) => t.categoryId == 'food'),
+      true,
+    );
     expect(state.filteredTransactions.length, 2); // Blinkit, Starbucks
 
     // Search query: swiggy (should match nothing) vs blinkit (matches Blinkit Groceries)
@@ -69,17 +79,24 @@ void main() {
     expect(state.filteredTransactions.length, 6);
 
     // Sort by Amount Descending
-    container.read(transactionsProvider.notifier).setSortBy(TransactionSortBy.amountDesc);
+    container
+        .read(transactionsProvider.notifier)
+        .setSortBy(TransactionSortBy.amountDesc);
     state = container.read(transactionsProvider);
     expect(state.filteredTransactions[0].amount, 65000.0); // Salary
-    expect(state.filteredTransactions[1].amount, 18500.0); // Freelance UI Project
+    expect(
+      state.filteredTransactions[1].amount,
+      18500.0,
+    ); // Freelance UI Project
     expect(state.filteredTransactions[5].amount, 210.0); // Uber Auto Ride
   });
 
   test('TransactionsNotifier add, update, delete works', () async {
     final container = ProviderContainer(
       overrides: [
-        transactionRepositoryProvider.overrideWithValue(TransactionRepositoryImpl()),
+        transactionRepositoryProvider.overrideWithValue(
+          TransactionRepositoryImpl(),
+        ),
       ],
     );
 
@@ -102,7 +119,9 @@ void main() {
       date: DateTime.now(),
     );
 
-    await container.read(transactionsProvider.notifier).updateTransaction(newTxn); // update doubles as add since it uses put
+    await container
+        .read(transactionsProvider.notifier)
+        .updateTransaction(newTxn); // update doubles as add since it uses put
     state = container.read(transactionsProvider);
     expect(state.transactions.length, initialCount + 1);
     expect(state.transactions.any((t) => t.id == 'test_txn_99'), true);
@@ -118,14 +137,18 @@ void main() {
       date: DateTime.now(),
     );
 
-    await container.read(transactionsProvider.notifier).updateTransaction(updatedTxn);
+    await container
+        .read(transactionsProvider.notifier)
+        .updateTransaction(updatedTxn);
     state = container.read(transactionsProvider);
     final stored = state.transactions.firstWhere((t) => t.id == 'test_txn_99');
     expect(stored.title, 'Gourmet Coffee');
     expect(stored.amount, 180.0);
 
     // Delete transaction
-    await container.read(transactionsProvider.notifier).deleteTransaction('test_txn_99');
+    await container
+        .read(transactionsProvider.notifier)
+        .deleteTransaction('test_txn_99');
     state = container.read(transactionsProvider);
     expect(state.transactions.length, initialCount);
     expect(state.transactions.any((t) => t.id == 'test_txn_99'), false);

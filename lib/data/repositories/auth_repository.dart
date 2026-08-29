@@ -5,7 +5,11 @@ import '../../core/services/hive_service.dart';
 abstract class AuthRepository {
   Future<UserModel?> getCurrentUser();
   Future<UserModel> loginWithEmail(String email, String password);
-  Future<UserModel> registerWithEmail(String email, String password, String name);
+  Future<UserModel> registerWithEmail(
+    String email,
+    String password,
+    String name,
+  );
   Future<UserModel> loginWithGoogle();
   Future<void> sendPasswordResetEmail(String email);
   Future<void> logout();
@@ -31,8 +35,10 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<UserModel> loginWithEmail(String email, String password) async {
-    await Future.delayed(const Duration(milliseconds: 600)); // Simulate async network response
-    
+    await Future.delayed(
+      const Duration(milliseconds: 600),
+    ); // Simulate async network response
+
     final user = UserModel(
       uid: 'hive_user_101',
       email: email,
@@ -49,7 +55,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<UserModel> registerWithEmail(String email, String password, String name) async {
+  Future<UserModel> registerWithEmail(
+    String email,
+    String password,
+    String name,
+  ) async {
     await Future.delayed(const Duration(milliseconds: 600));
 
     final user = UserModel(

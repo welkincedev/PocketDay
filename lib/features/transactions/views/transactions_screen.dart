@@ -58,16 +58,18 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                     height: 4,
                     margin: const EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
-                      color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                      color: isDark
+                          ? AppColors.darkBorder
+                          : AppColors.lightBorder,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                 ),
                 Text(
                   'Add Transaction',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
                 ListTile(
@@ -77,9 +79,15 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                       color: AppColors.income.withAlpha(25),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.arrow_downward_rounded, color: AppColors.income),
+                    child: const Icon(
+                      Icons.arrow_downward_rounded,
+                      color: AppColors.income,
+                    ),
                   ),
-                  title: const Text('Add Income', style: TextStyle(fontWeight: FontWeight.bold)),
+                  title: const Text(
+                    'Add Income',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: const Text('Salary, Freelance, Investment, etc.'),
                   onTap: () {
                     Navigator.pop(ctx);
@@ -94,9 +102,15 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                       color: AppColors.expense.withAlpha(25),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.arrow_upward_rounded, color: AppColors.expense),
+                    child: const Icon(
+                      Icons.arrow_upward_rounded,
+                      color: AppColors.expense,
+                    ),
                   ),
-                  title: const Text('Add Expense', style: TextStyle(fontWeight: FontWeight.bold)),
+                  title: const Text(
+                    'Add Expense',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: const Text('Food, Shopping, Bills, Travel, etc.'),
                   onTap: () {
                     Navigator.pop(ctx);
@@ -130,7 +144,8 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     final state = ref.watch(transactionsProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final hasActiveFilters = state.selectedCategoryId != null ||
+    final hasActiveFilters =
+        state.selectedCategoryId != null ||
         state.selectedType != null ||
         state.selectedDateRange != null;
 
@@ -161,7 +176,9 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
           Container(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
             decoration: BoxDecoration(
-              color: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+              color: isDark
+                  ? AppColors.darkBackground
+                  : AppColors.lightBackground,
             ),
             child: Row(
               children: [
@@ -169,42 +186,58 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+                      color: isDark
+                          ? AppColors.darkSurface
+                          : AppColors.lightSurface,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                        color: isDark
+                            ? AppColors.darkBorder
+                            : AppColors.lightBorder,
                       ),
                     ),
                     child: TextField(
                       controller: _searchController,
                       onChanged: (val) {
-                        ref.read(transactionsProvider.notifier).setSearchQuery(val);
+                        ref
+                            .read(transactionsProvider.notifier)
+                            .setSearchQuery(val);
                       },
                       style: TextStyle(
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Search transactions...',
                         hintStyle: TextStyle(
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
                         ),
                         prefixIcon: Icon(
                           Icons.search_rounded,
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
                         ),
                         suffixIcon: _searchController.text.isNotEmpty
                             ? IconButton(
                                 icon: const Icon(Icons.clear_rounded),
                                 onPressed: () {
                                   _searchController.clear();
-                                  ref.read(transactionsProvider.notifier).setSearchQuery('');
+                                  ref
+                                      .read(transactionsProvider.notifier)
+                                      .setSearchQuery('');
                                 },
                               )
                             : null,
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                        ),
                       ),
                     ),
                   ),
@@ -215,7 +248,9 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                 Material(
                   color: hasActiveFilters
                       ? AppColors.primary
-                      : (isDark ? AppColors.darkSurface : AppColors.lightSurface),
+                      : (isDark
+                            ? AppColors.darkSurface
+                            : AppColors.lightSurface),
                   borderRadius: BorderRadius.circular(12),
                   child: InkWell(
                     onTap: () {
@@ -223,7 +258,8 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                         context: context,
                         isScrollControlled: true,
                         backgroundColor: Colors.transparent,
-                        builder: (context) => const TransactionsFilterBottomSheet(),
+                        builder: (context) =>
+                            const TransactionsFilterBottomSheet(),
                       );
                     },
                     borderRadius: BorderRadius.circular(12),
@@ -234,14 +270,18 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                         border: Border.all(
                           color: hasActiveFilters
                               ? AppColors.primary
-                              : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                              : (isDark
+                                    ? AppColors.darkBorder
+                                    : AppColors.lightBorder),
                         ),
                       ),
                       child: Icon(
                         Icons.tune_rounded,
                         color: hasActiveFilters
                             ? Colors.white
-                            : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
+                            : (isDark
+                                  ? AppColors.darkTextPrimary
+                                  : AppColors.lightTextPrimary),
                       ),
                     ),
                   ),
@@ -255,30 +295,39 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
             child: state.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : state.filteredTransactions.isEmpty
-                    ? Center(
-                        child: EmptyStateWidget(
-                          icon: (hasActiveFilters || _searchController.text.isNotEmpty)
-                              ? Icons.search_off_rounded
-                              : Icons.receipt_long_rounded,
-                          title: (hasActiveFilters || _searchController.text.isNotEmpty)
-                              ? 'No matches'
-                              : AppStrings.noTransactionsYet,
-                          description: (hasActiveFilters || _searchController.text.isNotEmpty)
-                              ? 'No transactions found with the active filters.'
-                              : 'Your transactions will be listed here.',
-                        ),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        itemCount: state.filteredTransactions.length,
-                        itemBuilder: (context, index) {
-                          final txn = state.filteredTransactions[index];
-                          return TransactionItemTile(
-                            transaction: txn,
-                            onTap: () => _showDetailBottomSheet(context, txn),
-                          );
-                        },
-                      ),
+                ? Center(
+                    child: EmptyStateWidget(
+                      icon:
+                          (hasActiveFilters ||
+                              _searchController.text.isNotEmpty)
+                          ? Icons.search_off_rounded
+                          : Icons.receipt_long_rounded,
+                      title:
+                          (hasActiveFilters ||
+                              _searchController.text.isNotEmpty)
+                          ? 'No matches'
+                          : AppStrings.noTransactionsYet,
+                      description:
+                          (hasActiveFilters ||
+                              _searchController.text.isNotEmpty)
+                          ? 'No transactions found with the active filters.'
+                          : 'Your transactions will be listed here.',
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    itemCount: state.filteredTransactions.length,
+                    itemBuilder: (context, index) {
+                      final txn = state.filteredTransactions[index];
+                      return TransactionItemTile(
+                        transaction: txn,
+                        onTap: () => _showDetailBottomSheet(context, txn),
+                      );
+                    },
+                  ),
           ),
         ],
       ),

@@ -32,7 +32,9 @@ class DashboardGoalsSummaryWidget extends ConsumerWidget {
       if (!goal.isGoalCompleted(current)) activeCount++;
     }
 
-    final overallPercent = totalTarget > 0 ? (totalCurrent / totalTarget).clamp(0.0, 1.0) : 0.0;
+    final overallPercent = totalTarget > 0
+        ? (totalCurrent / totalTarget).clamp(0.0, 1.0)
+        : 0.0;
     final overallPercentText = (overallPercent * 100).toStringAsFixed(0);
 
     return AppCard(
@@ -48,9 +50,9 @@ class DashboardGoalsSummaryWidget extends ConsumerWidget {
             children: [
               Text(
                 'Goals',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
               ),
               Text(
                 '$activeCount active',
@@ -71,7 +73,9 @@ class DashboardGoalsSummaryWidget extends ConsumerWidget {
                   '${CurrencyFormatter.format(totalCurrent)} of ${CurrencyFormatter.format(totalTarget)}',
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.lightTextSecondary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -95,8 +99,12 @@ class DashboardGoalsSummaryWidget extends ConsumerWidget {
               height: 6,
               child: LinearProgressIndicator(
                 value: overallPercent,
-                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest,
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppColors.primary,
+                ),
               ),
             ),
           ),

@@ -6,6 +6,12 @@ import '../../../data/models/transaction_model.dart';
 import '../../../data/repositories/goal_repository.dart';
 import '../../transactions/providers/transactions_provider.dart';
 
+/// Immutable state container for the Goals feature.
+///
+/// [goals] is the persisted list of [GoalModel] objects.
+/// [transactions] is a copy of the current transaction list, injected from
+/// [transactionsProvider] so that goal calculations can react to any
+/// transaction add / edit / delete without extra plumbing.
 class GoalsState {
   final List<GoalModel> goals;
   final List<TransactionModel> transactions;
@@ -76,15 +82,9 @@ class GoalsNotifier extends StateNotifier<GoalsState> {
       final goals = await _repo.getGoals();
       // Default sorting: active goals first, then by creation date desc
       // (Wait, we can dynamically sort based on completeness by evaluating transactions!)
-      state = state.copyWith(
-        goals: goals,
-        isLoading: false,
-      );
+      state = state.copyWith(goals: goals, isLoading: false);
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 

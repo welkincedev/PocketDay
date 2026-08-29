@@ -25,10 +25,10 @@ class AppConstants {
   static const String budgetBox = 'budgetBox';
   static const String goalsBox = 'goalsBox';
   static const String subscriptionsBox = 'subscriptionsBox';
+  static const String processedAutoExpensesBox = 'processedAutoExpensesBox';
 
   // Hive Keys
   static const String keyIsDarkMode = 'isDarkMode';
-  static const String keyHideBalance = 'hideBalance';
   static const String keyHasOnboarded = 'hasOnboarded';
   static const String keyUserToken = 'userToken';
 
@@ -96,6 +96,13 @@ class AppConstants {
       'icon': Icons.trending_up_rounded,
       'color': Color(0xFF14B8A6),
       'type': 'income',
+    },
+    {
+      'id': 'goal_contribution',
+      'name': 'Goal Contribution',
+      'icon': Icons.savings_rounded,
+      'color': Color(0xFF10B981),
+      'type': 'both',
     },
     {
       'id': 'other',

@@ -20,7 +20,8 @@ class AddBudgetBottomSheet extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AddBudgetBottomSheet> createState() => _AddBudgetBottomSheetState();
+  ConsumerState<AddBudgetBottomSheet> createState() =>
+      _AddBudgetBottomSheetState();
 }
 
 class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
@@ -36,7 +37,9 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
     _selectedMonth = widget.month;
     _selectedCategoryId = widget.budgetToEdit?.categoryId;
 
-    final amountStr = widget.budgetToEdit != null ? widget.budgetToEdit!.amount.toStringAsFixed(0) : '';
+    final amountStr = widget.budgetToEdit != null
+        ? widget.budgetToEdit!.amount.toStringAsFixed(0)
+        : '';
     _amountController = TextEditingController(text: amountStr);
 
     if (widget.budgetToEdit != null) {
@@ -45,7 +48,7 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
         _selectedMonth = DateTime(int.parse(parts[0]), int.parse(parts[1]), 1);
       }
     }
-    
+
     _checkExistingBudget();
   }
 
@@ -63,7 +66,7 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
 
     final monthStr = DateFormat('yyyy-MM').format(_selectedMonth);
     final allBudgets = ref.read(budgetProvider).allBudgets;
-    
+
     try {
       _existingBudget = allBudgets.firstWhere(
         (b) => b.month == monthStr && b.categoryId == _selectedCategoryId,
@@ -80,8 +83,14 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
       options.add(DateTime(now.year, now.month + i, 1));
     }
     // Ensure currently selected month is included in options
-    final selectedStart = DateTime(_selectedMonth.year, _selectedMonth.month, 1);
-    if (!options.any((d) => d.year == selectedStart.year && d.month == selectedStart.month)) {
+    final selectedStart = DateTime(
+      _selectedMonth.year,
+      _selectedMonth.month,
+      1,
+    );
+    if (!options.any(
+      (d) => d.year == selectedStart.year && d.month == selectedStart.month,
+    )) {
       options.add(selectedStart);
       options.sort();
     }
@@ -107,7 +116,10 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
         month: monthStr,
         categoryId: _selectedCategoryId,
         categoryName: categoryMeta?['name'] as String?,
-        createdAt: widget.budgetToEdit?.createdAt ?? _existingBudget?.createdAt ?? DateTime.now(),
+        createdAt:
+            widget.budgetToEdit?.createdAt ??
+            _existingBudget?.createdAt ??
+            DateTime.now(),
         updatedAt: DateTime.now(),
       );
 
@@ -148,7 +160,9 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -158,9 +172,11 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
               Text(
                 isEditing ? 'Edit Budget' : 'New Budget',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
+                ),
               ),
               const SizedBox(height: 20),
 
@@ -169,7 +185,9 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
                 controller: _amountController,
                 label: 'Budget Amount (₹)',
                 hint: 'Enter monthly spending limit',
-                keyboardType: const TextInputType.numberWithOptions(decimal: false),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: false,
+                ),
                 prefixIcon: Icons.currency_rupee_rounded,
                 validator: (val) {
                   if (val == null || val.trim().isEmpty) {
@@ -190,22 +208,33 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
                 decoration: InputDecoration(
                   labelText: 'Budget Scope / Category',
                   labelStyle: TextStyle(
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.lightTextSecondary,
                   ),
                   filled: true,
-                  fillColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+                  fillColor: isDark
+                      ? AppColors.darkBackground
+                      : AppColors.lightBackground,
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                      color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                      color: isDark
+                          ? AppColors.darkBorder
+                          : AppColors.lightBorder,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                    borderSide: const BorderSide(
+                      color: AppColors.primary,
+                      width: 2,
+                    ),
                   ),
                 ),
-                dropdownColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+                dropdownColor: isDark
+                    ? AppColors.darkSurface
+                    : AppColors.lightSurface,
                 items: [
                   DropdownMenuItem<String?>(
                     value: null,
@@ -214,13 +243,17 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
                         Icon(
                           Icons.all_inclusive_rounded,
                           size: 18,
-                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           'Overall Budget',
                           style: TextStyle(
-                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                            color: isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.lightTextPrimary,
                           ),
                         ),
                       ],
@@ -240,7 +273,9 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
                           Text(
                             name,
                             style: TextStyle(
-                              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                              color: isDark
+                                  ? AppColors.darkTextPrimary
+                                  : AppColors.lightTextPrimary,
                             ),
                           ),
                         ],
@@ -259,26 +294,41 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
 
               // Month Selector
               DropdownButtonFormField<DateTime>(
-                initialValue: DateTime(_selectedMonth.year, _selectedMonth.month, 1),
+                initialValue: DateTime(
+                  _selectedMonth.year,
+                  _selectedMonth.month,
+                  1,
+                ),
                 decoration: InputDecoration(
                   labelText: 'Budget Month',
                   labelStyle: TextStyle(
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.lightTextSecondary,
                   ),
                   filled: true,
-                  fillColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+                  fillColor: isDark
+                      ? AppColors.darkBackground
+                      : AppColors.lightBackground,
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                      color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                      color: isDark
+                          ? AppColors.darkBorder
+                          : AppColors.lightBorder,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                    borderSide: const BorderSide(
+                      color: AppColors.primary,
+                      width: 2,
+                    ),
                   ),
                 ),
-                dropdownColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+                dropdownColor: isDark
+                    ? AppColors.darkSurface
+                    : AppColors.lightSurface,
                 items: monthOptions.map((date) {
                   final text = DateFormat('MMMM yyyy').format(date);
                   return DropdownMenuItem<DateTime>(
@@ -286,7 +336,9 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
                     child: Text(
                       text,
                       style: TextStyle(
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
                     ),
                   );
@@ -313,7 +365,11 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 20),
+                      const Icon(
+                        Icons.warning_amber_rounded,
+                        color: Colors.amber,
+                        size: 20,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -321,7 +377,9 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: isDark ? Colors.amber[200] : Colors.amber[800],
+                            color: isDark
+                                ? Colors.amber[200]
+                                : Colors.amber[800],
                           ),
                         ),
                       ),

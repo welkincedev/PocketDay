@@ -12,11 +12,7 @@ void main() async {
   // Initialize Hive Local Database Engine
   await HiveService.init();
 
-  runApp(
-    const ProviderScope(
-      child: PocketDayApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: PocketDayApp()));
 }
 
 class PocketDayApp extends ConsumerWidget {

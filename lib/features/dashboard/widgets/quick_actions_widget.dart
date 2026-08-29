@@ -5,22 +5,27 @@ import '../../../data/models/transaction_model.dart';
 class QuickActionsWidget extends StatelessWidget {
   final Function(TransactionType) onAddTransaction;
 
-  const QuickActionsWidget({
-    super.key,
-    required this.onAddTransaction,
-  });
+  const QuickActionsWidget({super.key, required this.onAddTransaction});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Desaturated green tones for Income
-    final incomeBgColor = isDark ? const Color(0xFF064E3B).withAlpha(120) : const Color(0xFFD1FAE5);
-    final incomeTextColor = isDark ? const Color(0xFF34D399) : const Color(0xFF065F46);
+    final incomeBgColor = isDark
+        ? const Color(0xFF064E3B).withAlpha(120)
+        : const Color(0xFFD1FAE5);
+    final incomeTextColor = isDark
+        ? const Color(0xFF34D399)
+        : const Color(0xFF065F46);
 
     // Desaturated red tones for Expense
-    final expenseBgColor = isDark ? const Color(0xFF7F1D1D).withAlpha(120) : const Color(0xFFFEE2E2);
-    final expenseTextColor = isDark ? const Color(0xFFF87171) : const Color(0xFF991B1B);
+    final expenseBgColor = isDark
+        ? const Color(0xFF7F1D1D).withAlpha(120)
+        : const Color(0xFFFEE2E2);
+    final expenseTextColor = isDark
+        ? const Color(0xFFF87171)
+        : const Color(0xFF991B1B);
 
     return Row(
       children: [
@@ -69,10 +74,7 @@ class QuickActionsWidget extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: textColor.withAlpha(60),
-              width: 1.5,
-            ),
+            border: Border.all(color: textColor.withAlpha(60), width: 1.5),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

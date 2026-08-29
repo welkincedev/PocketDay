@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
-import '../../../core/theme/theme_provider.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/date_formatter.dart';
 import '../../../core/widgets/app_button.dart';
@@ -69,7 +68,6 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final hideBalance = ref.watch(hideBalanceProvider);
     final isIncome = transaction.type == TransactionType.income;
 
     // Category metadata lookup
@@ -193,7 +191,7 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              '${isIncome ? '+' : '-'}${CurrencyFormatter.format(transaction.amount, isHidden: hideBalance)}',
+              '${isIncome ? '+' : '-'}${CurrencyFormatter.format(transaction.amount)}',
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.w800,

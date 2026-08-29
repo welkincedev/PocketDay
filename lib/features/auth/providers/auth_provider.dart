@@ -6,10 +6,11 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepositoryImpl();
 });
 
-final authProvider = StateNotifierProvider<AuthNotifier, AsyncValue<UserModel?>>((ref) {
-  final repo = ref.watch(authRepositoryProvider);
-  return AuthNotifier(repo);
-});
+final authProvider =
+    StateNotifierProvider<AuthNotifier, AsyncValue<UserModel?>>((ref) {
+      final repo = ref.watch(authRepositoryProvider);
+      return AuthNotifier(repo);
+    });
 
 class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
   final AuthRepository _repo;
@@ -40,7 +41,11 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
     }
   }
 
-  Future<bool> registerWithEmail(String email, String password, String name) async {
+  Future<bool> registerWithEmail(
+    String email,
+    String password,
+    String name,
+  ) async {
     state = const AsyncValue.loading();
     try {
       final user = await _repo.registerWithEmail(email, password, name);

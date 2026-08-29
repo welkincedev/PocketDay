@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
-import '../../../core/theme/theme_provider.dart';
 import '../../../core/widgets/balance_display_widget.dart';
+import '../../../core/utils/currency_formatter.dart';
 
-class DashboardCardWidget extends ConsumerWidget {
+/// The hero balance card shown at the top of the Dashboard.
+///
+/// Displays the user's total balance (income − expenses for the current month)
+/// with an income/expense breakdown beneath a divider. The gradient adapts to
+/// the active theme.
+class DashboardCardWidget extends StatelessWidget {
   final double balance;
   final double income;
   final double expense;
@@ -20,8 +24,7 @@ class DashboardCardWidget extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final hideBalance = ref.watch(hideBalanceProvider);
+  Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
@@ -48,39 +51,21 @@ class DashboardCardWidget extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Total Balance Header & Visibility Toggle Button
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                AppStrings.totalBalance.toUpperCase(),
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.1,
-                  color: Colors.white.withAlpha(200),
-                ),
-              ),
-              IconButton(
-                constraints: const BoxConstraints(),
-                padding: EdgeInsets.zero,
-                icon: Icon(
-                  hideBalance ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                  color: Colors.white,
-                  size: 20,
-                ),
-                onPressed: () {
-                  ref.read(hideBalanceProvider.notifier).toggle();
-                },
-              ),
-            ],
+          // Balance label
+          Text(
+            AppStrings.totalBalance.toUpperCase(),
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+              color: Colors.white.withAlpha(180),
+            ),
           ),
           const SizedBox(height: 6),
 
-          // Total Balance Amount in monospaced display typography
+          // Balance amount
           BalanceDisplayWidget(
             amount: balance,
-            isHidden: hideBalance,
             style: const TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.w800,
@@ -91,24 +76,20 @@ class DashboardCardWidget extends ConsumerWidget {
           ),
           const SizedBox(height: 20),
 
-          // Subtle Divider
-          Container(
-            height: 1,
-            color: Colors.white.withAlpha(30),
-          ),
+          // Divider
+          Container(height: 1, color: Colors.white.withAlpha(30)),
           const SizedBox(height: 16),
 
-          // Two-column cash flow breakdown (Income & Expense only)
+          // Income / Expense breakdown
           Row(
             children: [
               Expanded(
                 child: _buildMetricTile(
                   context: context,
                   label: AppStrings.monthlyIncome,
-                  amount: income,
+                  value: CurrencyFormatter.formatCompact(income),
                   icon: Icons.arrow_downward_rounded,
-                  accentColor: const Color(0xFFA7F3D0), // Desaturated green tone
-                  isHidden: hideBalance,
+                  accentColor: const Color(0xFFA7F3D0),
                 ),
               ),
               const SizedBox(width: 12),
@@ -116,10 +97,9 @@ class DashboardCardWidget extends ConsumerWidget {
                 child: _buildMetricTile(
                   context: context,
                   label: AppStrings.monthlyExpense,
-                  amount: expense,
+                  value: CurrencyFormatter.formatCompact(expense),
                   icon: Icons.arrow_upward_rounded,
-                  accentColor: const Color(0xFFFCA5A5), // Desaturated red tone
-                  isHidden: hideBalance,
+                  accentColor: const Color(0xFFFCA5A5),
                 ),
               ),
             ],
@@ -132,10 +112,9 @@ class DashboardCardWidget extends ConsumerWidget {
   Widget _buildMetricTile({
     required BuildContext context,
     required String label,
-    required double amount,
+    required String value,
     required IconData icon,
     required Color accentColor,
-    required bool isHidden,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
@@ -167,15 +146,16 @@ class DashboardCardWidget extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 6),
-          BalanceDisplayWidget(
-            amount: amount,
-            isHidden: isHidden,
+          Text(
+            value,
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
               fontFamily: 'monospace',
               color: accentColor,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

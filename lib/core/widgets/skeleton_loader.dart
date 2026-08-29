@@ -49,10 +49,11 @@ class _SkeletonLoaderState extends State<SkeletonLoader>
           width: widget.width,
           height: widget.height,
           decoration: BoxDecoration(
-            color: (isDark
-                    ? AppColors.shimmerBaseDark
-                    : AppColors.shimmerBaseLight)
-                .withAlpha((_animation.value * 255).round()),
+            color:
+                (isDark
+                        ? AppColors.shimmerBaseDark
+                        : AppColors.shimmerBaseLight)
+                    .withAlpha((_animation.value * 255).round()),
             borderRadius: BorderRadius.circular(widget.borderRadius),
           ),
         );

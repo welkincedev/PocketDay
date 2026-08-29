@@ -17,7 +17,20 @@ import '../widgets/spending_chart_widget.dart';
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
-  void _openAddTransactionModal(BuildContext context, WidgetRef ref, TransactionType type) {
+  /// Returns a time-aware greeting using the user's first name.
+  String _greeting(String? displayName) {
+    final hour = DateTime.now().hour;
+    final firstName = displayName?.split(' ').first ?? 'there';
+    if (hour < 12) return 'Good morning, $firstName';
+    if (hour < 17) return 'Good afternoon, $firstName';
+    return 'Good evening, $firstName';
+  }
+
+  void _openAddTransactionModal(
+    BuildContext context,
+    WidgetRef ref,
+    TransactionType type,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -56,26 +69,29 @@ class DashboardScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Hello, ${user?.displayName.split(' ').first ?? 'Alex'} 👋',
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          _greeting(user?.displayName),
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 2),
                         Text(
-                          'Here is your financial status today',
+                          "Here's where your money stands.",
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ],
                     ),
                     // Interactive Profile Avatar
                     GestureDetector(
-                      onTap: () => Navigator.pushNamed(context, AppRoutes.profile),
+                      onTap: () =>
+                          Navigator.pushNamed(context, AppRoutes.profile),
                       child: Container(
                         padding: const EdgeInsets.all(2),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.primary, width: 2),
+                          border: Border.all(
+                            color: AppColors.primary,
+                            width: 2,
+                          ),
                         ),
                         child: CircleAvatar(
                           radius: 20,
@@ -99,7 +115,11 @@ class DashboardScreen extends ConsumerWidget {
 
                 // Hero Dashboard Balance Card
                 if (dashboardState.isLoading) ...[
-                  const SkeletonLoader(width: double.infinity, height: 190, borderRadius: 24),
+                  const SkeletonLoader(
+                    width: double.infinity,
+                    height: 190,
+                    borderRadius: 24,
+                  ),
                 ] else ...[
                   DashboardCardWidget(
                     balance: dashboardState.totalBalance,
@@ -115,7 +135,8 @@ class DashboardScreen extends ConsumerWidget {
 
                 // Quick Actions Bar
                 QuickActionsWidget(
-                  onAddTransaction: (type) => _openAddTransactionModal(context, ref, type),
+                  onAddTransaction: (type) =>
+                      _openAddTransactionModal(context, ref, type),
                 ),
                 const SizedBox(height: 24),
 

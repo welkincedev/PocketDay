@@ -14,7 +14,9 @@ class CategoryBudgetProgressWidget extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final budgetState = ref.watch(budgetProvider);
 
-    final categoryBudgets = budgetState.currentBudgets.where((b) => b.categoryId != null).toList();
+    final categoryBudgets = budgetState.currentBudgets
+        .where((b) => b.categoryId != null)
+        .toList();
 
     return AppCard(
       child: Column(
@@ -25,14 +27,16 @@ class CategoryBudgetProgressWidget extends ConsumerWidget {
             children: [
               Text(
                 'Category Budget Progress',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               Icon(
                 Icons.pie_chart_outline_rounded,
                 size: 18,
-                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.lightTextSecondary,
               ),
             ],
           ),
@@ -44,14 +48,19 @@ class CategoryBudgetProgressWidget extends ConsumerWidget {
                 'No category budgets configured for ${DateFormat('MMMM yyyy').format(budgetState.selectedMonth)}. Go to the Budgets tab to set limit scopes.',
                 style: TextStyle(
                   fontSize: 12,
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.lightTextSecondary,
                 ),
               ),
             ),
           ] else ...[
             ...categoryBudgets.map((budget) {
-              final spent = budgetState.categorySpending[budget.categoryId] ?? 0.0;
-              final progress = budget.amount > 0 ? (spent / budget.amount).clamp(0.0, 1.0) : 0.0;
+              final spent =
+                  budgetState.categorySpending[budget.categoryId] ?? 0.0;
+              final progress = budget.amount > 0
+                  ? (spent / budget.amount).clamp(0.0, 1.0)
+                  : 0.0;
 
               final catMeta = AppConstants.defaultCategories.firstWhere(
                 (c) => c['id'] == budget.categoryId,
@@ -82,7 +91,9 @@ class CategoryBudgetProgressWidget extends ConsumerWidget {
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                color: isDark
+                                    ? AppColors.darkTextPrimary
+                                    : AppColors.lightTextPrimary,
                               ),
                             ),
                           ],
@@ -94,7 +105,9 @@ class CategoryBudgetProgressWidget extends ConsumerWidget {
                             fontWeight: FontWeight.w500,
                             color: spent > budget.amount
                                 ? AppColors.expense
-                                : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary),
+                                : (isDark
+                                      ? AppColors.darkTextSecondary
+                                      : AppColors.lightTextSecondary),
                           ),
                         ),
                       ],
@@ -105,7 +118,9 @@ class CategoryBudgetProgressWidget extends ConsumerWidget {
                       child: LinearProgressIndicator(
                         value: progress,
                         minHeight: 6,
-                        backgroundColor: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                        backgroundColor: isDark
+                            ? AppColors.darkBorder
+                            : AppColors.lightBorder,
                         valueColor: AlwaysStoppedAnimation<Color>(
                           spent > budget.amount ? AppColors.expense : color,
                         ),

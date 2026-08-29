@@ -7,7 +7,8 @@ final themeProvider = StateNotifierProvider<ThemeNotifier, ThemeMode>((ref) {
 });
 
 class ThemeNotifier extends StateNotifier<ThemeMode> {
-  ThemeNotifier() : super(HiveService.isDarkMode ? ThemeMode.dark : ThemeMode.light);
+  ThemeNotifier()
+    : super(HiveService.isDarkMode ? ThemeMode.dark : ThemeMode.light);
 
   bool get isDarkMode => state == ThemeMode.dark;
 
@@ -22,19 +23,5 @@ class ThemeNotifier extends StateNotifier<ThemeMode> {
   void setThemeMode(ThemeMode mode) {
     state = mode;
     HiveService.setDarkMode(mode == ThemeMode.dark);
-  }
-}
-
-// Balance Visibility Provider
-final hideBalanceProvider = StateNotifierProvider<HideBalanceNotifier, bool>((ref) {
-  return HideBalanceNotifier();
-});
-
-class HideBalanceNotifier extends StateNotifier<bool> {
-  HideBalanceNotifier() : super(HiveService.hideBalance);
-
-  void toggle() {
-    state = !state;
-    HiveService.setHideBalance(state);
   }
 }

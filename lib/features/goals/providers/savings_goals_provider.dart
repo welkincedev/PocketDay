@@ -28,10 +28,11 @@ class SavingsGoalsState {
   }
 }
 
-final savingsGoalsProvider = StateNotifierProvider<SavingsGoalsNotifier, SavingsGoalsState>((ref) {
-  final repo = ref.watch(savingsGoalRepositoryProvider);
-  return SavingsGoalsNotifier(repo);
-});
+final savingsGoalsProvider =
+    StateNotifierProvider<SavingsGoalsNotifier, SavingsGoalsState>((ref) {
+      final repo = ref.watch(savingsGoalRepositoryProvider);
+      return SavingsGoalsNotifier(repo);
+    });
 
 class SavingsGoalsNotifier extends StateNotifier<SavingsGoalsState> {
   final SavingsGoalRepository _repo;
@@ -62,15 +63,9 @@ class SavingsGoalsNotifier extends StateNotifier<SavingsGoalsState> {
         }
         return b.createdAt.compareTo(a.createdAt); // Creation order descending
       });
-      state = state.copyWith(
-        goals: goals,
-        isLoading: false,
-      );
+      state = state.copyWith(goals: goals, isLoading: false);
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
@@ -132,7 +127,9 @@ class SavingsGoalsNotifier extends StateNotifier<SavingsGoalsState> {
   Future<void> removeSavings(String goalId, double amount) async {
     try {
       final goal = state.goals.firstWhere((g) => g.id == goalId);
-      final newSavedAmount = (goal.savedAmount - amount) > 0 ? (goal.savedAmount - amount) : 0.0;
+      final newSavedAmount = (goal.savedAmount - amount) > 0
+          ? (goal.savedAmount - amount)
+          : 0.0;
       final updated = goal.copyWith(
         savedAmount: newSavedAmount,
         updatedAt: DateTime.now(),

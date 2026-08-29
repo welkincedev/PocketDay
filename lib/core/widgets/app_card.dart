@@ -23,10 +23,14 @@ class AppCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: backgroundColor ?? (isDark ? AppColors.darkCard : AppColors.lightCard),
+        color:
+            backgroundColor ??
+            (isDark ? AppColors.darkCard : AppColors.lightCard),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: border?.color ?? (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+          color:
+              border?.color ??
+              (isDark ? AppColors.darkBorder : AppColors.lightBorder),
           width: border?.width ?? 1,
         ),
         boxShadow: [

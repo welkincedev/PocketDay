@@ -10,13 +10,11 @@ import '../providers/savings_goals_provider.dart';
 class AddSavingsBottomSheet extends ConsumerStatefulWidget {
   final SavingsGoalModel goal;
 
-  const AddSavingsBottomSheet({
-    super.key,
-    required this.goal,
-  });
+  const AddSavingsBottomSheet({super.key, required this.goal});
 
   @override
-  ConsumerState<AddSavingsBottomSheet> createState() => _AddSavingsBottomSheetState();
+  ConsumerState<AddSavingsBottomSheet> createState() =>
+      _AddSavingsBottomSheetState();
 }
 
 class _AddSavingsBottomSheetState extends ConsumerState<AddSavingsBottomSheet> {
@@ -51,7 +49,8 @@ class _AddSavingsBottomSheetState extends ConsumerState<AddSavingsBottomSheet> {
     final val = double.tryParse(text);
     setState(() {
       _enteredAmount = val ?? 0.0;
-      if (widget.goal.savedAmount + _enteredAmount <= widget.goal.targetAmount) {
+      if (widget.goal.savedAmount + _enteredAmount <=
+          widget.goal.targetAmount) {
         _confirmOverTarget = false;
       }
     });
@@ -70,7 +69,9 @@ class _AddSavingsBottomSheetState extends ConsumerState<AddSavingsBottomSheet> {
       return;
     }
 
-    ref.read(savingsGoalsProvider.notifier).addSavings(widget.goal.id, _enteredAmount);
+    ref
+        .read(savingsGoalsProvider.notifier)
+        .addSavings(widget.goal.id, _enteredAmount);
     Navigator.pop(context);
   }
 
@@ -106,7 +107,9 @@ class _AddSavingsBottomSheetState extends ConsumerState<AddSavingsBottomSheet> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -116,18 +119,17 @@ class _AddSavingsBottomSheetState extends ConsumerState<AddSavingsBottomSheet> {
               // Title block
               Row(
                 children: [
-                  Text(
-                    widget.goal.emoji,
-                    style: const TextStyle(fontSize: 24),
-                  ),
+                  Text(widget.goal.emoji, style: const TextStyle(fontSize: 24)),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Add to ${widget.goal.name}',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                          ),
+                        fontWeight: FontWeight.bold,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -147,19 +149,24 @@ class _AddSavingsBottomSheetState extends ConsumerState<AddSavingsBottomSheet> {
                         'Current Savings',
                         style: TextStyle(
                           fontSize: 12,
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         CurrencyFormatter.format(currentSaved),
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
-                  const Icon(Icons.arrow_forward_rounded, color: AppColors.primary, size: 20),
+                  const Icon(
+                    Icons.arrow_forward_rounded,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -167,15 +174,20 @@ class _AddSavingsBottomSheetState extends ConsumerState<AddSavingsBottomSheet> {
                         'New Total',
                         style: TextStyle(
                           fontSize: 12,
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         CurrencyFormatter.format(totalFutureAmount),
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: isOverTarget ? Colors.orange : AppColors.primary,
+                              color: isOverTarget
+                                  ? Colors.orange
+                                  : AppColors.primary,
                             ),
                       ),
                     ],
@@ -189,7 +201,9 @@ class _AddSavingsBottomSheetState extends ConsumerState<AddSavingsBottomSheet> {
                 controller: _amountController,
                 label: 'Add Savings Amount',
                 hint: 'Enter amount to save (₹)',
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 prefixIcon: Icons.currency_rupee_rounded,
                 validator: (val) {
                   if (val == null || val.trim().isEmpty) {
@@ -221,7 +235,9 @@ class _AddSavingsBottomSheetState extends ConsumerState<AddSavingsBottomSheet> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.orange[300] : Colors.orange[800],
+                          color: isDark
+                              ? Colors.orange[300]
+                              : Colors.orange[800],
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -229,7 +245,9 @@ class _AddSavingsBottomSheetState extends ConsumerState<AddSavingsBottomSheet> {
                         '${CurrencyFormatter.format(_enteredAmount)} will take this goal over its ${CurrencyFormatter.format(targetAmount)} target.',
                         style: TextStyle(
                           fontSize: 12,
-                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary,
                         ),
                       ),
                     ],
@@ -240,7 +258,9 @@ class _AddSavingsBottomSheetState extends ConsumerState<AddSavingsBottomSheet> {
 
               // Confirm button
               AppButton(
-                text: isOverTarget && !_confirmOverTarget ? 'Confirm Over Target' : 'Add Savings',
+                text: isOverTarget && !_confirmOverTarget
+                    ? 'Confirm Over Target'
+                    : 'Add Savings',
                 onPressed: _submit,
               ),
             ],

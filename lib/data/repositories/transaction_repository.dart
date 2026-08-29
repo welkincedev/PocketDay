@@ -96,7 +96,8 @@ class TransactionRepositoryImpl implements TransactionRepository {
       entries[txn.id] = txn.toMap();
     }
     await box.putAll(entries);
-    return List.from(_mockTransactions)..sort((a, b) => b.date.compareTo(a.date));
+    return List.from(_mockTransactions)
+      ..sort((a, b) => b.date.compareTo(a.date));
   }
 
   @override

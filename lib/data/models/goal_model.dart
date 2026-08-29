@@ -1,5 +1,22 @@
 import 'transaction_model.dart';
 
+/// Represents a financial Goal that the user is working toward.
+///
+/// A Goal has a [targetAmount] and tracks progress through linked transactions:
+/// - Income transactions with `categoryId == 'goal_contribution'` and
+///   matching [GoalModel.id] in [TransactionModel.goalId] are **direct additions**.
+/// - Expense transactions with a matching [TransactionModel.goalId] are
+///   **goal-linked purchases** — they count as **positive progress** toward
+///   the goal (the user spent money on the thing they're saving for).
+///
+/// A goal-linked expense is still a normal expense in the global financial
+/// system (Dashboard, Budget, Transaction list). The goal calculation is a
+/// separate interpretation of the same transaction.
+///
+/// All financial values (current balance, progress, remaining) are **derived
+/// at read time** from the transaction list — they are never stored.
+///
+/// See [GoalCalculations] for the calculation helpers.
 class GoalModel {
   final String id;
   final String name;
@@ -37,9 +54,15 @@ class GoalModel {
       name: map['name'] ?? '',
       targetAmount: (map['targetAmount'] as num?)?.toDouble() ?? 0.0,
       emoji: map['emoji'] ?? '🎯',
-      targetDate: map['targetDate'] != null ? DateTime.parse(map['targetDate']) : null,
-      createdAt: map['createdAt'] != null ? DateTime.parse(map['createdAt']) : DateTime.now(),
-      updatedAt: map['updatedAt'] != null ? DateTime.parse(map['updatedAt']) : DateTime.now(),
+      targetDate: map['targetDate'] != null
+          ? DateTime.parse(map['targetDate'])
+          : null,
+      createdAt: map['createdAt'] != null
+          ? DateTime.parse(map['createdAt'])
+          : DateTime.now(),
+      updatedAt: map['updatedAt'] != null
+          ? DateTime.parse(map['updatedAt'])
+          : DateTime.now(),
     );
   }
 
@@ -65,26 +88,49 @@ class GoalModel {
 }
 
 extension GoalCalculations on GoalModel {
+  /// Calculates the current progress amount for this goal from [transactions].
+  ///
+  /// Goal progress rule:
+  /// ```
+  /// progress = sum of goal_contributions + sum of goal-linked expense amounts
+  /// ```
+  ///
+  /// Both contribution income AND goal-linked purchases count as positive
+  /// progress. A goal-linked expense means "I spent money toward this goal",
+  /// which is progress, not a deduction.
   double calculateCurrentAmount(List<TransactionModel> transactions) {
     double balance = 0.0;
     for (var txn in transactions) {
       if (txn.goalId == id) {
-        if (txn.categoryId == 'goal_contribution') {
-          balance += txn.amount;
-        } else if (txn.type == TransactionType.expense) {
-          balance -= txn.amount;
-        }
+        // Both direct contributions and goal-linked expenses increase progress
+        balance += txn.amount;
       }
     }
     return balance;
   }
 
+  /// Returns the goal-context impact of a single [transaction].
+  ///
+  /// In goal context, ALL linked transactions are positive progress:
+  /// - Direct contributions: +amount
+  /// - Goal-linked expenses: +amount (spending toward the goal)
+  ///
+  /// Returns 0 if the transaction is not linked to this goal.
+  double calculateGoalImpact(TransactionModel transaction) {
+    if (transaction.goalId != id) return 0.0;
+    return transaction.amount; // always positive in goal context
+  }
+
   double calculateRemainingAmount(double currentAmount) {
-    return (targetAmount - currentAmount) > 0 ? (targetAmount - currentAmount) : 0.0;
+    return (targetAmount - currentAmount) > 0
+        ? (targetAmount - currentAmount)
+        : 0.0;
   }
 
   double calculateProgress(double currentAmount) {
-    return targetAmount > 0 ? (currentAmount / targetAmount).clamp(0.0, 1.0) : 0.0;
+    return targetAmount > 0
+        ? (currentAmount / targetAmount).clamp(0.0, 1.0)
+        : 0.0;
   }
 
   double calculatePercentage(double currentAmount) {

@@ -19,11 +19,14 @@ class SavingsGoalModel {
     required this.updatedAt,
   });
 
-  double get remainingAmount => (targetAmount - savedAmount) > 0 ? (targetAmount - savedAmount) : 0.0;
+  double get remainingAmount =>
+      (targetAmount - savedAmount) > 0 ? (targetAmount - savedAmount) : 0.0;
 
-  double get progress => targetAmount > 0 ? (savedAmount / targetAmount).clamp(0.0, 1.0) : 0.0;
+  double get progress =>
+      targetAmount > 0 ? (savedAmount / targetAmount).clamp(0.0, 1.0) : 0.0;
 
-  double get percentage => targetAmount > 0 ? (savedAmount / targetAmount) * 100 : 0.0;
+  double get percentage =>
+      targetAmount > 0 ? (savedAmount / targetAmount) * 100 : 0.0;
 
   bool get isCompleted => savedAmount >= targetAmount;
 
@@ -47,9 +50,15 @@ class SavingsGoalModel {
       targetAmount: (map['targetAmount'] as num?)?.toDouble() ?? 0.0,
       savedAmount: (map['savedAmount'] as num?)?.toDouble() ?? 0.0,
       emoji: map['emoji'] ?? '💰',
-      targetDate: map['targetDate'] != null ? DateTime.parse(map['targetDate']) : null,
-      createdAt: map['createdAt'] != null ? DateTime.parse(map['createdAt']) : DateTime.now(),
-      updatedAt: map['updatedAt'] != null ? DateTime.parse(map['updatedAt']) : DateTime.now(),
+      targetDate: map['targetDate'] != null
+          ? DateTime.parse(map['targetDate'])
+          : null,
+      createdAt: map['createdAt'] != null
+          ? DateTime.parse(map['createdAt'])
+          : DateTime.now(),
+      updatedAt: map['updatedAt'] != null
+          ? DateTime.parse(map['updatedAt'])
+          : DateTime.now(),
     );
   }
 

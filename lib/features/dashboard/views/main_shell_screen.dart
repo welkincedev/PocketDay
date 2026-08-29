@@ -24,10 +24,7 @@ class MainShellScreen extends ConsumerWidget {
     final currentIndex = ref.watch(navigationProvider);
 
     return Scaffold(
-      body: IndexedStack(
-        index: currentIndex,
-        children: _pages,
-      ),
+      body: IndexedStack(index: currentIndex, children: _pages),
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentIndex,
         labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,

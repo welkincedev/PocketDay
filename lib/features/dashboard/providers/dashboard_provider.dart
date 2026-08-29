@@ -6,7 +6,11 @@ import '../../../data/models/budget_model.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../data/repositories/transaction_repository.dart';
 
-
+/// Immutable snapshot of the Dashboard's derived financial data.
+///
+/// All amounts are scoped to the **current calendar month**.
+/// [totalBalance] = [totalIncome] − [totalExpense] for the month.
+/// [remainingBudget] is computed from [monthlyBudget] − [currentMonthExpense].
 class DashboardState {
   final double totalIncome;
   final double totalExpense;
@@ -50,10 +54,11 @@ class DashboardState {
   }
 }
 
-final dashboardProvider = StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
-  final repo = ref.watch(transactionRepositoryProvider);
-  return DashboardNotifier(repo);
-});
+final dashboardProvider =
+    StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
+      final repo = ref.watch(transactionRepositoryProvider);
+      return DashboardNotifier(repo);
+    });
 
 class DashboardNotifier extends StateNotifier<DashboardState> {
   final TransactionRepository _repo;
@@ -119,10 +124,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         isLoading: false,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 

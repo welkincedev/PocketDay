@@ -9,11 +9,7 @@ class SavingsGoalCard extends StatelessWidget {
   final SavingsGoalModel goal;
   final VoidCallback onTap;
 
-  const SavingsGoalCard({
-    super.key,
-    required this.goal,
-    required this.onTap,
-  });
+  const SavingsGoalCard({super.key, required this.goal, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +20,8 @@ class SavingsGoalCard extends StatelessWidget {
 
     // Determine state color
     final stateColor = isCompleted
-        ? AppColors.primary // Emerald Green
+        ? AppColors
+              .primary // Emerald Green
         : (progressVal >= 0.8 ? Colors.orange : AppColors.primary);
 
     String? dateText;
@@ -57,16 +54,10 @@ class SavingsGoalCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: stateColor.withAlpha(20),
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: stateColor.withAlpha(40),
-                    width: 1,
-                  ),
+                  border: Border.all(color: stateColor.withAlpha(40), width: 1),
                 ),
                 alignment: Alignment.center,
-                child: Text(
-                  goal.emoji,
-                  style: const TextStyle(fontSize: 22),
-                ),
+                child: Text(goal.emoji, style: const TextStyle(fontSize: 22)),
               ),
               const SizedBox(width: 14),
 
@@ -78,9 +69,9 @@ class SavingsGoalCard extends StatelessWidget {
                     Text(
                       goal.name,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            decoration: isCompleted ? TextDecoration.none : null,
-                          ),
+                        fontWeight: FontWeight.bold,
+                        decoration: isCompleted ? TextDecoration.none : null,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -90,7 +81,9 @@ class SavingsGoalCard extends StatelessWidget {
                         'Target: ${DateFormat('MMMM yyyy').format(goal.targetDate!)} • $dateText',
                         style: TextStyle(
                           fontSize: 12,
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -117,7 +110,11 @@ class SavingsGoalCard extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.check_circle_rounded, size: 12, color: stateColor),
+                        Icon(
+                          Icons.check_circle_rounded,
+                          size: 12,
+                          color: stateColor,
+                        ),
                         const SizedBox(width: 2),
                         Text(
                           'Reached',
@@ -142,7 +139,9 @@ class SavingsGoalCard extends StatelessWidget {
               height: 6,
               child: LinearProgressIndicator(
                 value: progressVal,
-                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest,
                 valueColor: AlwaysStoppedAnimation<Color>(stateColor),
               ),
             ),
@@ -158,7 +157,9 @@ class SavingsGoalCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
                 ),
               ),
               Text(
@@ -170,7 +171,9 @@ class SavingsGoalCard extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                   color: isCompleted
                       ? stateColor
-                      : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary),
+                      : (isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary),
                 ),
               ),
             ],

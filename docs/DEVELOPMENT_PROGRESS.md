@@ -11,9 +11,9 @@ This document tracks the implementation progress of PocketDay features phase by 
 - **Phase 2: Authentication & Profile** — `[x] Complete`
 - **Phase 3: Dashboard & Core Money Tracking** — `[x] Complete`
 - **Phase 4: Advanced Transactions** — `[x] Complete`
-- **Phase 5: Budget Management** — `[ ] Not Started`
-- **Phase 6: Savings Goals** — `[ ] Not Started`
-- **Phase 7: Subscription Tracker** — `[ ] Not Started`
+- **Phase 5: Budget Management** — `[x] Complete`
+- **Phase 6: Goals** — `[x] Complete`
+- **Phase 7: Subscription Tracker** — `[x] Complete`
 - **Phase 8: Notifications** — `[ ] Not Started`
 - **Phase 9: Advanced Analytics** — `[ ] Not Started`
 - **Phase 10: Firebase Cloud Sync** — `[ ] Not Started`

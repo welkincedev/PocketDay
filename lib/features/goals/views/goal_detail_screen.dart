@@ -7,6 +7,7 @@ import '../../../data/models/goal_model.dart';
 import '../providers/goals_provider.dart';
 import '../widgets/add_to_goal_sheet.dart';
 import '../widgets/edit_goal_sheet.dart';
+import '../../transactions/widgets/transaction_detail_bottom_sheet.dart';
 
 class GoalDetailScreen extends ConsumerWidget {
   final GoalModel goal;
@@ -18,10 +19,8 @@ class GoalDetailScreen extends ConsumerWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => AddToGoalSheet(
-        goal: goal,
-        currentAmount: currentAmount,
-      ),
+      builder: (context) =>
+          AddToGoalSheet(goal: goal, currentAmount: currentAmount),
     );
   }
 
@@ -76,10 +75,9 @@ class GoalDetailScreen extends ConsumerWidget {
         : goal;
 
     final transactions = state.transactions;
-    final goalTransactions = transactions
-        .where((t) => t.goalId == currentGoal.id)
-        .toList()
-      ..sort((a, b) => b.date.compareTo(a.date));
+    final goalTransactions =
+        transactions.where((t) => t.goalId == currentGoal.id).toList()
+          ..sort((a, b) => b.date.compareTo(a.date));
 
     final currentAmount = currentGoal.calculateCurrentAmount(transactions);
     final remainingAmount = currentGoal.calculateRemainingAmount(currentAmount);
@@ -88,7 +86,9 @@ class GoalDetailScreen extends ConsumerWidget {
     final isCompleted = currentGoal.isGoalCompleted(currentAmount);
     final isAboveTarget = currentAmount > currentGoal.targetAmount;
 
-    final stateColor = isCompleted ? AppColors.primary : (progressVal >= 0.8 ? Colors.orange : AppColors.primary);
+    final stateColor = isCompleted
+        ? AppColors.primary
+        : (progressVal >= 0.8 ? Colors.orange : AppColors.primary);
 
     // Status text for accessibility
     String statusLabel;
@@ -104,7 +104,11 @@ class GoalDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(currentGoal.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+        title: Text(
+          currentGoal.name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
@@ -138,7 +142,10 @@ class GoalDetailScreen extends ConsumerWidget {
                           shape: BoxShape.circle,
                         ),
                         alignment: Alignment.center,
-                        child: Text(currentGoal.emoji, style: const TextStyle(fontSize: 26)),
+                        child: Text(
+                          currentGoal.emoji,
+                          style: const TextStyle(fontSize: 26),
+                        ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -147,10 +154,13 @@ class GoalDetailScreen extends ConsumerWidget {
                           children: [
                             Text(
                               CurrencyFormatter.format(currentAmount),
-                              style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                              style: Theme.of(context).textTheme.displaySmall
+                                  ?.copyWith(
                                     fontWeight: FontWeight.w900,
                                     fontFamily: 'monospace',
-                                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                    color: isDark
+                                        ? AppColors.darkTextPrimary
+                                        : AppColors.lightTextPrimary,
                                   ),
                             ),
                             const SizedBox(height: 2),
@@ -158,7 +168,9 @@ class GoalDetailScreen extends ConsumerWidget {
                               'of ${CurrencyFormatter.format(currentGoal.targetAmount)}',
                               style: TextStyle(
                                 fontSize: 14,
-                                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                color: isDark
+                                    ? AppColors.darkTextSecondary
+                                    : AppColors.lightTextSecondary,
                               ),
                             ),
                           ],
@@ -175,7 +187,9 @@ class GoalDetailScreen extends ConsumerWidget {
                       height: 10,
                       child: LinearProgressIndicator(
                         value: progressVal,
-                        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
                         valueColor: AlwaysStoppedAnimation<Color>(stateColor),
                       ),
                     ),
@@ -197,7 +211,9 @@ class GoalDetailScreen extends ConsumerWidget {
                         child: _MetricChip(
                           label: isAboveTarget ? 'Above target' : 'Remaining',
                           value: CurrencyFormatter.format(
-                            isAboveTarget ? currentAmount - currentGoal.targetAmount : remainingAmount,
+                            isAboveTarget
+                                ? currentAmount - currentGoal.targetAmount
+                                : remainingAmount,
                           ),
                           color: isAboveTarget ? Colors.orange : null,
                         ),
@@ -217,9 +233,14 @@ class GoalDetailScreen extends ConsumerWidget {
                   if (currentGoal.targetDate != null) ...[
                     const SizedBox(height: 16),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(80),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest.withAlpha(80),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Row(
@@ -228,34 +249,46 @@ class GoalDetailScreen extends ConsumerWidget {
                           Icon(
                             Icons.calendar_today_rounded,
                             size: 14,
-                            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
                           ),
                           const SizedBox(width: 8),
                           Text(
                             'Target: ${DateFormat('MMMM yyyy').format(currentGoal.targetDate!)}',
                             style: TextStyle(
                               fontSize: 13,
-                              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                              color: isDark
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.lightTextSecondary,
                             ),
                           ),
                           if (!isCompleted) ...[
                             const SizedBox(width: 6),
-                            Builder(builder: (context) {
-                              final diff = currentGoal.targetDate!.difference(DateTime.now());
-                              final months = (diff.inDays / 30).ceil();
-                              String timeLeft = diff.isNegative ? '(past due)' : '$months months left';
-                              if (!diff.isNegative && months <= 0) {
-                                timeLeft = '${diff.inDays} days left';
-                              }
-                              return Text(
-                                '• $timeLeft',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: diff.isNegative ? AppColors.expense : AppColors.primary,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              );
-                            }),
+                            Builder(
+                              builder: (context) {
+                                final diff = currentGoal.targetDate!.difference(
+                                  DateTime.now(),
+                                );
+                                final months = (diff.inDays / 30).ceil();
+                                String timeLeft = diff.isNegative
+                                    ? '(past due)'
+                                    : '$months months left';
+                                if (!diff.isNegative && months <= 0) {
+                                  timeLeft = '${diff.inDays} days left';
+                                }
+                                return Text(
+                                  '• $timeLeft',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: diff.isNegative
+                                        ? AppColors.expense
+                                        : AppColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                );
+                              },
+                            ),
                           ],
                         ],
                       ),
@@ -267,14 +300,17 @@ class GoalDetailScreen extends ConsumerWidget {
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton.icon(
-                      onPressed: () => _openAddMoneySheet(context, currentAmount),
+                      onPressed: () =>
+                          _openAddMoneySheet(context, currentAmount),
                       icon: const Icon(Icons.add_rounded),
                       label: const Text('Add money'),
                       style: FilledButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                     ),
                   ),
@@ -284,9 +320,11 @@ class GoalDetailScreen extends ConsumerWidget {
                   Text(
                     'Goal Activity',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
+                    ),
                   ),
                   const SizedBox(height: 12),
                 ],
@@ -298,20 +336,27 @@ class GoalDetailScreen extends ConsumerWidget {
           if (goalTransactions.isEmpty)
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 child: Column(
                   children: [
                     Icon(
                       Icons.timeline_rounded,
                       size: 40,
-                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
                     ),
                     const SizedBox(height: 12),
                     Text(
                       'No activity yet.',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -319,7 +364,9 @@ class GoalDetailScreen extends ConsumerWidget {
                       'Start adding money toward this Goal.',
                       style: TextStyle(
                         fontSize: 13,
-                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
                       ),
                     ),
                   ],
@@ -328,68 +375,96 @@ class GoalDetailScreen extends ConsumerWidget {
             )
           else
             SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final txn = goalTransactions[index];
-                  final isContribution = txn.categoryId == 'goal_contribution';
-                  final sign = isContribution ? '+' : '−';
-                  final amountColor = isContribution ? AppColors.income : AppColors.expense;
-                  final iconData = isContribution ? Icons.add_circle_outline_rounded : Icons.remove_circle_outline_rounded;
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final txn = goalTransactions[index];
+                final isContribution = txn.categoryId == 'goal_contribution';
+                // In goal context, ALL linked transactions are positive progress
+                const sign = '+';
+                const amountColor = AppColors.income;
+                final iconData = isContribution
+                    ? Icons.add_circle_outline_rounded
+                    : Icons.shopping_bag_rounded;
+                final subtitle = isContribution
+                    ? 'Added to Goal'
+                    : 'Goal progress';
 
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: amountColor.withAlpha(20),
-                            shape: BoxShape.circle,
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 4,
+                  ),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) =>
+                            TransactionDetailBottomSheet(transaction: txn),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 8,
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: amountColor.withAlpha(20),
+                              shape: BoxShape.circle,
+                            ),
+                            alignment: Alignment.center,
+                            child: Icon(iconData, size: 18, color: amountColor),
                           ),
-                          alignment: Alignment.center,
-                          child: Icon(iconData, size: 18, color: amountColor),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                txn.title,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  txn.title,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                    color: isDark
+                                        ? AppColors.darkTextPrimary
+                                        : AppColors.lightTextPrimary,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              Text(
-                                DateFormat('MMM d').format(txn.date),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                Text(
+                                  '${DateFormat('MMM d').format(txn.date)} · $subtitle',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: isDark
+                                        ? AppColors.darkTextSecondary
+                                        : AppColors.lightTextSecondary,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                        Text(
-                          '$sign ${CurrencyFormatter.format(txn.amount)}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                            fontFamily: 'monospace',
-                            color: amountColor,
+                          Text(
+                            '$sign ${CurrencyFormatter.format(txn.amount)}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              fontFamily: 'monospace',
+                              color: amountColor,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  );
-                },
-                childCount: goalTransactions.length,
-              ),
+                  ),
+                );
+              }, childCount: goalTransactions.length),
             ),
 
           const SliverToBoxAdapter(child: SizedBox(height: 80)),
@@ -412,7 +487,9 @@ class _MetricChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(60),
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withAlpha(60),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
@@ -423,7 +500,9 @@ class _MetricChip extends StatelessWidget {
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,
-              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+              color: isDark
+                  ? AppColors.darkTextSecondary
+                  : AppColors.lightTextSecondary,
             ),
           ),
           const SizedBox(height: 4),
@@ -433,7 +512,11 @@ class _MetricChip extends StatelessWidget {
               fontSize: 13,
               fontWeight: FontWeight.bold,
               fontFamily: 'monospace',
-              color: color ?? (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
+              color:
+                  color ??
+                  (isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary),
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
