@@ -13,11 +13,8 @@
 // Mock Hive Boxes → ProviderContainer → BudgetNotifier → Test Assertions
 // ============================================================
 
-import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
-import 'package:pocketday/core/constants/app_constants.dart';
 import 'package:pocketday/data/models/budget_model.dart';
 import 'package:pocketday/data/models/transaction_model.dart';
 import 'package:pocketday/data/repositories/budget_repository.dart';
@@ -26,23 +23,6 @@ import 'package:pocketday/features/budget/providers/budget_provider.dart';
 import 'package:pocketday/features/transactions/providers/transactions_provider.dart';
 
 void main() {
-  late Directory tempDir;
-
-  setUp(() async {
-    tempDir = await Directory.systemTemp.createTemp('pocketday_budget_test');
-    Hive.init(tempDir.path);
-    await Hive.openBox(AppConstants.settingsBox);
-    await Hive.openBox(AppConstants.userBox);
-    final box = await Hive.openBox(AppConstants.transactionsBox);
-    await box.clear();
-    final bBox = await Hive.openBox(AppConstants.budgetBox);
-    await bBox.clear();
-  });
-
-  tearDown(() async {
-    await Hive.close();
-    await tempDir.delete(recursive: true);
-  });
 
   test('Budget CRUD and calculations works correctly', () async {
     final container = ProviderContainer(
@@ -135,13 +115,9 @@ void main() {
       date: DateTime(2026, 8, 1),
     );
 
-    // Write to Hive Box directly to simulate repository sync in a single operation
-    final txnBox = Hive.box(AppConstants.transactionsBox);
-    await txnBox.putAll({
-      t1.id: t1.toMap(),
-      t2.id: t2.toMap(),
-      t3.id: t3.toMap(),
-    });
+    await container.read(transactionsProvider.notifier).addTransaction(t1);
+    await container.read(transactionsProvider.notifier).addTransaction(t2);
+    await container.read(transactionsProvider.notifier).addTransaction(t3);
 
     // Trigger notifier reload
     await container.read(transactionsProvider.notifier).loadTransactions();

@@ -44,11 +44,15 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
     checkCurrentUser();
   }
 
+  void _onUserAuthenticated(UserModel? user) {
+    state = AsyncValue.data(user);
+  }
+
   Future<void> checkCurrentUser() async {
     state = const AsyncValue.loading();
     try {
       final user = await _repo.getCurrentUser();
-      state = AsyncValue.data(user);
+      _onUserAuthenticated(user);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -58,7 +62,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
     state = const AsyncValue.loading();
     try {
       final user = await _repo.loginWithEmail(email, password);
-      state = AsyncValue.data(user);
+      _onUserAuthenticated(user);
       return true;
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -74,7 +78,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
     state = const AsyncValue.loading();
     try {
       final user = await _repo.registerWithEmail(email, password, name);
-      state = AsyncValue.data(user);
+      _onUserAuthenticated(user);
       return true;
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -86,7 +90,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
     state = const AsyncValue.loading();
     try {
       final user = await _repo.loginWithGoogle();
-      state = AsyncValue.data(user);
+      _onUserAuthenticated(user);
       return true;
     } catch (e, st) {
       state = AsyncValue.error(e, st);

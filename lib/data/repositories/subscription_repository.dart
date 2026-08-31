@@ -22,57 +22,126 @@
 // - deleteSubscription(id): Delete subscription from Hive
 // ============================================================
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/services/hive_service.dart';
 import '../models/subscription_model.dart';
 
-/// Riverpod provider for [SubscriptionRepository].
 final subscriptionRepositoryProvider = Provider<SubscriptionRepository>((ref) {
   return SubscriptionRepositoryImpl();
 });
 
-/// Abstract repository interface for Subscriptions.
 abstract class SubscriptionRepository {
   Future<List<SubscriptionModel>> getSubscriptions();
   Future<void> saveSubscription(SubscriptionModel subscription);
   Future<void> deleteSubscription(String id);
+  Stream<List<SubscriptionModel>>? watchSubscriptions();
 }
 
-/// Hive implementation of [SubscriptionRepository].
 class SubscriptionRepositoryImpl implements SubscriptionRepository {
+  final List<SubscriptionModel> _memoryStore = [];
+
+  FirebaseFirestore? get _firestore {
+    try {
+      return FirebaseFirestore.instance;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  FirebaseAuth? get _auth {
+    try {
+      return FirebaseAuth.instance;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String? get _currentUid => _auth?.currentUser?.uid;
+
+  @override
+  Stream<List<SubscriptionModel>>? watchSubscriptions() {
+    final uid = _currentUid;
+    if (uid == null || uid.isEmpty || _firestore == null) return null;
+
+    try {
+      return _firestore!
+          .collection('users')
+          .doc(uid)
+          .collection('subscriptions')
+          .snapshots()
+          .map((snapshot) {
+            final list = snapshot.docs
+                .map((doc) => SubscriptionModel.fromMap(doc.data()))
+                .toList();
+            list.sort((a, b) => a.nextPaymentDate.compareTo(b.nextPaymentDate));
+            return list;
+          });
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
   Future<List<SubscriptionModel>> getSubscriptions() async {
-    final box = HiveService.subscriptionsBox;
-    final List<SubscriptionModel> subscriptions = [];
+    final uid = _currentUid;
 
-    for (var key in box.keys) {
-      final item = box.get(key);
-      if (item is Map) {
-        try {
-          final map = Map<String, dynamic>.from(item);
-          subscriptions.add(SubscriptionModel.fromMap(map));
-        } catch (e) {
-          // ignore corrupted items
+    if (uid != null && uid.isNotEmpty && _firestore != null) {
+      try {
+        final snapshot = await _firestore!
+            .collection('users')
+            .doc(uid)
+            .collection('subscriptions')
+            .get();
+
+        final List<SubscriptionModel> subscriptions = [];
+        for (var doc in snapshot.docs) {
+          subscriptions.add(SubscriptionModel.fromMap(doc.data()));
         }
-      }
+        subscriptions.sort(
+          (a, b) => a.nextPaymentDate.compareTo(b.nextPaymentDate),
+        );
+        return subscriptions;
+      } catch (_) {}
     }
 
-    // Sort by next payment date ascending by default
-    subscriptions.sort(
-      (a, b) => a.nextPaymentDate.compareTo(b.nextPaymentDate),
-    );
-    return subscriptions;
+    final list = List<SubscriptionModel>.from(_memoryStore);
+    list.sort((a, b) => a.nextPaymentDate.compareTo(b.nextPaymentDate));
+    return list;
   }
 
   @override
   Future<void> saveSubscription(SubscriptionModel subscription) async {
-    final box = HiveService.subscriptionsBox;
-    await box.put(subscription.id, subscription.toMap());
+    _memoryStore.removeWhere((s) => s.id == subscription.id);
+    _memoryStore.add(subscription);
+
+    final uid = _currentUid;
+    if (uid != null && uid.isNotEmpty && _firestore != null) {
+      try {
+        await _firestore!
+            .collection('users')
+            .doc(uid)
+            .collection('subscriptions')
+            .doc(subscription.id)
+            .set(subscription.toMap(), SetOptions(merge: true));
+      } catch (_) {}
+    }
   }
 
   @override
   Future<void> deleteSubscription(String id) async {
-    final box = HiveService.subscriptionsBox;
-    await box.delete(id);
+    _memoryStore.removeWhere((s) => s.id == id);
+
+    final uid = _currentUid;
+    if (uid != null && uid.isNotEmpty && _firestore != null) {
+      try {
+        await _firestore!
+            .collection('users')
+            .doc(uid)
+            .collection('subscriptions')
+            .doc(id)
+            .delete();
+      } catch (_) {}
+    }
   }
 }

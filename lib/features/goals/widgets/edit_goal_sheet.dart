@@ -110,16 +110,33 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
     }
   }
 
-  void _submit() {
+  bool _isLoading = false;
+
+  void _submit() async {
+    if (_isLoading) return;
     if (!_formKey.currentState!.validate()) return;
-    final updated = widget.goal.copyWith(
-      name: _nameController.text.trim(),
-      targetAmount: double.parse(_amountController.text.trim()),
-      emoji: _selectedEmoji,
-      targetDate: _selectedDate,
-    );
-    ref.read(goalsProvider.notifier).updateGoal(updated);
-    Navigator.pop(context);
+
+    setState(() => _isLoading = true);
+
+    try {
+      final updated = widget.goal.copyWith(
+        name: _nameController.text.trim(),
+        targetAmount: double.parse(_amountController.text.trim()),
+        emoji: _selectedEmoji,
+        targetDate: _selectedDate,
+      );
+      await ref.read(goalsProvider.notifier).updateGoal(updated);
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update goal: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -324,7 +341,11 @@ class _EditGoalSheetState extends ConsumerState<EditGoalSheet> {
               ),
               const SizedBox(height: 24),
 
-              AppButton(text: 'Save Changes', onPressed: _submit),
+              AppButton(
+                text: 'Save Changes',
+                isLoading: _isLoading,
+                onPressed: _submit,
+              ),
             ],
           ),
         ),

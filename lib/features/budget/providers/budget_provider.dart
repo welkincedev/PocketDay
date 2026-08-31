@@ -20,9 +20,7 @@
 // ============================================================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
-import '../../../core/services/hive_service.dart';
 import '../../../data/models/budget_model.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../data/repositories/budget_repository.dart';
@@ -89,21 +87,12 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
   BudgetNotifier(this._repo)
     : super(BudgetState(selectedMonth: DateTime.now())) {
     loadBudgets();
-    HiveService.budgetBox.listenable().addListener(_onBudgetsBoxChanged);
-  }
-
-  void _onBudgetsBoxChanged() {
-    loadBudgets();
-  }
-
-  @override
-  void dispose() {
-    HiveService.budgetBox.listenable().removeListener(_onBudgetsBoxChanged);
-    super.dispose();
   }
 
   Future<void> loadBudgets() async {
-    state = state.copyWith(isLoading: true, error: null);
+    if (state.allBudgets.isEmpty) {
+      state = state.copyWith(isLoading: true, error: null);
+    }
     try {
       final budgets = await _repo.getBudgets();
       state = state.copyWith(allBudgets: budgets, isLoading: false);
@@ -157,6 +146,7 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
   Future<void> saveBudget(BudgetModel budget) async {
     try {
       await _repo.saveBudget(budget);
+      await loadBudgets();
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }
@@ -165,6 +155,7 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
   Future<void> deleteBudget(String id) async {
     try {
       await _repo.deleteBudget(id);
+      await loadBudgets();
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }

@@ -97,22 +97,38 @@ class _CreateGoalSheetState extends ConsumerState<CreateGoalSheet> {
     }
   }
 
-  void _submit() {
+  bool _isLoading = false;
+
+  void _submit() async {
+    if (_isLoading) return;
     if (!_formKey.currentState!.validate()) return;
 
-    final name = _nameController.text.trim();
-    final targetAmount = double.parse(_amountController.text.trim());
+    setState(() => _isLoading = true);
 
-    ref
-        .read(goalsProvider.notifier)
-        .addGoal(
-          name: name,
-          targetAmount: targetAmount,
-          emoji: _selectedEmoji,
-          targetDate: _selectedDate,
+    try {
+      final name = _nameController.text.trim();
+      final targetAmount = double.parse(_amountController.text.trim());
+
+      await ref
+          .read(goalsProvider.notifier)
+          .addGoal(
+            name: name,
+            targetAmount: targetAmount,
+            emoji: _selectedEmoji,
+            targetDate: _selectedDate,
+          );
+
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to create goal: $e')),
         );
-
-    Navigator.pop(context);
+      }
+    }
   }
 
   @override
@@ -326,7 +342,11 @@ class _CreateGoalSheetState extends ConsumerState<CreateGoalSheet> {
               ),
               const SizedBox(height: 24),
 
-              AppButton(text: 'Create Goal', onPressed: _submit),
+              AppButton(
+                text: 'Create Goal',
+                isLoading: _isLoading,
+                onPressed: _submit,
+              ),
             ],
           ),
         ),

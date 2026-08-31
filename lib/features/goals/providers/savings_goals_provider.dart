@@ -18,8 +18,6 @@
 // ============================================================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import '../../../core/services/hive_service.dart';
 import '../../../data/models/savings_goal_model.dart';
 import '../../../data/repositories/savings_goal_repository.dart';
 
@@ -58,29 +56,19 @@ class SavingsGoalsNotifier extends StateNotifier<SavingsGoalsState> {
 
   SavingsGoalsNotifier(this._repo) : super(SavingsGoalsState()) {
     loadGoals();
-    HiveService.goalsBox.listenable().addListener(_onGoalsBoxChanged);
-  }
-
-  void _onGoalsBoxChanged() {
-    loadGoals();
-  }
-
-  @override
-  void dispose() {
-    HiveService.goalsBox.listenable().removeListener(_onGoalsBoxChanged);
-    super.dispose();
   }
 
   Future<void> loadGoals() async {
-    state = state.copyWith(isLoading: true, error: null);
+    if (state.goals.isEmpty) {
+      state = state.copyWith(isLoading: true, error: null);
+    }
     try {
       final goals = await _repo.getGoals();
-      // Default sorting: active goals first, then by progress desc, then by date desc
       goals.sort((a, b) {
         if (a.isCompleted != b.isCompleted) {
-          return a.isCompleted ? 1 : -1; // Active goals first
+          return a.isCompleted ? 1 : -1;
         }
-        return b.createdAt.compareTo(a.createdAt); // Creation order descending
+        return b.createdAt.compareTo(a.createdAt);
       });
       state = state.copyWith(goals: goals, isLoading: false);
     } catch (e) {
@@ -107,6 +95,7 @@ class SavingsGoalsNotifier extends StateNotifier<SavingsGoalsState> {
 
     try {
       await _repo.saveGoal(newGoal);
+      await loadGoals();
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }
@@ -116,6 +105,7 @@ class SavingsGoalsNotifier extends StateNotifier<SavingsGoalsState> {
     final updated = goal.copyWith(updatedAt: DateTime.now());
     try {
       await _repo.saveGoal(updated);
+      await loadGoals();
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }
@@ -124,6 +114,7 @@ class SavingsGoalsNotifier extends StateNotifier<SavingsGoalsState> {
   Future<void> deleteGoal(String id) async {
     try {
       await _repo.deleteGoal(id);
+      await loadGoals();
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }
@@ -138,6 +129,7 @@ class SavingsGoalsNotifier extends StateNotifier<SavingsGoalsState> {
         updatedAt: DateTime.now(),
       );
       await _repo.saveGoal(updated);
+      await loadGoals();
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }
@@ -154,6 +146,7 @@ class SavingsGoalsNotifier extends StateNotifier<SavingsGoalsState> {
         updatedAt: DateTime.now(),
       );
       await _repo.saveGoal(updated);
+      await loadGoals();
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }

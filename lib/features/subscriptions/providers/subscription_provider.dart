@@ -19,8 +19,6 @@
 // ============================================================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import '../../../core/services/hive_service.dart';
 import '../../../data/models/subscription_model.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../data/repositories/subscription_repository.dart';
@@ -148,36 +146,26 @@ final subscriptionProvider =
 class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
   final SubscriptionRepository _repo;
   final Ref _ref;
+  final Set<String> _processedAutoKeys = {};
 
   SubscriptionNotifier(this._repo, this._ref) : super(SubscriptionState()) {
     loadSubscriptions();
-    HiveService.subscriptionsBox.listenable().addListener(_onBoxChanged);
-  }
-
-  void _onBoxChanged() {
-    loadSubscriptions();
-  }
-
-  @override
-  void dispose() {
-    HiveService.subscriptionsBox.listenable().removeListener(_onBoxChanged);
-    super.dispose();
   }
 
   Future<void> loadSubscriptions() async {
-    state = state.copyWith(isLoading: true, error: null);
+    if (state.subscriptions.isEmpty) {
+      state = state.copyWith(isLoading: true, error: null);
+    }
     try {
       final list = await _repo.getSubscriptions();
       state = state.copyWith(subscriptions: list, isLoading: false);
-      processAutoExpenses();
+      await processAutoExpenses();
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
-  /// Processes automatic expenses for subscriptions with autoRecordExpense = true.
-  /// Guaranteed idempotent via [HiveService.processedAutoExpensesBox].
-  void processAutoExpenses() {
+  Future<void> processAutoExpenses() async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
@@ -195,11 +183,9 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
       if (diffDays <= 0) {
         final periodKey = '${due.year}_${due.month}_${due.day}';
         final autoKey = 'auto_exp_${sub.id}_$periodKey';
-        final processedBox = HiveService.processedAutoExpensesBox;
 
-        if (!processedBox.containsKey(autoKey)) {
-          // Mark processed BEFORE triggering provider write
-          processedBox.put(autoKey, true);
+        if (!_processedAutoKeys.contains(autoKey)) {
+          _processedAutoKeys.add(autoKey);
 
           final txn = TransactionModel(
             id: 'txn_auto_${sub.id}_$periodKey',
@@ -212,7 +198,7 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
             notes: 'Automatic subscription payment for ${sub.name}',
           );
 
-          _ref.read(transactionsProvider.notifier).updateTransaction(txn);
+          await _ref.read(transactionsProvider.notifier).updateTransaction(txn);
         }
       }
     }

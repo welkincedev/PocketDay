@@ -32,8 +32,9 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../data/models/transaction_model.dart';
-import '../../../data/repositories/transaction_repository.dart';
 import '../../../features/goals/widgets/goal_selector.dart';
+import '../../transactions/providers/transactions_provider.dart';
+import '../providers/dashboard_provider.dart';
 
 class AddTransactionBottomSheet extends ConsumerStatefulWidget {
   final TransactionType initialType;
@@ -117,40 +118,54 @@ class _AddTransactionBottomSheetState
     }
   }
 
+  bool _isLoading = false;
+
   void _submit() async {
+    if (_isLoading) return;
     if (_formKey.currentState!.validate()) {
-      final categoryMeta = AppConstants.defaultCategories.firstWhere(
-        (c) => c['id'] == _selectedCategoryId,
-        orElse: () => {'name': 'Other'},
-      );
+      setState(() => _isLoading = true);
 
-      final txn = TransactionModel(
-        id: widget.transactionToEdit?.id ?? const Uuid().v4(),
-        title: _titleController.text.trim(),
-        amount: double.parse(_amountController.text.trim()),
-        type: _type,
-        categoryId: _selectedCategoryId,
-        categoryName: categoryMeta['name'] as String,
-        date: _selectedDate,
-        notes: _notesController.text.trim().isNotEmpty
-            ? _notesController.text.trim()
-            : null,
-        goalId: _type == TransactionType.expense ? _selectedGoalId : null,
-      );
+      try {
+        final categoryMeta = AppConstants.defaultCategories.firstWhere(
+          (c) => c['id'] == _selectedCategoryId,
+          orElse: () => {'name': 'Other'},
+        );
 
-      final repo = ref.read(transactionRepositoryProvider);
-      if (widget.transactionToEdit != null) {
-        await repo.updateTransaction(txn);
-      } else {
-        await repo.addTransaction(txn);
-      }
+        final txn = TransactionModel(
+          id: widget.transactionToEdit?.id ?? const Uuid().v4(),
+          title: _titleController.text.trim(),
+          amount: double.parse(_amountController.text.trim()),
+          type: _type,
+          categoryId: _selectedCategoryId,
+          categoryName: categoryMeta['name'] as String,
+          date: _selectedDate,
+          notes: _notesController.text.trim().isNotEmpty
+              ? _notesController.text.trim()
+              : null,
+          goalId: _type == TransactionType.expense ? _selectedGoalId : null,
+        );
 
-      if (widget.onAdd != null) {
-        widget.onAdd!(txn);
-      }
+        if (widget.transactionToEdit != null) {
+          await ref.read(transactionsProvider.notifier).updateTransaction(txn);
+        } else {
+          await ref.read(transactionsProvider.notifier).addTransaction(txn);
+        }
+        await ref.read(dashboardProvider.notifier).loadDashboardData();
 
-      if (mounted) {
-        Navigator.pop(context);
+        if (widget.onAdd != null) {
+          widget.onAdd!(txn);
+        }
+
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to save transaction: $e')),
+          );
+        }
       }
     }
   }
@@ -467,6 +482,7 @@ class _AddTransactionBottomSheetState
                   text: widget.transactionToEdit != null
                       ? 'Save Changes'
                       : 'Save Transaction',
+                  isLoading: _isLoading,
                   onPressed: _submit,
                 ),
               ],

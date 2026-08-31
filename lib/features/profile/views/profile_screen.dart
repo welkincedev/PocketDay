@@ -21,9 +21,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/services/hive_service.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../transactions/providers/transactions_provider.dart';
+import '../../goals/providers/goals_provider.dart';
+import '../../budget/providers/budget_provider.dart';
+import '../../dashboard/providers/dashboard_provider.dart';
 import '../../../core/routes/app_router.dart';
 
 /// The Profile tab. Shows user account info, appearance settings,
@@ -54,27 +57,33 @@ class ProfileScreen extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(vertical: 32),
                 child: Column(
                   children: [
-                    Container(
-                      width: 72,
-                      height: 72,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.primary.withAlpha(30),
-                        border: Border.all(
-                          color: AppColors.primary.withAlpha(80),
-                          width: 2,
-                        ),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        initial,
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ),
+                    user?.photoUrl != null && user!.photoUrl!.isNotEmpty
+                        ? CircleAvatar(
+                            radius: 36,
+                            backgroundImage: NetworkImage(user.photoUrl!),
+                            backgroundColor: AppColors.primary.withAlpha(30),
+                          )
+                        : Container(
+                            width: 72,
+                            height: 72,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AppColors.primary.withAlpha(30),
+                              border: Border.all(
+                                color: AppColors.primary.withAlpha(80),
+                                width: 2,
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              initial,
+                              style: const TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
                     const SizedBox(height: 14),
                     Text(
                       user?.displayName ?? firstName,
@@ -221,12 +230,15 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                   );
                   if (confirmed == true) {
-                    await HiveService.resetFinancialData();
+                    ref.read(transactionsProvider.notifier).loadTransactions();
+                    ref.read(goalsProvider.notifier).loadGoals();
+                    ref.read(budgetProvider.notifier).loadBudgets();
+                    ref.read(dashboardProvider.notifier).loadDashboardData();
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text(
-                            'Local financial data reset to zero state.',
+                            'Financial data refreshed.',
                           ),
                         ),
                       );

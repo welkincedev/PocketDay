@@ -26,7 +26,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/routes/app_router.dart';
-import '../../../core/services/hive_service.dart';
 import '../providers/auth_provider.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -47,12 +46,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     await Future.delayed(const Duration(milliseconds: 2000));
     if (!mounted) return;
 
-    final hasOnboarded = HiveService.hasOnboarded;
     final user = ref.read(authProvider).value;
 
-    if (!hasOnboarded) {
-      Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
-    } else if (user != null) {
+    if (user != null) {
       Navigator.pushReplacementNamed(context, AppRoutes.main);
     } else {
       Navigator.pushReplacementNamed(context, AppRoutes.login);

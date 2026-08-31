@@ -19,8 +19,6 @@
 // ============================================================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import '../../../core/services/hive_service.dart';
 import '../../../data/models/goal_model.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../data/repositories/goal_repository.dart';
@@ -79,17 +77,6 @@ class GoalsNotifier extends StateNotifier<GoalsState> {
 
   GoalsNotifier(this._repo) : super(GoalsState()) {
     loadGoals();
-    HiveService.goalsBox.listenable().addListener(_onGoalsBoxChanged);
-  }
-
-  void _onGoalsBoxChanged() {
-    loadGoals();
-  }
-
-  @override
-  void dispose() {
-    HiveService.goalsBox.listenable().removeListener(_onGoalsBoxChanged);
-    super.dispose();
   }
 
   void updateTransactions(List<TransactionModel> txns) {
@@ -97,11 +84,11 @@ class GoalsNotifier extends StateNotifier<GoalsState> {
   }
 
   Future<void> loadGoals() async {
-    state = state.copyWith(isLoading: true, error: null);
+    if (state.goals.isEmpty) {
+      state = state.copyWith(isLoading: true, error: null);
+    }
     try {
       final goals = await _repo.getGoals();
-      // Default sorting: active goals first, then by creation date desc
-      // (Wait, we can dynamically sort based on completeness by evaluating transactions!)
       state = state.copyWith(goals: goals, isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
@@ -126,6 +113,7 @@ class GoalsNotifier extends StateNotifier<GoalsState> {
 
     try {
       await _repo.saveGoal(newGoal);
+      await loadGoals();
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }
@@ -135,6 +123,7 @@ class GoalsNotifier extends StateNotifier<GoalsState> {
     final updated = goal.copyWith(updatedAt: DateTime.now());
     try {
       await _repo.saveGoal(updated);
+      await loadGoals();
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }
@@ -143,19 +132,7 @@ class GoalsNotifier extends StateNotifier<GoalsState> {
   Future<void> deleteGoal(String id) async {
     try {
       await _repo.deleteGoal(id);
-
-      // Nullify goalId in linked transactions
-      final txBox = HiveService.transactionsBox;
-      for (var key in txBox.keys) {
-        final item = txBox.get(key);
-        if (item is Map) {
-          final map = Map<String, dynamic>.from(item);
-          if (map['goalId'] == id) {
-            map['goalId'] = null;
-            await txBox.put(key, map);
-          }
-        }
-      }
+      await loadGoals();
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }

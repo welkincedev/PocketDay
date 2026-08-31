@@ -1,4 +1,4 @@
-package com.pocketday.pocketday
+package com.wclabs.pocketday
 
 import io.flutter.embedding.android.FlutterActivity
 

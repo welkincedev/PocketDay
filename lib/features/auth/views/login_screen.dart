@@ -3,23 +3,16 @@
 // File: login_screen.dart
 //
 // Purpose:
-// User authentication login screen supporting email/password and social sign-in.
+// Single, streamlined Google Authentication screen for PocketDay.
 //
 // Responsibilities:
-// - Validate user input (email format, password min length).
-// - Dispatch login requests to `authProvider.notifier.loginWithEmail()`.
+// - Present PocketDay branding and single-click "Continue with Google" action.
 // - Dispatch Google login requests to `authProvider.notifier.loginWithGoogle()`.
+// - Handle loading state and user cancellations gracefully.
 // - Navigate to MainShellScreen upon successful authentication.
 //
 // Navigation Flow:
-// LoginScreen → MainShellScreen (`/main`) or RegisterScreen (`/register`) or ForgotPasswordScreen (`/forgot-password`)
-//
-// Important Rules:
-// - Form validation is enforced before dispatching auth actions.
-//
-// Main Operations:
-// - _handleLogin(): Validate and authenticate email login
-// - _handleGoogleLogin(): Authenticate with Google
+// LoginScreen → MainShellScreen (`/main`)
 // ============================================================
 
 import 'package:flutter/material.dart';
@@ -28,7 +21,6 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/routes/app_router.dart';
 import '../../../core/widgets/app_button.dart';
-import '../../../core/widgets/app_text_field.dart';
 import '../providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -39,31 +31,6 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  void _handleLogin() async {
-    if (_formKey.currentState!.validate()) {
-      final success = await ref
-          .read(authProvider.notifier)
-          .loginWithEmail(
-            _emailController.text.trim(),
-            _passwordController.text,
-          );
-      if (success && mounted) {
-        Navigator.pushReplacementNamed(context, AppRoutes.main);
-      }
-    }
-  }
-
   void _handleGoogleLogin() async {
     final success = await ref.read(authProvider.notifier).loginWithGoogle();
     if (success && mounted) {
@@ -84,214 +51,117 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 420),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Brand Icon
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withAlpha(25),
-                          shape: BoxShape.circle,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 40),
+
+                  // Brand Icon Container
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withAlpha(30),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: AppColors.primary.withAlpha(60),
+                          width: 2,
                         ),
-                        child: const Icon(
-                          Icons.account_balance_wallet_rounded,
-                          size: 48,
-                          color: AppColors.primary,
+                      ),
+                      child: const Icon(
+                        Icons.account_balance_wallet_rounded,
+                        size: 56,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Welcome Headline
+                  Text(
+                    'PocketDay',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: -0.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Your personal money manager',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Track spending, set budgets, and achieve financial goals with real-time cloud backup.',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: isDark
+                          ? AppColors.darkTextSecondary.withAlpha(180)
+                          : AppColors.lightTextSecondary.withAlpha(180),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 48),
+
+                  // Error Banner (ignoring user-initiated cancellations)
+                  if (authState.hasError &&
+                      !authState.error.toString().contains('cancelled')) ...[
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.expense.withAlpha(20),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: AppColors.expense.withAlpha(50),
                         ),
+                      ),
+                      child: Text(
+                        authState.error.toString().replaceAll(
+                          'Exception: ',
+                          '',
+                        ),
+                        style: const TextStyle(
+                          color: AppColors.expense,
+                          fontSize: 13,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                     const SizedBox(height: 24),
-
-                    // Welcome Headline
-                    Text(
-                      AppStrings.welcomeBack,
-                      style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: -0.5,
-                          ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Sign in to manage your budget & track expenses',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: isDark
-                            ? AppColors.darkTextSecondary
-                            : AppColors.lightTextSecondary,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 36),
-
-                    // Email Input
-                    AppTextField(
-                      label: 'Email Address',
-                      hint: 'name@example.com',
-                      controller: _emailController,
-                      prefixIcon: Icons.email_outlined,
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (val) {
-                        if (val == null || val.isEmpty) {
-                          return 'Email is required';
-                        }
-                        if (!val.contains('@')) return 'Enter a valid email';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Password Input
-                    AppTextField(
-                      label: 'Password',
-                      hint: '••••••••',
-                      controller: _passwordController,
-                      prefixIcon: Icons.lock_outline_rounded,
-                      isPassword: true,
-                      validator: (val) {
-                        if (val == null || val.length < 6) {
-                          return 'Password must be at least 6 characters';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Forgot Password Link
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () => Navigator.pushNamed(
-                          context,
-                          AppRoutes.forgotPassword,
-                        ),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: const Text(
-                          AppStrings.forgotPassword,
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Error Banner
-                    if (authState.hasError) ...[
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppColors.expense.withAlpha(20),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          authState.error.toString().replaceAll(
-                            'Exception: ',
-                            '',
-                          ),
-                          style: const TextStyle(
-                            color: AppColors.expense,
-                            fontSize: 13,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-
-                    // Login Button
-                    AppButton(
-                      text: AppStrings.login,
-                      isLoading: authState.isLoading,
-                      onPressed: _handleLogin,
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Divider
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Divider(
-                            color: isDark
-                                ? AppColors.darkBorder
-                                : AppColors.lightBorder,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Text(
-                            'OR',
-                            style: TextStyle(
-                              color: isDark
-                                  ? AppColors.darkTextSecondary
-                                  : AppColors.lightTextSecondary,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Divider(
-                            color: isDark
-                                ? AppColors.darkBorder
-                                : AppColors.lightBorder,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Google Sign-In Button
-                    AppButton(
-                      text: AppStrings.continueWithGoogle,
-                      variant: AppButtonVariant.google,
-                      icon: Icons.g_mobiledata_rounded,
-                      onPressed: _handleGoogleLogin,
-                    ),
-                    const SizedBox(height: 32),
-
-                    // Register Redirection
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          AppStrings.dontHaveAccount,
-                          style: TextStyle(
-                            color: isDark
-                                ? AppColors.darkTextSecondary
-                                : AppColors.lightTextSecondary,
-                            fontSize: 14,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () =>
-                              Navigator.pushNamed(context, AppRoutes.register),
-                          child: const Text(
-                            AppStrings.signUp,
-                            style: TextStyle(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
-                ),
+
+                  // Google Sign-In Primary Action Button
+                  AppButton(
+                    text: AppStrings.continueWithGoogle,
+                    variant: AppButtonVariant.google,
+                    icon: Icons.g_mobiledata_rounded,
+                    isLoading: authState.isLoading,
+                    onPressed: authState.isLoading ? null : _handleGoogleLogin,
+                  ),
+                  const SizedBox(height: 48),
+
+                  // Footer Tagline
+                  Text(
+                    'Your money. Your control.',
+                    style: TextStyle(
+                      color: isDark
+                          ? AppColors.darkTextSecondary.withAlpha(120)
+                          : AppColors.lightTextSecondary.withAlpha(120),
+                      fontSize: 12,
+                      letterSpacing: 0.5,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                ],
               ),
             ),
           ),

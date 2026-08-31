@@ -13,33 +13,13 @@
 // Mock Savings Goals Box → ProviderContainer → SavingsGoalsNotifier → Test Assertions
 // ============================================================
 
-import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
-import 'package:pocketday/core/constants/app_constants.dart';
 import 'package:pocketday/data/models/savings_goal_model.dart';
 import 'package:pocketday/data/repositories/savings_goal_repository.dart';
 import 'package:pocketday/features/goals/providers/savings_goals_provider.dart';
 
 void main() {
-  late Directory tempDir;
-
-  setUp(() async {
-    tempDir = await Directory.systemTemp.createTemp(
-      'pocketday_savings_goal_test',
-    );
-    Hive.init(tempDir.path);
-    await Hive.openBox(AppConstants.settingsBox);
-    await Hive.openBox(AppConstants.userBox);
-    final box = await Hive.openBox(AppConstants.goalsBox);
-    await box.clear();
-  });
-
-  tearDown(() async {
-    await Hive.close();
-    await tempDir.delete(recursive: true);
-  });
 
   test(
     'SavingsGoalModel calculates progress and completed status correctly',

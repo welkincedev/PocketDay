@@ -23,9 +23,11 @@
 // - deleteTransaction(id): Delete transaction entry from Hive
 // ============================================================
 
+import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/transaction_model.dart';
-import '../../core/services/hive_service.dart';
 
 final transactionRepositoryProvider = Provider<TransactionRepository>((ref) {
   return TransactionRepositoryImpl();
@@ -36,33 +38,123 @@ abstract class TransactionRepository {
   Future<void> addTransaction(TransactionModel transaction);
   Future<void> deleteTransaction(String id);
   Future<void> updateTransaction(TransactionModel transaction);
+  Stream<List<TransactionModel>>? watchTransactions();
 }
 
 class TransactionRepositoryImpl implements TransactionRepository {
+  final List<TransactionModel> _memoryStore = [];
+
+  FirebaseFirestore? get _firestore {
+    try {
+      return FirebaseFirestore.instance;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  FirebaseAuth? get _auth {
+    try {
+      return FirebaseAuth.instance;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String? get _currentUid => _auth?.currentUser?.uid;
+
+  @override
+  Stream<List<TransactionModel>>? watchTransactions() {
+    final uid = _currentUid;
+    if (uid == null || uid.isEmpty || _firestore == null) return null;
+
+    try {
+      return _firestore!
+          .collection('users')
+          .doc(uid)
+          .collection('transactions')
+          .snapshots()
+          .map((snapshot) {
+            final list = snapshot.docs.map((doc) {
+              return TransactionModel.fromMap(doc.data());
+            }).toList();
+            list.sort((a, b) => b.date.compareTo(a.date));
+            return list;
+          });
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
   Future<List<TransactionModel>> getTransactions() async {
-    final box = HiveService.transactionsBox;
-    final List<TransactionModel> txns = [];
-    for (var item in box.values) {
-      if (item is Map) {
-        txns.add(TransactionModel.fromMap(Map<String, dynamic>.from(item)));
+    final uid = _currentUid;
+
+    if (uid != null && uid.isNotEmpty && _firestore != null) {
+      try {
+        final snapshot = await _firestore!
+            .collection('users')
+            .doc(uid)
+            .collection('transactions')
+            .get();
+
+        final List<TransactionModel> txns = [];
+        for (var doc in snapshot.docs) {
+          txns.add(TransactionModel.fromMap(doc.data()));
+        }
+        txns.sort((a, b) => b.date.compareTo(a.date));
+        return txns;
+      } catch (e) {
+        debugPrint('TransactionRepository.getTransactions error: $e');
       }
     }
-    return txns..sort((a, b) => b.date.compareTo(a.date));
+
+    final list = List<TransactionModel>.from(_memoryStore);
+    list.sort((a, b) => b.date.compareTo(a.date));
+    return list;
   }
 
   @override
   Future<void> addTransaction(TransactionModel transaction) async {
-    await HiveService.transactionsBox.put(transaction.id, transaction.toMap());
+    await updateTransaction(transaction);
   }
 
   @override
   Future<void> deleteTransaction(String id) async {
-    await HiveService.transactionsBox.delete(id);
+    _memoryStore.removeWhere((t) => t.id == id);
+    final uid = _currentUid;
+    if (uid != null && uid.isNotEmpty && _firestore != null) {
+      try {
+        await _firestore!
+            .collection('users')
+            .doc(uid)
+            .collection('transactions')
+            .doc(id)
+            .delete();
+      } catch (e) {
+        debugPrint('TransactionRepository.deleteTransaction error: $e');
+      }
+    }
   }
 
   @override
   Future<void> updateTransaction(TransactionModel transaction) async {
-    await HiveService.transactionsBox.put(transaction.id, transaction.toMap());
+    _memoryStore.removeWhere((t) => t.id == transaction.id);
+    _memoryStore.add(transaction);
+
+    final uid = _currentUid;
+    if (uid != null && uid.isNotEmpty && _firestore != null) {
+      try {
+        debugPrint('🔥 [FIRESTORE TXN WRITE START] UID: $uid | TxnID: ${transaction.id}');
+        await _firestore!
+            .collection('users')
+            .doc(uid)
+            .collection('transactions')
+            .doc(transaction.id)
+            .set(transaction.toMap(), SetOptions(merge: true));
+        debugPrint('✅ [FIRESTORE TXN WRITE SUCCESS] TxnID: ${transaction.id}');
+      } catch (e) {
+        debugPrint('❌ [FIRESTORE TXN WRITE FAILED] TxnID ${transaction.id} | Error: $e');
+      }
+    }
   }
 }

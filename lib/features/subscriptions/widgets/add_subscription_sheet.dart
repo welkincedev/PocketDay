@@ -180,43 +180,61 @@ class _AddSubscriptionSheetState extends ConsumerState<AddSubscriptionSheet> {
     }
   }
 
-  void _handleSubmit() {
-    if (_formKey.currentState!.validate()) {
-      final name = _nameController.text.trim();
-      final amount = double.tryParse(_amountController.text.trim()) ?? 0.0;
-      final notes = _notesController.text.trim();
+  bool _isLoading = false;
 
-      if (widget.subscriptionToEdit != null) {
-        final updated = widget.subscriptionToEdit!.copyWith(
-          name: name,
-          amount: amount,
-          billingCycle: _billingCycle,
-          nextPaymentDate: _nextPaymentDate,
-          startDate: _startDate,
-          category: _category,
-          paymentMethod: _paymentMethod,
-          status: _status,
-          autoRecordExpense: _autoRecordExpense,
-          notes: notes.isNotEmpty ? notes : null,
-        );
-        ref.read(subscriptionProvider.notifier).updateSubscription(updated);
-      } else {
-        ref
-            .read(subscriptionProvider.notifier)
-            .addSubscription(
-              name: name,
-              amount: amount,
-              billingCycle: _billingCycle,
-              nextPaymentDate: _nextPaymentDate,
-              startDate: _startDate,
-              category: _category,
-              paymentMethod: _paymentMethod,
-              status: _status,
-              autoRecordExpense: _autoRecordExpense,
-              notes: notes.isNotEmpty ? notes : null,
-            );
+  void _handleSubmit() async {
+    if (_isLoading) return;
+    if (_formKey.currentState!.validate()) {
+      setState(() => _isLoading = true);
+
+      try {
+        final name = _nameController.text.trim();
+        final amount = double.tryParse(_amountController.text.trim()) ?? 0.0;
+        final notes = _notesController.text.trim();
+
+        if (widget.subscriptionToEdit != null) {
+          final updated = widget.subscriptionToEdit!.copyWith(
+            name: name,
+            amount: amount,
+            billingCycle: _billingCycle,
+            nextPaymentDate: _nextPaymentDate,
+            startDate: _startDate,
+            category: _category,
+            paymentMethod: _paymentMethod,
+            status: _status,
+            autoRecordExpense: _autoRecordExpense,
+            notes: notes.isNotEmpty ? notes : null,
+          );
+          await ref
+              .read(subscriptionProvider.notifier)
+              .updateSubscription(updated);
+        } else {
+          await ref
+              .read(subscriptionProvider.notifier)
+              .addSubscription(
+                name: name,
+                amount: amount,
+                billingCycle: _billingCycle,
+                nextPaymentDate: _nextPaymentDate,
+                startDate: _startDate,
+                category: _category,
+                paymentMethod: _paymentMethod,
+                status: _status,
+                autoRecordExpense: _autoRecordExpense,
+                notes: notes.isNotEmpty ? notes : null,
+              );
+        }
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to save subscription: $e')),
+          );
+        }
       }
-      Navigator.pop(context);
     }
   }
 
@@ -569,6 +587,7 @@ class _AddSubscriptionSheetState extends ConsumerState<AddSubscriptionSheet> {
                 // Submit Button
                 AppButton(
                   text: isEditing ? 'Save Changes' : 'Add Subscription',
+                  isLoading: _isLoading,
                   onPressed: _handleSubmit,
                 ),
               ],

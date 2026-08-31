@@ -116,16 +116,22 @@ class DashboardScreen extends ConsumerWidget {
                         child: CircleAvatar(
                           radius: 20,
                           backgroundColor: AppColors.primary.withAlpha(40),
-                          child: Text(
-                            user?.displayName.isNotEmpty == true
-                                ? user!.displayName[0].toUpperCase()
-                                : 'A',
-                            style: const TextStyle(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
+                          backgroundImage:
+                              user?.photoUrl != null && user!.photoUrl!.isNotEmpty
+                                  ? NetworkImage(user.photoUrl!)
+                                  : null,
+                          child: user?.photoUrl == null || user!.photoUrl!.isEmpty
+                              ? Text(
+                                  user?.displayName.isNotEmpty == true
+                                      ? user!.displayName[0].toUpperCase()
+                                      : 'P',
+                                  style: const TextStyle(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                )
+                              : null,
                         ),
                       ),
                     ),

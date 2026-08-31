@@ -14,37 +14,24 @@
 // Mock Transactions Box → ProviderContainer → TransactionsNotifier → Test Assertions
 // ============================================================
 
-import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
-import 'package:pocketday/core/constants/app_constants.dart';
 import 'package:pocketday/data/models/transaction_model.dart';
 import 'package:pocketday/data/repositories/transaction_repository.dart';
 import 'package:pocketday/features/transactions/providers/transactions_provider.dart';
 
 void main() {
-  late Directory tempDir;
-
-  setUp(() async {
-    tempDir = await Directory.systemTemp.createTemp('pocketday_test');
-    Hive.init(tempDir.path);
-    await Hive.openBox(AppConstants.settingsBox);
-    await Hive.openBox(AppConstants.userBox);
-    final box = await Hive.openBox(AppConstants.transactionsBox);
-    await box.clear();
-    final bBox = await Hive.openBox(AppConstants.budgetBox);
-    await bBox.clear();
-  });
-
-  tearDown(() async {
-    await Hive.close();
-    await tempDir.delete(recursive: true);
-  });
 
   test('TransactionsNotifier filters and sorts correctly', () async {
+    final container = ProviderContainer(
+      overrides: [
+        transactionRepositoryProvider.overrideWithValue(
+          TransactionRepositoryImpl(),
+        ),
+      ],
+    );
+
     // Populate test fixture transactions
-    final txnBox = Hive.box(AppConstants.transactionsBox);
     final testTxns = [
       TransactionModel(
         id: 'txn_1',
@@ -101,15 +88,9 @@ void main() {
         date: DateTime.now().subtract(const Duration(days: 4)),
       ),
     ];
-    await txnBox.putAll({for (var t in testTxns) t.id: t.toMap()});
-
-    final container = ProviderContainer(
-      overrides: [
-        transactionRepositoryProvider.overrideWithValue(
-          TransactionRepositoryImpl(),
-        ),
-      ],
-    );
+    for (var t in testTxns) {
+      await container.read(transactionsProvider.notifier).addTransaction(t);
+    }
 
     // Trigger initialization and wait for constructor loading to finish to avoid re-entrance race conditions
     container.read(transactionsProvider.notifier);

@@ -26,8 +26,6 @@ import 'package:flutter/material.dart';
 import '../../features/auth/views/splash_screen.dart';
 import '../../features/auth/views/onboarding_screen.dart';
 import '../../features/auth/views/login_screen.dart';
-import '../../features/auth/views/register_screen.dart';
-import '../../features/auth/views/forgot_password_screen.dart';
 import '../../features/dashboard/views/main_shell_screen.dart';
 import '../../features/profile/views/profile_screen.dart';
 import '../../features/subscriptions/views/subscriptions_screen.dart';
@@ -46,8 +44,8 @@ class AppRoutes {
     splash: (context) => const SplashScreen(),
     onboarding: (context) => const OnboardingScreen(),
     login: (context) => const LoginScreen(),
-    register: (context) => const RegisterScreen(),
-    forgotPassword: (context) => const ForgotPasswordScreen(),
+    register: (context) => const LoginScreen(),
+    forgotPassword: (context) => const LoginScreen(),
     main: (context) => const MainShellScreen(),
     profile: (context) => const ProfileScreen(),
     subscriptions: (context) => const SubscriptionsScreen(),

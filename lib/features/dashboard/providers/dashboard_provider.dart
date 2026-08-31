@@ -22,11 +22,9 @@
 // ============================================================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
-import '../../../core/services/hive_service.dart';
-import '../../../data/models/budget_model.dart';
 import '../../../data/models/transaction_model.dart';
+import '../../../data/repositories/budget_repository.dart';
 import '../../../data/repositories/transaction_repository.dart';
 
 /// Immutable snapshot of the Dashboard's derived financial data.
@@ -79,34 +77,26 @@ class DashboardState {
 
 final dashboardProvider =
     StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
-      final repo = ref.watch(transactionRepositoryProvider);
-      return DashboardNotifier(repo);
+      final txnRepo = ref.watch(transactionRepositoryProvider);
+      final budgetRepo = ref.watch(budgetRepositoryProvider);
+      return DashboardNotifier(txnRepo, budgetRepo);
     });
 
 class DashboardNotifier extends StateNotifier<DashboardState> {
-  final TransactionRepository _repo;
+  final TransactionRepository _txnRepo;
+  final BudgetRepository _budgetRepo;
 
-  DashboardNotifier(this._repo) : super(DashboardState()) {
+  DashboardNotifier(this._txnRepo, this._budgetRepo)
+    : super(DashboardState()) {
     loadDashboardData();
-    HiveService.transactionsBox.listenable().addListener(_onBoxChanged);
-    HiveService.budgetBox.listenable().addListener(_onBoxChanged);
-  }
-
-  void _onBoxChanged() {
-    loadDashboardData();
-  }
-
-  @override
-  void dispose() {
-    HiveService.transactionsBox.listenable().removeListener(_onBoxChanged);
-    HiveService.budgetBox.listenable().removeListener(_onBoxChanged);
-    super.dispose();
   }
 
   Future<void> loadDashboardData() async {
-    state = state.copyWith(isLoading: true, error: null);
+    if (state.recentTransactions.isEmpty) {
+      state = state.copyWith(isLoading: true, error: null);
+    }
     try {
-      final txns = await _repo.getTransactions();
+      final txns = await _txnRepo.getTransactions();
 
       double income = 0.0;
       double expense = 0.0;
@@ -125,18 +115,17 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         }
       }
 
-      // Load overall budget for current month from Hive
-      double monthlyBudgetVal = 0.0; // default 0.0 when no budget configured
-      final budgetBox = HiveService.budgetBox;
-      for (var item in budgetBox.values) {
-        if (item is Map) {
-          final b = BudgetModel.fromMap(Map<String, dynamic>.from(item));
+      // Load overall budget for current month from BudgetRepository
+      double monthlyBudgetVal = 0.0;
+      try {
+        final budgets = await _budgetRepo.getBudgets();
+        for (var b in budgets) {
           if (b.month == currentMonthStr && b.categoryId == null) {
             monthlyBudgetVal = b.amount;
             break;
           }
         }
-      }
+      } catch (_) {}
 
       state = state.copyWith(
         totalIncome: income,
@@ -152,6 +141,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   }
 
   Future<void> addTransaction(TransactionModel txn) async {
-    await _repo.addTransaction(txn);
+    await _txnRepo.addTransaction(txn);
+    await loadDashboardData();
   }
 }

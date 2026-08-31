@@ -117,34 +117,50 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
     return options;
   }
 
-  void _submit() {
+  bool _isLoading = false;
+
+  void _submit() async {
+    if (_isLoading) return;
     if (_formKey.currentState!.validate()) {
-      final amount = double.parse(_amountController.text.trim());
-      final monthStr = DateFormat('yyyy-MM').format(_selectedMonth);
+      setState(() => _isLoading = true);
 
-      final categoryMeta = _selectedCategoryId != null
-          ? AppConstants.defaultCategories.firstWhere(
-              (c) => c['id'] == _selectedCategoryId,
-              orElse: () => {'name': 'Other'},
-            )
-          : null;
+      try {
+        final amount = double.parse(_amountController.text.trim());
+        final monthStr = DateFormat('yyyy-MM').format(_selectedMonth);
 
-      final budget = BudgetModel(
-        id: widget.budgetToEdit?.id ?? _existingBudget?.id ?? const Uuid().v4(),
-        amount: amount,
-        period: 'monthly',
-        month: monthStr,
-        categoryId: _selectedCategoryId,
-        categoryName: categoryMeta?['name'] as String?,
-        createdAt:
-            widget.budgetToEdit?.createdAt ??
-            _existingBudget?.createdAt ??
-            DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
+        final categoryMeta = _selectedCategoryId != null
+            ? AppConstants.defaultCategories.firstWhere(
+                (c) => c['id'] == _selectedCategoryId,
+                orElse: () => {'name': 'Other'},
+              )
+            : null;
 
-      ref.read(budgetProvider.notifier).saveBudget(budget);
-      Navigator.pop(context);
+        final budget = BudgetModel(
+          id: widget.budgetToEdit?.id ?? _existingBudget?.id ?? const Uuid().v4(),
+          amount: amount,
+          period: 'monthly',
+          month: monthStr,
+          categoryId: _selectedCategoryId,
+          categoryName: categoryMeta?['name'] as String?,
+          createdAt:
+              widget.budgetToEdit?.createdAt ??
+              _existingBudget?.createdAt ??
+              DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+
+        await ref.read(budgetProvider.notifier).saveBudget(budget);
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to save budget: $e')),
+          );
+        }
+      }
     }
   }
 
@@ -412,6 +428,7 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
               // Save Button
               AppButton(
                 text: isEditing ? 'Update Budget' : 'Save Budget',
+                isLoading: _isLoading,
                 onPressed: _submit,
               ),
             ],

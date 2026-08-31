@@ -22,14 +22,11 @@
 // - deleteGoal(id): Delete goal entry by ID
 // ============================================================
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/services/hive_service.dart';
 import '../models/goal_model.dart';
 
-/// Riverpod provider that exposes the [GoalRepository] implementation.
-///
-/// The UI and [GoalsProvider] should read goals through this provider rather
-/// than accessing Hive directly, keeping persistence logic in one place.
 final goalRepositoryProvider = Provider<GoalRepository>((ref) {
   return GoalRepositoryImpl();
 });
@@ -38,33 +35,106 @@ abstract class GoalRepository {
   Future<List<GoalModel>> getGoals();
   Future<void> saveGoal(GoalModel goal);
   Future<void> deleteGoal(String id);
+  Stream<List<GoalModel>>? watchGoals();
 }
 
 class GoalRepositoryImpl implements GoalRepository {
+  final List<GoalModel> _memoryStore = [];
+
+  FirebaseFirestore? get _firestore {
+    try {
+      return FirebaseFirestore.instance;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  FirebaseAuth? get _auth {
+    try {
+      return FirebaseAuth.instance;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String? get _currentUid => _auth?.currentUser?.uid;
+
+  @override
+  Stream<List<GoalModel>>? watchGoals() {
+    final uid = _currentUid;
+    if (uid == null || uid.isEmpty || _firestore == null) return null;
+
+    try {
+      return _firestore!
+          .collection('users')
+          .doc(uid)
+          .collection('goals')
+          .snapshots()
+          .map((snapshot) {
+            return snapshot.docs
+                .map((doc) => GoalModel.fromMap(doc.data()))
+                .toList();
+          });
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
   Future<List<GoalModel>> getGoals() async {
-    final box = HiveService.goalsBox;
-    if (box.isNotEmpty) {
-      final List<GoalModel> goals = [];
-      for (var item in box.values) {
-        if (item is Map) {
-          goals.add(GoalModel.fromMap(Map<String, dynamic>.from(item)));
+    final uid = _currentUid;
+
+    if (uid != null && uid.isNotEmpty && _firestore != null) {
+      try {
+        final snapshot = await _firestore!
+            .collection('users')
+            .doc(uid)
+            .collection('goals')
+            .get();
+
+        final List<GoalModel> goals = [];
+        for (var doc in snapshot.docs) {
+          goals.add(GoalModel.fromMap(doc.data()));
         }
-      }
-      return goals;
+        return goals;
+      } catch (_) {}
     }
-    return [];
+
+    return List<GoalModel>.from(_memoryStore);
   }
 
   @override
   Future<void> saveGoal(GoalModel goal) async {
-    final box = HiveService.goalsBox;
-    await box.put(goal.id, goal.toMap());
+    _memoryStore.removeWhere((g) => g.id == goal.id);
+    _memoryStore.add(goal);
+
+    final uid = _currentUid;
+    if (uid != null && uid.isNotEmpty && _firestore != null) {
+      try {
+        await _firestore!
+            .collection('users')
+            .doc(uid)
+            .collection('goals')
+            .doc(goal.id)
+            .set(goal.toMap(), SetOptions(merge: true));
+      } catch (_) {}
+    }
   }
 
   @override
   Future<void> deleteGoal(String id) async {
-    final box = HiveService.goalsBox;
-    await box.delete(id);
+    _memoryStore.removeWhere((g) => g.id == id);
+
+    final uid = _currentUid;
+    if (uid != null && uid.isNotEmpty && _firestore != null) {
+      try {
+        await _firestore!
+            .collection('users')
+            .doc(uid)
+            .collection('goals')
+            .doc(id)
+            .delete();
+      } catch (_) {}
+    }
   }
 }

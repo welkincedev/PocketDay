@@ -76,7 +76,10 @@ class _AddSavingsBottomSheetState extends ConsumerState<AddSavingsBottomSheet> {
     });
   }
 
-  void _submit() {
+  bool _isLoading = false;
+
+  void _submit() async {
+    if (_isLoading) return;
     if (!_formKey.currentState!.validate()) return;
 
     final totalFutureAmount = widget.goal.savedAmount + _enteredAmount;
@@ -89,10 +92,24 @@ class _AddSavingsBottomSheetState extends ConsumerState<AddSavingsBottomSheet> {
       return;
     }
 
-    ref
-        .read(savingsGoalsProvider.notifier)
-        .addSavings(widget.goal.id, _enteredAmount);
-    Navigator.pop(context);
+    setState(() => _isLoading = true);
+
+    try {
+      await ref
+          .read(savingsGoalsProvider.notifier)
+          .addSavings(widget.goal.id, _enteredAmount);
+
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add savings: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -281,6 +298,7 @@ class _AddSavingsBottomSheetState extends ConsumerState<AddSavingsBottomSheet> {
                 text: isOverTarget && !_confirmOverTarget
                     ? 'Confirm Over Target'
                     : 'Add Savings',
+                isLoading: _isLoading,
                 onPressed: _submit,
               ),
             ],

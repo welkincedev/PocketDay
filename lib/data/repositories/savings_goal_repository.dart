@@ -22,8 +22,9 @@
 // - deleteGoal(id): Delete goal from Hive
 // ============================================================
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/services/hive_service.dart';
 import '../models/savings_goal_model.dart';
 
 final savingsGoalRepositoryProvider = Provider<SavingsGoalRepository>((ref) {
@@ -37,30 +38,81 @@ abstract class SavingsGoalRepository {
 }
 
 class SavingsGoalRepositoryImpl implements SavingsGoalRepository {
+  final List<SavingsGoalModel> _memoryStore = [];
+
+  FirebaseFirestore? get _firestore {
+    try {
+      return FirebaseFirestore.instance;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  FirebaseAuth? get _auth {
+    try {
+      return FirebaseAuth.instance;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String? get _currentUid => _auth?.currentUser?.uid;
+
   @override
   Future<List<SavingsGoalModel>> getGoals() async {
-    final box = HiveService.goalsBox;
-    if (box.isNotEmpty) {
-      final List<SavingsGoalModel> goals = [];
-      for (var item in box.values) {
-        if (item is Map) {
-          goals.add(SavingsGoalModel.fromMap(Map<String, dynamic>.from(item)));
+    final uid = _currentUid;
+
+    if (uid != null && uid.isNotEmpty && _firestore != null) {
+      try {
+        final snapshot = await _firestore!
+            .collection('users')
+            .doc(uid)
+            .collection('savings_goals')
+            .get();
+
+        final List<SavingsGoalModel> goals = [];
+        for (var doc in snapshot.docs) {
+          goals.add(SavingsGoalModel.fromMap(doc.data()));
         }
-      }
-      return goals;
+        return goals;
+      } catch (_) {}
     }
-    return [];
+
+    return List<SavingsGoalModel>.from(_memoryStore);
   }
 
   @override
   Future<void> saveGoal(SavingsGoalModel goal) async {
-    final box = HiveService.goalsBox;
-    await box.put(goal.id, goal.toMap());
+    _memoryStore.removeWhere((g) => g.id == goal.id);
+    _memoryStore.add(goal);
+
+    final uid = _currentUid;
+    if (uid != null && uid.isNotEmpty && _firestore != null) {
+      try {
+        await _firestore!
+            .collection('users')
+            .doc(uid)
+            .collection('savings_goals')
+            .doc(goal.id)
+            .set(goal.toMap(), SetOptions(merge: true));
+      } catch (_) {}
+    }
   }
 
   @override
   Future<void> deleteGoal(String id) async {
-    final box = HiveService.goalsBox;
-    await box.delete(id);
+    _memoryStore.removeWhere((g) => g.id == id);
+
+    final uid = _currentUid;
+    if (uid != null && uid.isNotEmpty && _firestore != null) {
+      try {
+        await _firestore!
+            .collection('users')
+            .doc(uid)
+            .collection('savings_goals')
+            .doc(id)
+            .delete();
+      } catch (_) {}
+    }
   }
 }

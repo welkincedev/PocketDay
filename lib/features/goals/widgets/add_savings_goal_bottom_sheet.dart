@@ -117,32 +117,50 @@ class _AddSavingsGoalBottomSheetState
     }
   }
 
-  void _submit() {
+  bool _isLoading = false;
+
+  void _submit() async {
+    if (_isLoading) return;
     if (!_formKey.currentState!.validate()) return;
 
-    final name = _nameController.text.trim();
-    final targetAmount = double.parse(_amountController.text.trim());
+    setState(() => _isLoading = true);
 
-    if (widget.goalToEdit != null) {
-      final updatedGoal = widget.goalToEdit!.copyWith(
-        name: name,
-        targetAmount: targetAmount,
-        emoji: _selectedEmoji,
-        targetDate: _selectedDate,
-      );
-      ref.read(savingsGoalsProvider.notifier).updateGoal(updatedGoal);
-    } else {
-      ref
-          .read(savingsGoalsProvider.notifier)
-          .addGoal(
-            name: name,
-            targetAmount: targetAmount,
-            emoji: _selectedEmoji,
-            targetDate: _selectedDate,
-          );
+    try {
+      final name = _nameController.text.trim();
+      final targetAmount = double.parse(_amountController.text.trim());
+
+      if (widget.goalToEdit != null) {
+        final updatedGoal = widget.goalToEdit!.copyWith(
+          name: name,
+          targetAmount: targetAmount,
+          emoji: _selectedEmoji,
+          targetDate: _selectedDate,
+        );
+        await ref
+            .read(savingsGoalsProvider.notifier)
+            .updateGoal(updatedGoal);
+      } else {
+        await ref
+            .read(savingsGoalsProvider.notifier)
+            .addGoal(
+              name: name,
+              targetAmount: targetAmount,
+              emoji: _selectedEmoji,
+              targetDate: _selectedDate,
+            );
+      }
+
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save savings goal: $e')),
+        );
+      }
     }
-
-    Navigator.pop(context);
   }
 
   @override
@@ -363,6 +381,7 @@ class _AddSavingsGoalBottomSheetState
               // Submit Button
               AppButton(
                 text: isEditing ? 'Save Changes' : 'Create Goal',
+                isLoading: _isLoading,
                 onPressed: _submit,
               ),
             ],

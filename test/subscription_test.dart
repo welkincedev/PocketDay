@@ -14,11 +14,8 @@
 // Mock Subscriptions & Hive Boxes → ProviderContainer → SubscriptionNotifier → Test Assertions
 // ============================================================
 
-import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
-import 'package:pocketday/core/constants/app_constants.dart';
 import 'package:pocketday/data/models/subscription_model.dart';
 import 'package:pocketday/data/repositories/subscription_repository.dart';
 import 'package:pocketday/data/repositories/transaction_repository.dart';
@@ -26,24 +23,6 @@ import 'package:pocketday/features/subscriptions/providers/subscription_provider
 import 'package:pocketday/features/transactions/providers/transactions_provider.dart';
 
 void main() {
-  late Directory tempDir;
-
-  setUp(() async {
-    tempDir = await Directory.systemTemp.createTemp('pocketday_phase7_test');
-    Hive.init(tempDir.path);
-    await Hive.openBox(AppConstants.settingsBox);
-    await Hive.openBox(AppConstants.userBox);
-    await Hive.openBox(AppConstants.transactionsBox);
-    await Hive.openBox(AppConstants.budgetBox);
-    await Hive.openBox(AppConstants.goalsBox);
-    await Hive.openBox(AppConstants.subscriptionsBox);
-    await Hive.openBox(AppConstants.processedAutoExpensesBox);
-  });
-
-  tearDown(() async {
-    await Hive.close();
-    await tempDir.delete(recursive: true);
-  });
 
   group('SubscriptionModel Normalization & Date Edge Cases', () {
     test('Monthly equivalent calculation works for all billing cycles', () {
@@ -230,7 +209,7 @@ void main() {
           autoRecordExpense: true, // ON
         );
 
-        notifier.processAutoExpenses();
+        await notifier.processAutoExpenses();
 
         var txns = container.read(transactionsProvider).transactions;
         final autoTxns = txns
@@ -240,8 +219,8 @@ void main() {
         expect(autoTxns.first.amount, 119.0);
 
         // Re-triggering processAutoExpenses or reloading should produce ZERO additional transactions
-        notifier.processAutoExpenses();
-        notifier.processAutoExpenses();
+        await notifier.processAutoExpenses();
+        await notifier.processAutoExpenses();
 
         txns = container.read(transactionsProvider).transactions;
         expect(txns.where((t) => t.title == 'Auto Spotify Payment').length, 1);

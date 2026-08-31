@@ -24,7 +24,6 @@ import 'package:flutter/material.dart';
 import '../../../core/routes/app_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
-import '../../../core/services/hive_service.dart';
 import '../../../core/widgets/app_button.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -59,8 +58,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     },
   ];
 
-  void _onComplete() async {
-    await HiveService.setHasOnboarded(true);
+  void _onComplete() {
     if (mounted) {
       Navigator.pushReplacementNamed(context, AppRoutes.login);
     }

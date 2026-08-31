@@ -26,7 +26,9 @@ import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../data/models/goal_model.dart';
 import '../../../data/models/transaction_model.dart';
-import '../../../data/repositories/transaction_repository.dart';
+import '../../../features/transactions/providers/transactions_provider.dart';
+import '../../../features/goals/providers/goals_provider.dart';
+import '../../../features/dashboard/providers/dashboard_provider.dart';
 
 class AddToGoalSheet extends ConsumerStatefulWidget {
   final GoalModel goal;
@@ -54,30 +56,43 @@ class _AddToGoalSheetState extends ConsumerState<AddToGoalSheet> {
     super.dispose();
   }
 
+  bool _isLoading = false;
+
   void _submit() async {
+    if (_isLoading) return;
     if (!_formKey.currentState!.validate()) return;
 
-    final amount = double.parse(_amountController.text.trim());
-    final notes = _notesController.text.trim();
+    setState(() => _isLoading = true);
 
-    // We create a special income transaction with categoryId = 'goal_contribution'
-    // goalId is set so the goals provider can sum it up.
-    final txn = TransactionModel(
-      id: const Uuid().v4(),
-      title: 'Added to ${widget.goal.name}',
-      amount: amount,
-      type: TransactionType.income,
-      categoryId: 'goal_contribution',
-      categoryName: 'Goal Contribution',
-      date: DateTime.now(),
-      notes: notes.isNotEmpty ? notes : null,
-      goalId: widget.goal.id,
-    );
+    try {
+      final amount = double.parse(_amountController.text.trim());
+      final notes = _notesController.text.trim();
 
-    final repo = ref.read(transactionRepositoryProvider);
-    await repo.addTransaction(txn);
+      final txn = TransactionModel(
+        id: const Uuid().v4(),
+        title: 'Added to ${widget.goal.name}',
+        amount: amount,
+        type: TransactionType.income,
+        categoryId: 'goal_contribution',
+        categoryName: 'Goal Contribution',
+        date: DateTime.now(),
+        notes: notes.isNotEmpty ? notes : null,
+        goalId: widget.goal.id,
+      );
 
-    if (mounted) Navigator.pop(context);
+      await ref.read(transactionsProvider.notifier).addTransaction(txn);
+      await ref.read(goalsProvider.notifier).loadGoals();
+      await ref.read(dashboardProvider.notifier).loadDashboardData();
+
+      if (mounted) Navigator.of(context).pop();
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add to goal: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -231,6 +246,7 @@ class _AddToGoalSheetState extends ConsumerState<AddToGoalSheet> {
                 text: enteredAmount > 0
                     ? 'Add ${CurrencyFormatter.format(enteredAmount)}'
                     : 'Add Money',
+                isLoading: _isLoading,
                 onPressed: _submit,
               ),
             ],

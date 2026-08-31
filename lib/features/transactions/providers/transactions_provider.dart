@@ -20,8 +20,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import '../../../core/services/hive_service.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../data/repositories/transaction_repository.dart';
 
@@ -90,25 +88,12 @@ class TransactionsNotifier extends StateNotifier<TransactionsState> {
 
   TransactionsNotifier(this._repo) : super(TransactionsState()) {
     loadTransactions();
-    HiveService.transactionsBox.listenable().addListener(
-      _onTransactionsChanged,
-    );
-  }
-
-  void _onTransactionsChanged() {
-    loadTransactions();
-  }
-
-  @override
-  void dispose() {
-    HiveService.transactionsBox.listenable().removeListener(
-      _onTransactionsChanged,
-    );
-    super.dispose();
   }
 
   Future<void> loadTransactions() async {
-    state = state.copyWith(isLoading: true, error: null);
+    if (state.transactions.isEmpty) {
+      state = state.copyWith(isLoading: true, error: null);
+    }
     try {
       final txns = await _repo.getTransactions();
       state = state.copyWith(transactions: txns, isLoading: false);
@@ -321,10 +306,21 @@ class TransactionsNotifier extends StateNotifier<TransactionsState> {
     state = state.copyWith(filteredTransactions: list);
   }
 
+  Future<void> addTransaction(TransactionModel txn) async {
+    state = state.copyWith(isLoading: true);
+    try {
+      await _repo.addTransaction(txn);
+      await loadTransactions();
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
   Future<void> updateTransaction(TransactionModel txn) async {
     state = state.copyWith(isLoading: true);
     try {
       await _repo.updateTransaction(txn);
+      await loadTransactions();
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
@@ -334,6 +330,7 @@ class TransactionsNotifier extends StateNotifier<TransactionsState> {
     state = state.copyWith(isLoading: true);
     try {
       await _repo.deleteTransaction(id);
+      await loadTransactions();
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
