@@ -1,3 +1,21 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: savings_goal_card.dart
+//
+// Purpose:
+// Reusable card widget for `SavingsGoalModel` entities.
+//
+// Responsibilities:
+// - Display emoji icon, goal title, target date countdown, linear progress indicator, and currency values in ₹.
+// - Render completion status badge when `savedAmount >= targetAmount`.
+//
+// Data Flow:
+// SavingsGoalModel → SavingsGoalCard → UI List Item
+//
+// Important Rules:
+// - Progress bar value is derived directly from `goal.progress`.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';

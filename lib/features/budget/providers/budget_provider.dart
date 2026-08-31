@@ -1,3 +1,24 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: budget_provider.dart
+//
+// Purpose:
+// Riverpod StateNotifier managing monthly budget records, month selection, and spending calculations.
+//
+// Responsibilities:
+// - Read budget limits for selected month (`YYYY-MM`).
+// - Calculate category spending maps (`categorySpending[categoryId]`) and overall monthly spending (`categorySpending[null]`).
+// - Re-evaluate budget spending dynamically when transactions or Hive budget box update.
+// - Save and delete budget models via `BudgetRepository`.
+//
+// Data Flow:
+// TransactionsProvider + BudgetRepository → BudgetNotifier → BudgetState → Budget UI
+//
+// Important Rules:
+// - Income transactions are IGNORED in budget spending calculations (only expenses count).
+// - Key `null` in `categorySpending` map denotes overall monthly spending.
+// ============================================================
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';

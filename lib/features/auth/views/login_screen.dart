@@ -1,3 +1,27 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: login_screen.dart
+//
+// Purpose:
+// User authentication login screen supporting email/password and social sign-in.
+//
+// Responsibilities:
+// - Validate user input (email format, password min length).
+// - Dispatch login requests to `authProvider.notifier.loginWithEmail()`.
+// - Dispatch Google login requests to `authProvider.notifier.loginWithGoogle()`.
+// - Navigate to MainShellScreen upon successful authentication.
+//
+// Navigation Flow:
+// LoginScreen → MainShellScreen (`/main`) or RegisterScreen (`/register`) or ForgotPasswordScreen (`/forgot-password`)
+//
+// Important Rules:
+// - Form validation is enforced before dispatching auth actions.
+//
+// Main Operations:
+// - _handleLogin(): Validate and authenticate email login
+// - _handleGoogleLogin(): Authenticate with Google
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
@@ -16,8 +40,8 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(text: 'demo@pocketday.app');
-  final _passwordController = TextEditingController(text: 'password123');
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   @override
   void dispose() {
@@ -174,7 +198,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
-                          authState.error.toString(),
+                          authState.error.toString().replaceAll(
+                            'Exception: ',
+                            '',
+                          ),
                           style: const TextStyle(
                             color: AppColors.expense,
                             fontSize: 13,

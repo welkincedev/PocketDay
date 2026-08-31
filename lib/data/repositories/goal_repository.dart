@@ -1,3 +1,27 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: goal_repository.dart
+//
+// Purpose:
+// Abstract contract and local Hive repository implementation for financial goals.
+//
+// Responsibilities:
+// - Read all stored goal records from Hive `goalsBox`.
+// - Save or update goal models using `goal.id` as primary key.
+// - Delete goals from `goalsBox`.
+//
+// Data Flow:
+// GoalsNotifier → GoalRepository → HiveService.goalsBox
+//
+// Important Rules:
+// - All updates and saves use `goal.id` key to prevent duplicate entries upon editing.
+//
+// Main Operations:
+// - getGoals(): Read all stored goal entities
+// - saveGoal(goal): Upsert goal by ID
+// - deleteGoal(id): Delete goal entry by ID
+// ============================================================
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/services/hive_service.dart';
 import '../models/goal_model.dart';

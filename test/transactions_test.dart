@@ -1,3 +1,19 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: transactions_test.dart
+//
+// Purpose:
+// Unit test suite for `TransactionsNotifier` filtering, search, sorting, and CRUD operations.
+//
+// Responsibilities:
+// - Verify category, type, and live text search query filtering.
+// - Verify sorting by date and amount.
+// - Verify adding, updating, and deleting transactions in Hive `transactionsBox`.
+//
+// Data Flow:
+// Mock Transactions Box → ProviderContainer → TransactionsNotifier → Test Assertions
+// ============================================================
+
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,6 +43,66 @@ void main() {
   });
 
   test('TransactionsNotifier filters and sorts correctly', () async {
+    // Populate test fixture transactions
+    final txnBox = Hive.box(AppConstants.transactionsBox);
+    final testTxns = [
+      TransactionModel(
+        id: 'txn_1',
+        title: 'Monthly Salary',
+        amount: 65000.00,
+        type: TransactionType.income,
+        categoryId: 'salary',
+        categoryName: 'Salary',
+        date: DateTime.now().subtract(const Duration(days: 2)),
+      ),
+      TransactionModel(
+        id: 'txn_2',
+        title: 'Blinkit Groceries',
+        amount: 1450.00,
+        type: TransactionType.expense,
+        categoryId: 'food',
+        categoryName: 'Food & Dining',
+        date: DateTime.now().subtract(const Duration(hours: 3)),
+      ),
+      TransactionModel(
+        id: 'txn_3',
+        title: 'Netflix Subscription',
+        amount: 649.00,
+        type: TransactionType.expense,
+        categoryId: 'entertainment',
+        categoryName: 'Entertainment',
+        date: DateTime.now().subtract(const Duration(days: 1)),
+      ),
+      TransactionModel(
+        id: 'txn_4',
+        title: 'Freelance UI Project',
+        amount: 18500.00,
+        type: TransactionType.income,
+        categoryId: 'freelance',
+        categoryName: 'Freelance',
+        date: DateTime.now().subtract(const Duration(days: 3)),
+      ),
+      TransactionModel(
+        id: 'txn_5',
+        title: 'Starbucks Coffee',
+        amount: 420.00,
+        type: TransactionType.expense,
+        categoryId: 'food',
+        categoryName: 'Food & Dining',
+        date: DateTime.now().subtract(const Duration(hours: 1)),
+      ),
+      TransactionModel(
+        id: 'txn_6',
+        title: 'Uber Auto Ride',
+        amount: 210.00,
+        type: TransactionType.expense,
+        categoryId: 'transport',
+        categoryName: 'Transportation',
+        date: DateTime.now().subtract(const Duration(days: 4)),
+      ),
+    ];
+    await txnBox.putAll({for (var t in testTxns) t.id: t.toMap()});
+
     final container = ProviderContainer(
       overrides: [
         transactionRepositoryProvider.overrideWithValue(

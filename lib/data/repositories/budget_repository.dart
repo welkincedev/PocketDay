@@ -1,3 +1,27 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: budget_repository.dart
+//
+// Purpose:
+// Abstract contract and local Hive repository implementation for overall and category budget limits.
+//
+// Responsibilities:
+// - Read all stored budget records from Hive `budgetBox`.
+// - Save or update budget models by budget `id`.
+// - Delete budgets from `budgetBox`.
+//
+// Data Flow:
+// BudgetNotifier → BudgetRepository → HiveService.budgetBox
+//
+// Important Rules:
+// - `saveBudget` uses `budget.id` as key in Hive box to prevent duplicates upon editing.
+//
+// Main Operations:
+// - getBudgets(): Read all budget entries
+// - saveBudget(budget): Upsert budget model by ID
+// - deleteBudget(id): Remove budget by ID
+// ============================================================
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/services/hive_service.dart';
 import '../models/budget_model.dart';

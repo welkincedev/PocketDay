@@ -1,3 +1,25 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: register_screen.dart
+//
+// Purpose:
+// User registration screen for creating a new user profile in PocketDay.
+//
+// Responsibilities:
+// - Collect user credentials (full name, email address, password).
+// - Validate inputs and dispatch registration request to `authProvider.notifier.registerWithEmail()`.
+// - Route to MainShellScreen on successful account creation.
+//
+// Navigation Flow:
+// RegisterScreen → MainShellScreen (`/main`) or back to LoginScreen
+//
+// Important Rules:
+// - Enforces name, email, and minimum 6-character password validation.
+//
+// Main Operations:
+// - _handleRegister(): Validate form inputs and submit registration request
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
@@ -19,12 +41,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -82,7 +106,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     controller: _nameController,
                     prefixIcon: Icons.person_outline_rounded,
                     validator: (val) {
-                      if (val == null || val.isEmpty) {
+                      if (val == null || val.trim().isEmpty) {
                         return 'Full name is required';
                       }
                       return null;
@@ -98,10 +122,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     prefixIcon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
                     validator: (val) {
-                      if (val == null || val.isEmpty) {
+                      if (val == null || val.trim().isEmpty) {
                         return 'Email is required';
                       }
-                      if (!val.contains('@')) return 'Enter a valid email';
+                      if (!val.contains('@') || !val.contains('.')) {
+                        return 'Enter a valid email address';
+                      }
                       return null;
                     },
                   ),
@@ -115,8 +141,30 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     prefixIcon: Icons.lock_outline_rounded,
                     isPassword: true,
                     validator: (val) {
-                      if (val == null || val.length < 6) {
+                      if (val == null || val.isEmpty) {
+                        return 'Password is required';
+                      }
+                      if (val.length < 6) {
                         return 'Password must be at least 6 characters';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Confirm Password Input
+                  AppTextField(
+                    label: 'Confirm Password',
+                    hint: '••••••••',
+                    controller: _confirmPasswordController,
+                    prefixIcon: Icons.lock_outline_rounded,
+                    isPassword: true,
+                    validator: (val) {
+                      if (val == null || val.isEmpty) {
+                        return 'Please confirm your password';
+                      }
+                      if (val != _passwordController.text) {
+                        return 'Passwords do not match';
                       }
                       return null;
                     },
@@ -132,7 +180,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        authState.error.toString(),
+                        authState.error.toString().replaceAll(
+                          'Exception: ',
+                          '',
+                        ),
                         style: const TextStyle(
                           color: AppColors.expense,
                           fontSize: 13,

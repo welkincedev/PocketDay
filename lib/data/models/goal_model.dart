@@ -1,3 +1,28 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: goal_model.dart
+//
+// Purpose:
+// Domain model and calculation extension for target savings goals.
+//
+// Responsibilities:
+// - Hold goal target criteria (id, name, targetAmount, emoji, targetDate, createdAt, updatedAt).
+// - Provide `toMap()` and `fromMap()` for Hive storage in `goalsBox`.
+// - Expose `GoalCalculations` extension to derive goal progress, remaining amount, and completion status from transactions.
+//
+// Data Flow:
+// Goal Sheet / Transactions ↔ GoalModel ↔ GoalCalculations extension ↔ GoalsNotifier
+//
+// Important Rules:
+// - Goal contributions and goal-linked expenses add positively (`+txn.amount`) to goal progress.
+// - Financial calculations are derived dynamically at read time from transactions.
+//
+// Main Operations:
+// - calculateCurrentAmount(transactions): Sum total saved balance
+// - calculateProgress(currentAmount): Derive 0.0-1.0 progress ratio
+// - isGoalCompleted(currentAmount): Check if balance >= target
+// ============================================================
+
 import 'transaction_model.dart';
 
 /// Represents a financial Goal that the user is working toward.

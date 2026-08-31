@@ -1,3 +1,25 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: onboarding_screen.dart
+//
+// Purpose:
+// Introductory PageView slider introducing key features (Expense Tracking, Budgeting, Savings Goals).
+//
+// Responsibilities:
+// - Render 3 onboarding slides with custom icons, titles, and descriptions.
+// - Persist completion flag to Hive via `HiveService.setHasOnboarded(true)`.
+// - Transition user to `LoginScreen` upon tapping 'Get Started' or 'Skip'.
+//
+// Navigation Flow:
+// SplashScreen → OnboardingScreen → LoginScreen
+//
+// Important Rules:
+// - Tapping 'Skip' or finishing the slider marks `hasOnboarded = true`.
+//
+// Main Operations:
+// - _onComplete(): Set onboarding flag and navigate to LoginScreen
+// ============================================================
+
 import 'package:flutter/material.dart';
 import '../../../core/routes/app_router.dart';
 import '../../../core/constants/app_colors.dart';

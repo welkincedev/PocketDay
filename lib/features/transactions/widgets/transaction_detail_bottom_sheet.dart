@@ -1,3 +1,22 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: transaction_detail_bottom_sheet.dart
+//
+// Purpose:
+// Modal bottom sheet displaying detailed view of a selected transaction record with edit/delete actions.
+//
+// Responsibilities:
+// - Display transaction category metadata, full timestamp, amount in ₹, and optional notes block.
+// - Prompt confirmation dialog (`_confirmDelete`) before deleting record via `transactionsProvider`.
+// - Launch edit form sheet (`AddTransactionBottomSheet`) when edit is tapped.
+//
+// Data Flow:
+// TransactionItemTile → TransactionDetailBottomSheet → Delete / Edit → transactionsProvider
+//
+// Important Rules:
+// - Always displays an alert confirmation dialog before completing a delete operation.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';

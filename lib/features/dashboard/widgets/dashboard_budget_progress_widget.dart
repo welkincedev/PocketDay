@@ -1,3 +1,22 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: dashboard_budget_progress_widget.dart
+//
+// Purpose:
+// Compact overall monthly budget progress bar widget for home dashboard.
+//
+// Responsibilities:
+// - Display total monthly spending vs budget limit.
+// - Compute warning threshold colors (Safe emerald green, Warning amber, Critical orange, Exceeded red).
+// - Navigate to Budget tab (index 2) when tapped.
+//
+// Data Flow:
+// dashboardProvider → DashboardBudgetProgressWidget → Navigation to Budget Screen
+//
+// Important Rules:
+// - All monetary numbers are formatted cleanly via `CurrencyFormatter`.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';

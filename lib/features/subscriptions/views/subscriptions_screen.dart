@@ -1,3 +1,23 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: subscriptions_screen.dart
+//
+// Purpose:
+// Main subscriptions management view screen with summary metrics, filter bar, and grid/list layout.
+//
+// Responsibilities:
+// - Render top normalized monthly recurring spend card (`totalMonthlyRecurring`).
+// - Render horizontal upcoming payments carousel (`upcomingList`).
+// - Filter by status (All, Active, Paused, Cancelled) and live text search query.
+// - Render list of `SubscriptionCard` items, dynamically switching to a 2-column grid on wide screens.
+//
+// Data Flow:
+// subscriptionProvider → SubscriptionsScreen → SubscriptionCard / AddSubscriptionSheet
+//
+// Important Rules:
+// - Adaptable layout uses `SliverGrid` with 2 columns when container width >= 600px.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';

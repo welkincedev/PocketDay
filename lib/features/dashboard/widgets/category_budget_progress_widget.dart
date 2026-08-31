@@ -1,3 +1,22 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: category_budget_progress_widget.dart
+//
+// Purpose:
+// Dashboard card component rendering linear progress indicators for category budgets.
+//
+// Responsibilities:
+// - Read category-specific budgets and active month spending from `budgetProvider`.
+// - Calculate category progress percentage (`spent / limit`).
+// - Color progress bars dynamically using category colors (turns red if exceeded).
+//
+// Data Flow:
+// budgetProvider → CategoryBudgetProgressWidget → LinearProgressIndicator UI
+//
+// Important Rules:
+// - Renders empty notice if zero category budgets exist for the active month.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';

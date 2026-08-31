@@ -1,3 +1,24 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: transactions_filter_bottom_sheet.dart
+//
+// Purpose:
+// Modal bottom sheet for configuring transaction filtering, sorting, category selection, and date presets.
+//
+// Responsibilities:
+// - Render transaction type filter chips (All, Income, Expense).
+// - Render category filter chips based on `AppConstants.defaultCategories`.
+// - Render date range presets (Today, Week, Month, Custom Range via `showDateRangePicker`).
+// - Render sorting order options (Newest/Oldest First, Highest/Lowest Amount).
+// - Update `transactionsProvider` state as chips are selected.
+//
+// Data Flow:
+// User ChoiceChip Taps → transactionsProvider.notifier setters → TransactionsState updated
+//
+// Important Rules:
+// - Tapping 'Clear all' resets filters back to default values.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';

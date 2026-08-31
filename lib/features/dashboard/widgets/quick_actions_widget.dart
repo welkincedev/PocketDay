@@ -1,3 +1,21 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: quick_actions_widget.dart
+//
+// Purpose:
+// Quick action buttons bar rendering '+ Add Income' and '- Add Expense' buttons on the dashboard.
+//
+// Responsibilities:
+// - Render styled action buttons with green and red accent themes.
+// - Trigger modal bottom sheet for entering income or expense records.
+//
+// Data Flow:
+// DashboardScreen → QuickActionsWidget → onAddTransaction callback
+//
+// Important Rules:
+// - Desaturated tones are applied dynamically depending on active light/dark theme.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../data/models/transaction_model.dart';

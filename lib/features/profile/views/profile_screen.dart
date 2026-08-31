@@ -1,6 +1,27 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: profile_screen.dart
+//
+// Purpose:
+// User profile tab displaying user credentials, theme mode toggle, subscription tracker entry point, and logout.
+//
+// Responsibilities:
+// - Render user avatar, name, and email from `authProvider`.
+// - Toggle dark/light theme via `themeProvider`.
+// - Navigate to Subscriptions screen (`AppRoutes.subscriptions`).
+// - Prompt confirmation dialog before signing out and clearing session.
+//
+// Data Flow:
+// authProvider + themeProvider → ProfileScreen → User Settings & Sign Out
+//
+// Important Rules:
+// - Sign-out clears auth state and replaces router stack with `AppRoutes.login`.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/services/hive_service.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../../core/routes/app_router.dart';
@@ -166,6 +187,52 @@ class ProfileScreen extends ConsumerWidget {
                         : AppColors.lightTextSecondary,
                   ),
                 ),
+              ),
+
+              const _Divider(),
+
+              // ─── DEVELOPER ────────────────────────────────────────────────
+              _SectionLabel(label: 'DEVELOPER UTILITIES', isDark: isDark),
+              _SettingsTile(
+                icon: Icons.cleaning_services_rounded,
+                label: 'Reset Financial Data',
+                trailing: const Icon(Icons.chevron_right_rounded, size: 20),
+                onTap: () async {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Reset Financial Data'),
+                      content: const Text(
+                        'This will clear all local transactions, budgets, goals, and subscriptions for a clean presentation test. Are you sure?',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, true),
+                          child: const Text(
+                            'Reset',
+                            style: TextStyle(color: AppColors.expense),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirmed == true) {
+                    await HiveService.resetFinancialData();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Local financial data reset to zero state.',
+                          ),
+                        ),
+                      );
+                    }
+                  }
+                },
               ),
 
               const _Divider(),

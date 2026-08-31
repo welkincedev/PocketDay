@@ -1,3 +1,21 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: add_savings_goal_bottom_sheet.dart
+//
+// Purpose:
+// Modal bottom sheet form for creating or editing a `SavingsGoalModel`.
+//
+// Responsibilities:
+// - Collect goal name, target amount in ₹, emoji icon selection, and optional target deadline date.
+// - Call `savingsGoalsProvider.addGoal()` or `updateGoal()`.
+//
+// Data Flow:
+// User Form Input → AddSavingsGoalBottomSheet._submit() → savingsGoalsProvider → Hive (`goalsBox`)
+//
+// Important Rules:
+// - Validates goal name (non-empty, max 30 chars) and target amount (> 0).
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';

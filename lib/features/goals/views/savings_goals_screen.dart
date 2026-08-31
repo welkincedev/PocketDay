@@ -1,3 +1,22 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: savings_goals_screen.dart
+//
+// Purpose:
+// Goals overview tab screen listing active and completed financial targets.
+//
+// Responsibilities:
+// - Render list of active financial goals and completed goals dynamically using `goalsProvider`.
+// - Render `GoalCard` for each target goal.
+// - Launch goal creation sheet (`CreateGoalSheet`) or navigate to `GoalDetailScreen`.
+//
+// Data Flow:
+// goalsProvider → GoalsScreen → GoalCard → GoalDetailScreen
+//
+// Important Rules:
+// - Completed goals are rendered with subtle 72% opacity.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';

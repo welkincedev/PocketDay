@@ -1,3 +1,22 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: budget_detail_bottom_sheet.dart
+//
+// Purpose:
+// Modal bottom sheet displaying detailed view of a selected budget limit, spent analytics, and related transaction feed.
+//
+// Responsibilities:
+// - Render budget limit, spent total, remaining balance, and warning status bar.
+// - Filter and render list of related expense transactions for the active month and category scope.
+// - Trigger edit form (`AddBudgetBottomSheet`) or confirm delete (`_confirmDelete`).
+//
+// Data Flow:
+// BudgetCardWidget → BudgetDetailBottomSheet → budgetProvider.deleteBudget() / Edit Form
+//
+// Important Rules:
+// - Transaction list displays only expenses scoped to the budget's month and category (or all expenses for overall budget).
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';

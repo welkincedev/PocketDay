@@ -1,3 +1,24 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: skeleton_loader.dart
+//
+// Purpose:
+// Shimmer pulse animation widget for content loading placeholder states.
+//
+// Responsibilities:
+// - Render smooth opacity pulsing animation during initial data fetch operations.
+// - Support custom height, width, and border radii matching standard card shapes.
+//
+// Data Flow:
+// Loading State → SkeletonLoader → UI Skeleton Placeholder
+//
+// Important Rules:
+// - Cleanly disposes AnimationController when unmounted.
+//
+// Main Operations:
+// - SkeletonLoader(width, height, borderRadius)
+// ============================================================
+
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 

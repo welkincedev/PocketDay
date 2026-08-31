@@ -1,3 +1,28 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: subscription_model.dart
+//
+// Purpose:
+// Domain model representing recurring subscriptions (Netflix, Spotify, Cloud Storage).
+//
+// Responsibilities:
+// - Support weekly, monthly, quarterly, and yearly billing cycles.
+// - Calculate monthly equivalent costs for financial analytics.
+// - Perform date-safe next payment date calculations handling month-end (Jan 31 → Feb 28) and leap years.
+// - Convert to/from Map for Hive storage in `subscriptionsBox`.
+//
+// Data Flow:
+// Subscription Sheet → SubscriptionNotifier ↔ SubscriptionModel ↔ Hive (`subscriptionsBox`)
+//
+// Important Rules:
+// - Next date calculation uses `_addMonths` to clamp overflow days safely to the last valid day of the target month.
+//
+// Main Operations:
+// - calculateMonthlyEquivalent(): Convert any cycle cost to monthly rate
+// - calculateNextDate(fromDate, cycle): Compute next billing date safely
+// - isCurrentlyActive(): Evaluate date-aware active status
+// ============================================================
+
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 

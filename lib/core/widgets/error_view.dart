@@ -1,3 +1,24 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: error_view.dart
+//
+// Purpose:
+// Reusable error presentation view with retry button for handling unexpected exceptions gracefully.
+//
+// Responsibilities:
+// - Render error icon, user-friendly error message, and optional retry action button.
+// - Prevent raw unhandled exception traces from displaying directly to users.
+//
+// Data Flow:
+// Async Error / Exception → ErrorView → User Retry tap (`onRetry`)
+//
+// Important Rules:
+// - Never display raw stack traces to end users; provide actionable retry options.
+//
+// Main Operations:
+// - ErrorView(message, onRetry)
+// ============================================================
+
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_strings.dart';

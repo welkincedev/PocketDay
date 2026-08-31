@@ -1,3 +1,27 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: savings_goal_model.dart
+//
+// Purpose:
+// Domain model for explicit savings targets with a tracked `savedAmount` field.
+//
+// Responsibilities:
+// - Hold explicit goal metadata (id, name, targetAmount, savedAmount, emoji, targetDate).
+// - Expose getters for `remainingAmount`, `progress`, `percentage`, and `isCompleted`.
+// - Convert to/from Map for Hive storage in `goalsBox`.
+//
+// Data Flow:
+// Savings Goals UI ↔ SavingsGoalsNotifier ↔ SavingsGoalModel ↔ Hive (`goalsBox`)
+//
+// Important Rules:
+// - `progress` is clamped between 0.0 and 1.0.
+//
+// Main Operations:
+// - toMap(): Serialize savings goal to Map
+// - SavingsGoalModel.fromMap(map): Deserialize Map to SavingsGoalModel
+// - copyWith(): Return modified copy
+// ============================================================
+
 class SavingsGoalModel {
   final String id;
   final String name;

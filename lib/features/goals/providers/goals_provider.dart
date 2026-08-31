@@ -1,3 +1,23 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: goals_provider.dart
+//
+// Purpose:
+// Riverpod StateNotifier managing financial goal entities and listening to transaction progress updates.
+//
+// Responsibilities:
+// - Read and maintain list of target goals from Hive `goalsBox`.
+// - Listen to `transactionsProvider` updates so goal progress calculations update dynamically.
+// - Create, update, and delete goals via `GoalRepository`.
+// - Nullify `goalId` references in `transactionsBox` upon goal deletion to avoid orphaned goal links.
+//
+// Data Flow:
+// Goal UI / TransactionsProvider → GoalsNotifier → GoalRepository → Hive (`goalsBox`)
+//
+// Important Rules:
+// - Deleting a goal unlinks (nullifies `goalId`) all associated transactions rather than deleting the transactions.
+// ============================================================
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../../../core/services/hive_service.dart';

@@ -1,3 +1,19 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: subscription_test.dart
+//
+// Purpose:
+// Unit test suite for `SubscriptionModel` monthly cost normalization, leap year date clamping, and idempotent auto-expense generation.
+//
+// Responsibilities:
+// - Verify weekly, monthly, quarterly, and yearly cost normalization (`calculateMonthlyEquivalent`).
+// - Verify date edge cases (Feb 29 leap year clamping and month-end clamping).
+// - Verify idempotent auto-expense transaction generation via `processedAutoExpensesBox`.
+//
+// Data Flow:
+// Mock Subscriptions & Hive Boxes → ProviderContainer → SubscriptionNotifier → Test Assertions
+// ============================================================
+
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -1,3 +1,19 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: goal_test.dart
+//
+// Purpose:
+// Unit test suite for `GoalModel` progress calculations, transaction linkage, and CRUD operations.
+//
+// Responsibilities:
+// - Verify positive progress aggregation for both goal contributions and goal-linked expenses.
+// - Verify progress clamping at 100% (1.0) and remaining amount calculations.
+// - Verify edit, deletion, and unlinking semantics for transactions tied to goals.
+//
+// Data Flow:
+// Mock Transactions & Goals → GoalModel Calculations → Test Assertions
+// ============================================================
+
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

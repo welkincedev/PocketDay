@@ -1,3 +1,26 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: app_strings.dart
+//
+// Purpose:
+// Centralized string constants for UI text, labels, onboarding titles, navigation labels, and error messages.
+//
+// Responsibilities:
+// - Provide consistent copy across onboarding, auth screens, dashboard, navigation, and feedback states.
+// - Eliminate duplicate hardcoded string literals across feature widgets.
+//
+// Data Flow:
+// AppStrings → UI Views & Dialogs
+//
+// Important Rules:
+// - All core UI titles and buttons should consume AppStrings instead of raw strings.
+//
+// Main Constants:
+// - Auth/Onboarding: onboardingTitle1-3, login, register, getStarted
+// - Navigation: navHome, navTransactions, navBudget, navGoals, navProfile
+// - Financial Labels: totalBalance, monthlyIncome, monthlyExpense, remainingBudget
+// ============================================================
+
 class AppStrings {
   static const String appTitle = 'PocketDay';
   static const String appTagline = 'Smart, simple personal finance management';

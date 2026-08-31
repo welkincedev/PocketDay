@@ -1,3 +1,21 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: create_goal_sheet.dart
+//
+// Purpose:
+// Modal bottom sheet form for instantiating a new target `GoalModel`.
+//
+// Responsibilities:
+// - Collect goal name, target amount in ₹, emoji icon selection, and optional target deadline date.
+// - Call `goalsProvider.addGoal()`.
+//
+// Data Flow:
+// User Form Input → CreateGoalSheet._submit() → goalsProvider.addGoal() → Hive (`goalsBox`)
+//
+// Important Rules:
+// - Goal target date is optional and defaults to null if unselected.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';

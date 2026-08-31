@@ -1,3 +1,25 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: app_text_field.dart
+//
+// Purpose:
+// Reusable text input field with labels, validation, prefix icons, and password visibility toggles.
+//
+// Responsibilities:
+// - Render custom labeled FormFields across login, register, expense entry, budget creation, and goal forms.
+// - Manage internal `_obscureText` state when `isPassword` is true.
+// - Connect form controllers and validator functions to parent Form states.
+//
+// Data Flow:
+// User Typing → TextEditingController / onChanged → Form State / State Notifier
+//
+// Important Rules:
+// - Obscure text toggle button renders automatically when `isPassword` is true.
+//
+// Main Operations:
+// - AppTextField(label, hint, controller, validator, isPassword, keyboardType)
+// ============================================================
+
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 

@@ -1,3 +1,21 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: goal_card.dart
+//
+// Purpose:
+// Reusable card widget displaying goal target progress, percentage badge, and deadline countdown.
+//
+// Responsibilities:
+// - Render emoji icon, goal title, target date countdown, linear progress indicator, and currency values in ₹.
+// - Highlight completed goals with a 'Done' checkmark badge.
+//
+// Data Flow:
+// GoalModel + currentAmount → GoalCard → UI Card Component
+//
+// Important Rules:
+// - `currentAmount` is pre-calculated by `goalsProvider` and passed down.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';

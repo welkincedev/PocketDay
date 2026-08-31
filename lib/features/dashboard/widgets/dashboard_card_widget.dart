@@ -1,3 +1,22 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: dashboard_card_widget.dart
+//
+// Purpose:
+// Gradient hero balance card component displayed at the top of the home dashboard.
+//
+// Responsibilities:
+// - Render total balance using overflow-safe `BalanceDisplayWidget`.
+// - Render income and expense sub-tiles with compact currency formatting.
+// - Apply emerald green gradient in light mode and slate gradient in dark mode.
+//
+// Data Flow:
+// DashboardScreen → DashboardCardWidget → UI Display
+//
+// Important Rules:
+// - Sub-tiles use `CurrencyFormatter.formatCompact()` to ensure fit on narrow mobile screens.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';

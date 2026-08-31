@@ -1,3 +1,22 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: transactions_screen.dart
+//
+// Purpose:
+// Main transactions feed screen supporting live search, filtering, and detail inspection.
+//
+// Responsibilities:
+// - Render complete historical transaction list using `TransactionItemTile`.
+// - Render search bar and filter button (opening `TransactionsFilterBottomSheet`).
+// - Trigger modal bottom sheet for adding or inspecting transaction details.
+//
+// Data Flow:
+// transactionsProvider → TransactionsScreen → TransactionItemTile / Filter / Detail Sheets
+//
+// Important Rules:
+// - FAB launches add flow dialog allowing user to choose between Income and Expense.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';

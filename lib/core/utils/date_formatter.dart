@@ -1,3 +1,31 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: date_formatter.dart
+//
+// Purpose:
+// Centralized date and time formatting utilities for PocketDay.
+//
+// Responsibilities:
+// - Format short dates (`Aug 31, 2026`).
+// - Format full dates (`Monday, August 31, 2026`).
+// - Format time (`2:30 PM`).
+// - Format relative dates (`Today, 2:30 PM`, `Yesterday, 10:15 AM`).
+// - Format month and year (`August 2026`).
+//
+// Data Flow:
+// DateTime object → DateFormatter method → UI display
+//
+// Important Rules:
+// - All date display formatting in views and list tiles should use DateFormatter.
+//
+// Main Operations:
+// - formatShort(date)
+// - formatFull(date)
+// - formatTime(date)
+// - formatRelative(date)
+// - formatMonthYear(date)
+// ============================================================
+
 import 'package:intl/intl.dart';
 
 class DateFormatter {

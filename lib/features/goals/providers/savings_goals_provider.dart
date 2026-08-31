@@ -1,3 +1,22 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: savings_goals_provider.dart
+//
+// Purpose:
+// StateNotifier and state snapshot class for explicit `SavingsGoalModel` entities.
+//
+// Responsibilities:
+// - Load and maintain savings goals list sorted by active vs completed status.
+// - Perform CRUD operations on savings goals.
+// - Support `addSavings(goalId, amount)` and `removeSavings(goalId, amount)` balance modifications.
+//
+// Data Flow:
+// Savings Goals UI → SavingsGoalsNotifier → SavingsGoalRepository → Hive (`goalsBox`)
+//
+// Important Rules:
+// - Sorts active incomplete goals first followed by completed goals.
+// ============================================================
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../../../core/services/hive_service.dart';

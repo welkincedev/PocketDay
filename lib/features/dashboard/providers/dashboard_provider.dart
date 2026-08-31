@@ -1,3 +1,26 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: dashboard_provider.dart
+//
+// Purpose:
+// StateNotifier and state snapshot class for home dashboard metrics.
+//
+// Responsibilities:
+// - Compute total income, total expense, current balance, monthly budget, and current month spending.
+// - Filter 5 most recent transactions for home feed.
+// - Listen to Hive `transactionsBox` and `budgetBox` change events to trigger automatic recalculations.
+//
+// Data Flow:
+// Hive Boxes Listener → DashboardNotifier.loadDashboardData() → DashboardState → Dashboard UI
+//
+// Important Rules:
+// - Listens to `transactionsBox` and `budgetBox` changes; disposes listeners cleanly upon unmount.
+//
+// Main Operations:
+// - loadDashboardData(): Aggregate transaction sums and read current month budget
+// - addTransaction(txn): Save transaction via repository
+// ============================================================
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
@@ -23,7 +46,7 @@ class DashboardState {
   DashboardState({
     this.totalIncome = 0.0,
     this.totalExpense = 0.0,
-    this.monthlyBudget = 50000.0,
+    this.monthlyBudget = 0.0,
     this.currentMonthExpense = 0.0,
     this.recentTransactions = const [],
     this.isLoading = false,
@@ -103,7 +126,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       }
 
       // Load overall budget for current month from Hive
-      double monthlyBudgetVal = 50000.0; // default fallback
+      double monthlyBudgetVal = 0.0; // default 0.0 when no budget configured
       final budgetBox = HiveService.budgetBox;
       for (var item in budgetBox.values) {
         if (item is Map) {

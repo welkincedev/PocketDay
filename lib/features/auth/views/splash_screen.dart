@@ -1,3 +1,25 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: splash_screen.dart
+//
+// Purpose:
+// Animated application splash screen performing initial session routing.
+//
+// Responsibilities:
+// - Render animated PocketDay wallet logo and branding tagline.
+// - Evaluate onboarding and session state via `HiveService.hasOnboarded` and `authProvider`.
+// - Route user to OnboardingScreen (`/onboarding`), MainShellScreen (`/main`), or LoginScreen (`/login`).
+//
+// Navigation Flow:
+// App Launch → SplashScreen → Route Decision (Onboarding / Main / Login)
+//
+// Important Rules:
+// - Minimum splash display duration is 2000ms for branding presentation.
+//
+// Main Operations:
+// - _navigate(): Determine target screen and perform pushReplacementNamed
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';

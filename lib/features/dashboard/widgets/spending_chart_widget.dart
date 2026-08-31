@@ -1,3 +1,22 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: spending_chart_widget.dart
+//
+// Purpose:
+// Donut chart analytics widget powered by `fl_chart` illustrating category breakdown.
+//
+// Responsibilities:
+// - Render dynamic PieChart donut sections colored by category meta colors.
+// - Display central budget percentage used (`spent / monthlyBudget`).
+// - Render bottom Wrap legend with category totals formatted via `CurrencyFormatter`.
+//
+// Data Flow:
+// dashboardProvider + budgetProvider → SpendingChartWidget → fl_chart PieChart UI
+//
+// Important Rules:
+// - Inner donut center space radius is 52px to prevent text overlap.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

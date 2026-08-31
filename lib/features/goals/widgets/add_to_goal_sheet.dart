@@ -1,3 +1,22 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: add_to_goal_sheet.dart
+//
+// Purpose:
+// Modal bottom sheet for adding a monetary contribution transaction to a target `GoalModel`.
+//
+// Responsibilities:
+// - Collect deposit amount in ₹ and optional notes.
+// - Create a transaction record with `categoryId = 'goal_contribution'` and linked `goalId`.
+// - Save contribution via `TransactionRepository.addTransaction()`.
+//
+// Data Flow:
+// User Form Input → AddToGoalSheet._submit() → TransactionRepository → Hive (`transactionsBox`) → goalsProvider recalculation
+//
+// Important Rules:
+// - Direct contributions create `goal_contribution` transactions linked to `goalId`.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';

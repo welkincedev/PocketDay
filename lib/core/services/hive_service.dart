@@ -1,3 +1,30 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: hive_service.dart
+//
+// Purpose:
+// Centralized Hive initialization, box management, persistent key access, and development reset utilities.
+//
+// Responsibilities:
+// - Initialize HiveFlutter.
+// - Open core persistent storage boxes (settingsBox, userBox, transactionsBox, budgetBox, goalsBox, subscriptionsBox, processedAutoExpensesBox).
+// - Expose static getters for open Hive boxes.
+// - Provide helper getters/setters for app settings (isDarkMode, hasOnboarded).
+// - Provide database reset utilities (`resetFinancialData`, `resetAllData`) for clean presentation setup.
+//
+// Data Flow:
+// main() → HiveService.init() → Hive Boxes Open → Repositories & ThemeProvider access Box getters
+//
+// Important Rules:
+// - Never re-open Hive boxes inside feature widgets or repositories; always use static getters.
+// - Box getters assume HiveService.init() completed during app startup.
+//
+// Main Operations:
+// - init(): Initialize Flutter Hive & open all boxes
+// - Box Getters: settingsBox, userBox, transactionsBox, budgetBox, goalsBox, subscriptionsBox
+// - resetFinancialData(): Clear all financial boxes for clean presentation test
+// ============================================================
+
 import 'package:hive_flutter/hive_flutter.dart';
 import '../constants/app_constants.dart';
 
@@ -40,4 +67,20 @@ class HiveService {
       settingsBox.get(AppConstants.keyHasOnboarded, defaultValue: false);
   static Future<void> setHasOnboarded(bool value) async =>
       await settingsBox.put(AppConstants.keyHasOnboarded, value);
+
+  /// Clears financial data boxes for clean presentation testing.
+  static Future<void> resetFinancialData() async {
+    await transactionsBox.clear();
+    await budgetBox.clear();
+    await goalsBox.clear();
+    await subscriptionsBox.clear();
+    await processedAutoExpensesBox.clear();
+  }
+
+  /// Completely resets all local database storage.
+  static Future<void> resetAllData() async {
+    await resetFinancialData();
+    await userBox.clear();
+    await settingsBox.clear();
+  }
 }

@@ -1,3 +1,29 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: app_colors.dart
+//
+// Purpose:
+// Centralized color palette definitions for PocketDay.
+//
+// Responsibilities:
+// - Define brand emerald green and indigo accent colors.
+// - Define income green, expense red, warning amber, and info blue.
+// - Define light theme and dark theme surface, background, and text colors.
+// - Define shimmer loading effect base and highlight colors.
+//
+// Data Flow:
+// AppColors → AppTheme → ThemeData → Widget Tree
+//
+// Important Rules:
+// - Do NOT hardcode hex colors in feature widgets; always consume AppColors or Theme.of(context).
+// - Income is green (0xFF10B981), Expense is red (0xFFEF4444).
+//
+// Main Constants:
+// - Brand: primary, primaryDark, primaryLight, accent
+// - Financial: income, expense, warning, info
+// - Light/Dark Palettes: lightBackground, darkBackground, lightSurface, darkSurface
+// ============================================================
+
 import 'package:flutter/material.dart';
 
 class AppColors {

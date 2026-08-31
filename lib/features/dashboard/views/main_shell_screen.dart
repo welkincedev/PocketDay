@@ -1,3 +1,22 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: main_shell_screen.dart
+//
+// Purpose:
+// Root tab shell view hosting the main bottom navigation bar and IndexedStack.
+//
+// Responsibilities:
+// - Preserve state across tabs (Dashboard, Transactions, Budget, Goals, Profile) using IndexedStack.
+// - Render Material 3 `NavigationBar` with selection highlights.
+// - Listen to and update `navigationProvider`.
+//
+// Navigation Flow:
+// MainShellScreen → [DashboardScreen | TransactionsScreen | BudgetScreen | GoalsScreen | ProfileScreen]
+//
+// Important Rules:
+// - Uses IndexedStack to prevent screen destruction and rebuild lag when switching tabs.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_strings.dart';

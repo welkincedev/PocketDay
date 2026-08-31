@@ -1,3 +1,28 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: add_transaction_bottom_sheet.dart
+//
+// Purpose:
+// Modal bottom sheet form for adding or editing income and expense transactions.
+//
+// Responsibilities:
+// - Collect transaction metadata (title, amount in ₹, type, category, date, notes, optional goal link).
+// - Validate numeric inputs and required fields.
+// - Save or update transaction records via `TransactionRepository`.
+// - Pass updated transaction model to optional `onAdd` callback.
+//
+// Data Flow:
+// User Form Input → AddTransactionBottomSheet._submit() → TransactionRepository → Hive (`transactionsBox`)
+//
+// Important Rules:
+// - `goalId` is only applicable when `_type == TransactionType.expense`.
+// - Income transactions do not link to goals.
+//
+// Main Operations:
+// - _pickDate(): Open date picker dialog
+// - _submit(): Validate form and persist transaction model
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';

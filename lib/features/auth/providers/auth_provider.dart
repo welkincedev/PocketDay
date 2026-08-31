@@ -1,3 +1,28 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: auth_provider.dart
+//
+// Purpose:
+// Riverpod StateNotifier managing active user session state (`AsyncValue<UserModel?>`).
+//
+// Responsibilities:
+// - Check for existing logged-in user on app launch (`checkCurrentUser`).
+// - Handle email login, email registration, and Google sign-in.
+// - Manage password reset and user logout flow.
+//
+// Data Flow:
+// Auth Views → authProvider (AuthNotifier) → AuthRepository → Hive (`userBox`)
+//
+// Important Rules:
+// - Exposes state as `AsyncValue<UserModel?>` to communicate loading, authenticated user data, or unauthenticated null states.
+//
+// Main Operations:
+// - checkCurrentUser(): Verify active local session
+// - loginWithEmail(email, password): Authenticate user with email credentials
+// - registerWithEmail(email, password, name): Register user profile
+// - logout(): Terminate session and clear state
+// ============================================================
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/user_model.dart';
 import '../../../data/repositories/auth_repository.dart';

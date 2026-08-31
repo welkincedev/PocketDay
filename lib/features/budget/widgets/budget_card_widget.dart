@@ -1,3 +1,22 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: budget_card_widget.dart
+//
+// Purpose:
+// Reusable budget card component showing budget limit, spent amount, progress bar, and warning states.
+//
+// Responsibilities:
+// - Render overall or category budget statistics.
+// - Calculate percentage spent and apply color threshold warnings (Safe, Warning, Critical, Exceeded).
+// - Display progress bar capped visually at 100%.
+//
+// Data Flow:
+// BudgetModel + categorySpending → BudgetCardWidget → UI Card
+//
+// Important Rules:
+// - If `percent >= 1.0`, an 'Exceeded' red badge is rendered.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/currency_formatter.dart';

@@ -1,48 +1,30 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: forgot_password_screen.dart
+//
+// Purpose:
+// Information screen explaining local authentication password recovery behavior.
+//
+// Responsibilities:
+// - Communicate that email password recovery requires cloud authentication.
+// - Guide user back to registration or login.
+//
+// Navigation Flow:
+// ForgotPasswordScreen → Back to LoginScreen
+// ============================================================
+
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/widgets/app_button.dart';
-import '../../../core/widgets/app_text_field.dart';
-import '../providers/auth_provider.dart';
 
-class ForgotPasswordScreen extends ConsumerStatefulWidget {
+class ForgotPasswordScreen extends StatelessWidget {
   const ForgotPasswordScreen({super.key});
 
   @override
-  ConsumerState<ForgotPasswordScreen> createState() =>
-      _ForgotPasswordScreenState();
-}
-
-class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  bool _isSent = false;
-  bool _isLoading = false;
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    super.dispose();
-  }
-
-  void _handleReset() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
-      await ref
-          .read(authProvider.notifier)
-          .sendPasswordReset(_emailController.text.trim());
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-          _isSent = true;
-        });
-      }
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -60,69 +42,52 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 AppStrings.resetPassword,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               Text(
-                'Enter your registered email address to receive password reset instructions.',
-                style: Theme.of(context).textTheme.bodyMedium,
+                'PocketDay currently uses secure offline local storage for user accounts and financial data.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.lightTextSecondary,
+                ),
               ),
-              const SizedBox(height: 32),
-              if (_isSent) ...[
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(20),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.primary),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(
-                        Icons.check_circle_rounded,
-                        color: AppColors.primary,
-                      ),
-                      SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Password reset email sent! Check your inbox.',
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
+              const SizedBox(height: 28),
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withAlpha(20),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.primary.withAlpha(60)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.shield_rounded,
+                      color: AppColors.primary,
+                      size: 28,
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Text(
+                        'Email password recovery requires Cloud Sync, coming in a future update. For local presentation testing, please register a new account.',
+                        style: TextStyle(
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary,
+                          fontSize: 13,
+                          height: 1.4,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 24),
-                AppButton(
-                  text: 'Back to Login',
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ] else ...[
-                Form(
-                  key: _formKey,
-                  child: AppTextField(
-                    label: 'Email Address',
-                    hint: 'name@example.com',
-                    controller: _emailController,
-                    prefixIcon: Icons.email_outlined,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (val) {
-                      if (val == null || val.isEmpty) {
-                        return 'Email is required';
-                      }
-                      if (!val.contains('@')) return 'Enter a valid email';
-                      return null;
-                    },
-                  ),
-                ),
-                const SizedBox(height: 24),
-                AppButton(
-                  text: AppStrings.resetPassword,
-                  isLoading: _isLoading,
-                  onPressed: _handleReset,
-                ),
-              ],
+              ),
+              const Spacer(),
+              AppButton(
+                text: 'Back to Login',
+                onPressed: () => Navigator.pop(context),
+              ),
+              const SizedBox(height: 16),
             ],
           ),
         ),

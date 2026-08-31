@@ -1,3 +1,28 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: main.dart
+//
+// Purpose:
+// Application entry point for PocketDay Flutter app.
+//
+// Responsibilities:
+// - Initialize Flutter framework bindings.
+// - Initialize Hive local database storage engine.
+// - Wrap root application widget with Riverpod ProviderScope.
+// - Configure MaterialApp with AppTheme, light/dark modes, and AppRoutes.
+//
+// Data Flow:
+// System Launch → main() → HiveService.init() → ProviderScope → PocketDayApp → AppRoutes
+//
+// Important Rules:
+// - HiveService.init() must complete before runApp() executes.
+// - Root widget MUST be wrapped in ProviderScope for Riverpod state access.
+//
+// Main Operations:
+// - main(): Framework binding, Hive init, launch root app
+// - PocketDayApp.build(): Listen to themeProvider, build MaterialApp
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/constants/app_strings.dart';

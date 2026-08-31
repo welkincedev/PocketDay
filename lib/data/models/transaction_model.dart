@@ -1,3 +1,28 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: transaction_model.dart
+//
+// Purpose:
+// Immutable financial transaction entity representing income or expense records.
+//
+// Responsibilities:
+// - Hold transaction details (id, title, amount, type, categoryId, categoryName, date, notes, goalId).
+// - Convert to/from Map for Hive storage in `transactionsBox`.
+// - Link optionally to a Goal via `goalId`.
+//
+// Data Flow:
+// Transaction Form / Sheets → TransactionsProvider ↔ TransactionModel ↔ Hive (`transactionsBox`)
+//
+// Important Rules:
+// - Goal-allocated transactions maintain `type: TransactionType.expense` for balance calculations while contributing positively to Goal progress.
+// - Amounts are stored as doubles.
+//
+// Main Operations:
+// - toMap(): Convert transaction entity to Hive-compatible map
+// - TransactionModel.fromMap(map): Reconstruct transaction entity from Hive map
+// - copyWith(): Copy with modified parameters
+// ============================================================
+
 /// Defines whether a transaction adds to or subtracts from the user's balance.
 enum TransactionType { income, expense }
 

@@ -1,3 +1,22 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: budget_screen.dart
+//
+// Purpose:
+// Main budget management screen displaying month navigation, overall monthly budget card, and category budgets.
+//
+// Responsibilities:
+// - Render top persistent month navigation bar (`_buildMonthSelector`).
+// - Display overall monthly budget summary card and category budget cards.
+// - Trigger modal bottom sheet for creating new budgets or inspecting budget details.
+//
+// Data Flow:
+// budgetProvider → BudgetScreen → BudgetCardWidget / AddBudgetBottomSheet / BudgetDetailBottomSheet
+//
+// Important Rules:
+// - overallBudget is identified by `categoryId == null`.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';

@@ -1,3 +1,27 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: savings_goal_repository.dart
+//
+// Purpose:
+// Abstract contract and local Hive implementation for savings target entities.
+//
+// Responsibilities:
+// - Read all saved goals from Hive `goalsBox`.
+// - Save or update `SavingsGoalModel` by ID.
+// - Delete savings goals by ID.
+//
+// Data Flow:
+// SavingsGoalsNotifier → SavingsGoalRepository → HiveService.goalsBox
+//
+// Important Rules:
+// - Stores savings goal maps using `goal.id` primary keys.
+//
+// Main Operations:
+// - getGoals(): Fetch all savings goals from Hive
+// - saveGoal(goal): Upsert goal by ID
+// - deleteGoal(id): Delete goal from Hive
+// ============================================================
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/services/hive_service.dart';
 import '../models/savings_goal_model.dart';

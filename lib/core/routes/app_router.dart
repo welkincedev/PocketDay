@@ -1,3 +1,27 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: app_router.dart
+//
+// Purpose:
+// Centralized named route definitions and screen mapping table for PocketDay.
+//
+// Responsibilities:
+// - Define route constants (splash, onboarding, login, register, forgotPassword, main, profile, subscriptions).
+// - Expose `routes` map mapping route paths to screen widgets.
+//
+// Navigation Flow:
+// Splash → Onboarding/Login → MainShellScreen (Tab shell: Dashboard, Transactions, Budget, Goals) → Profile / Subscriptions
+//
+// Important Rules:
+// - Main navigation shell is served by `MainShellScreen`.
+// - Screen navigation uses `Navigator.pushNamed()` or `Navigator.pushReplacementNamed()`.
+//
+// Route Constants:
+// - splash: '/'
+// - main: '/main'
+// - subscriptions: '/subscriptions'
+// ============================================================
+
 import 'package:flutter/material.dart';
 import '../../features/auth/views/splash_screen.dart';
 import '../../features/auth/views/onboarding_screen.dart';

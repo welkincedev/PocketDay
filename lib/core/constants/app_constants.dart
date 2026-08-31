@@ -1,3 +1,28 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: app_constants.dart
+//
+// Purpose:
+// Global application constants, layout dimensions, Hive box names, and default category definitions.
+//
+// Responsibilities:
+// - Define app metadata (appName, currencySymbol '₹', defaultLocale 'en_IN').
+// - Define uniform spacing system (4.0 to 24.0) and radius system (8.0 to 20.0).
+// - Define Hive box names (transactionsBox, budgetBox, goalsBox, subscriptionsBox, userBox, settingsBox).
+// - Define default transaction categories with icons, colors, and type identifiers.
+//
+// Data Flow:
+// AppConstants → Repositories & UI Widgets
+//
+// Important Rules:
+// - All currency displays must use `AppConstants.currencySymbol` ('₹').
+// - Hive box names specified here MUST match across HiveService and repositories.
+//
+// Main Constants:
+// - Box Names: settingsBox, userBox, transactionsBox, budgetBox, goalsBox, subscriptionsBox
+// - Category Metadata: defaultCategories list
+// ============================================================
+
 import 'package:flutter/material.dart';
 
 class AppConstants {

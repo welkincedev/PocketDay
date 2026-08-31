@@ -1,3 +1,26 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: app_button.dart
+//
+// Purpose:
+// Reusable primary, secondary, outline, and social button component.
+//
+// Responsibilities:
+// - Render styled elevated buttons with primary (emerald green), secondary, outline, and google variants.
+// - Support loading indicator state when `isLoading` is true.
+// - Support leading icons and custom height/width constraints.
+//
+// Data Flow:
+// Parent Widget → AppButton props → User Tap callback (`onPressed`)
+//
+// Important Rules:
+// - Automatically handles light and dark mode colors based on Theme.of(context).
+// - Disables touch events when `isLoading` is true.
+//
+// Main Operations:
+// - AppButton(text, onPressed, variant, isLoading, icon)
+// ============================================================
+
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 

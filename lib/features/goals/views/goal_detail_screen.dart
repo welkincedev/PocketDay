@@ -1,3 +1,22 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: goal_detail_screen.dart
+//
+// Purpose:
+// Detailed view screen for a target financial goal, displaying target progress, remaining balance, and activity history.
+//
+// Responsibilities:
+// - Render goal header metrics (saved amount in ₹, target amount, progress bar, percentage, target date).
+// - Display list of goal-linked transactions (`goalTransactions`).
+// - Trigger edit goal sheet (`EditGoalSheet`), contribution sheet (`AddToGoalSheet`), or confirm delete.
+//
+// Data Flow:
+// GoalsScreen → GoalDetailScreen → AddToGoalSheet / EditGoalSheet → goalsProvider
+//
+// Important Rules:
+// - All goal-linked transactions count positively (`+₹`) toward goal progress.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';

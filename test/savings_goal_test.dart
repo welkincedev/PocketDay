@@ -1,3 +1,18 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: savings_goal_test.dart
+//
+// Purpose:
+// Unit test suite for `SavingsGoalModel` progress calculations and `SavingsGoalsNotifier` state management.
+//
+// Responsibilities:
+// - Verify percentage rate and progress bar values.
+// - Verify deposit (`addSavings`) and withdrawal (`removeSavings`) operations.
+//
+// Data Flow:
+// Mock Savings Goals Box → ProviderContainer → SavingsGoalsNotifier → Test Assertions
+// ============================================================
+
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

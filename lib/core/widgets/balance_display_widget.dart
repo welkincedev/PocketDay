@@ -1,3 +1,24 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: balance_display_widget.dart
+//
+// Purpose:
+// Overflow-safe monetary balance text renderer wrapped in a FittedBox.
+//
+// Responsibilities:
+// - Render formatted currency text using CurrencyFormatter.
+// - Scale text down dynamically (`BoxFit.scaleDown`) on small device screens to eliminate RenderFlex overflows.
+//
+// Data Flow:
+// double amount → CurrencyFormatter.format() → FittedBox(Text)
+//
+// Important Rules:
+// - Use BalanceDisplayWidget anywhere large currency amounts could overflow card boundaries.
+//
+// Main Operations:
+// - BalanceDisplayWidget(amount, style, symbol)
+// ============================================================
+
 import 'package:flutter/material.dart';
 import '../utils/currency_formatter.dart';
 import '../constants/app_constants.dart';

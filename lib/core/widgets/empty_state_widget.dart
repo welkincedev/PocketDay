@@ -1,3 +1,24 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: empty_state_widget.dart
+//
+// Purpose:
+// Reusable placeholder view displayed when lists or tabs have zero entries.
+//
+// Responsibilities:
+// - Render clean empty state illustration with icon, title, description, and optional call-to-action button.
+// - Provide consistent visual feedback when no transactions, budgets, goals, or subscriptions exist.
+//
+// Data Flow:
+// Parent State (empty list) → EmptyStateWidget → UI Display
+//
+// Important Rules:
+// - Always render EmptyStateWidget instead of displaying blank screens when data sets are empty.
+//
+// Main Operations:
+// - EmptyStateWidget(title, description, icon, actionText, onActionPressed)
+// ============================================================
+
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 

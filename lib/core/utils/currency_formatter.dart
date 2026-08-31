@@ -1,3 +1,25 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: currency_formatter.dart
+//
+// Purpose:
+// Centralized Indian Rupee (₹ en_IN) monetary currency formatter.
+//
+// Responsibilities:
+// - Format standard currency amounts with symbol and 2 decimal places (e.g., `₹ 14,000.00`).
+// - Format compact currency amounts for charts and cards (e.g., `₹ 14K`).
+//
+// Data Flow:
+// Numeric amount (double) → CurrencyFormatter.format() → UI Text Widget
+//
+// Important Rules:
+// - Never hardcode raw string concatenation like `'₹' + amount.toString()`; always use CurrencyFormatter.
+//
+// Main Operations:
+// - format(amount): Standard Indian Rupee string formatting
+// - formatCompact(amount): Abbreviated formatting for charts
+// ============================================================
+
 import 'package:intl/intl.dart';
 import '../constants/app_constants.dart';
 

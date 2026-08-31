@@ -1,3 +1,28 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: transaction_repository.dart
+//
+// Purpose:
+// Abstract contract and Hive storage implementation for user financial transactions.
+//
+// Responsibilities:
+// - Read all transactions from Hive `transactionsBox` sorted descending by date.
+// - Add, update, and delete transactions by unique string ID.
+//
+// Data Flow:
+// TransactionsNotifier → TransactionRepository → HiveService.transactionsBox
+//
+// Important Rules:
+// - Automatic demo data seeding is disabled for production presentation cleanliness.
+// - Transactions are sorted descending by `date` (newest first).
+//
+// Main Operations:
+// - getTransactions(): Read sorted user transactions from Hive
+// - addTransaction(txn): Persist new transaction entity
+// - updateTransaction(txn): Update existing transaction by ID
+// - deleteTransaction(id): Delete transaction entry from Hive
+// ============================================================
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/transaction_model.dart';
 import '../../core/services/hive_service.dart';
@@ -14,90 +39,16 @@ abstract class TransactionRepository {
 }
 
 class TransactionRepositoryImpl implements TransactionRepository {
-  final List<TransactionModel> _mockTransactions = [
-    TransactionModel(
-      id: 'txn_1',
-      title: 'Monthly Salary',
-      amount: 65000.00,
-      type: TransactionType.income,
-      categoryId: 'salary',
-      categoryName: 'Salary',
-      date: DateTime.now().subtract(const Duration(days: 2)),
-      notes: 'Direct HDFC Deposit',
-    ),
-    TransactionModel(
-      id: 'txn_2',
-      title: 'Blinkit Groceries',
-      amount: 1450.00,
-      type: TransactionType.expense,
-      categoryId: 'food',
-      categoryName: 'Food & Dining',
-      date: DateTime.now().subtract(const Duration(hours: 3)),
-      notes: 'Weekly groceries',
-    ),
-    TransactionModel(
-      id: 'txn_3',
-      title: 'Netflix Subscription',
-      amount: 649.00,
-      type: TransactionType.expense,
-      categoryId: 'entertainment',
-      categoryName: 'Entertainment',
-      date: DateTime.now().subtract(const Duration(days: 1)),
-      notes: 'Monthly Premium plan',
-    ),
-    TransactionModel(
-      id: 'txn_4',
-      title: 'Freelance UI Project',
-      amount: 18500.00,
-      type: TransactionType.income,
-      categoryId: 'freelance',
-      categoryName: 'Freelance',
-      date: DateTime.now().subtract(const Duration(days: 3)),
-      notes: 'Client Deposit',
-    ),
-    TransactionModel(
-      id: 'txn_5',
-      title: 'Starbucks Coffee',
-      amount: 420.00,
-      type: TransactionType.expense,
-      categoryId: 'food',
-      categoryName: 'Food & Dining',
-      date: DateTime.now().subtract(const Duration(hours: 1)),
-      notes: 'Iced Latte',
-    ),
-    TransactionModel(
-      id: 'txn_6',
-      title: 'Uber Auto Ride',
-      amount: 210.00,
-      type: TransactionType.expense,
-      categoryId: 'transport',
-      categoryName: 'Transportation',
-      date: DateTime.now().subtract(const Duration(days: 4)),
-      notes: 'Metro station commute',
-    ),
-  ];
-
   @override
   Future<List<TransactionModel>> getTransactions() async {
     final box = HiveService.transactionsBox;
-    if (box.isNotEmpty) {
-      final List<TransactionModel> txns = [];
-      for (var item in box.values) {
-        if (item is Map) {
-          txns.add(TransactionModel.fromMap(Map<String, dynamic>.from(item)));
-        }
+    final List<TransactionModel> txns = [];
+    for (var item in box.values) {
+      if (item is Map) {
+        txns.add(TransactionModel.fromMap(Map<String, dynamic>.from(item)));
       }
-      return txns..sort((a, b) => b.date.compareTo(a.date));
     }
-
-    // Seed Hive with mock data if empty in a single batch operation to prevent race conditions
-    final Map<String, dynamic> entries = {};
-    for (var txn in _mockTransactions) {
-      entries[txn.id] = txn.toMap();
-    }
-    await box.putAll(entries);
-    return List.from(_mockTransactions)
-      ..sort((a, b) => b.date.compareTo(a.date));
+    return txns..sort((a, b) => b.date.compareTo(a.date));
   }
 
   @override

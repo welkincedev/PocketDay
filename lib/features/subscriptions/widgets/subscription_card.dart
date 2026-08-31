@@ -1,3 +1,22 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: subscription_card.dart
+//
+// Purpose:
+// Interactive 3D flip card component representing a digital subscription membership card.
+//
+// Responsibilities:
+// - Render card front (Logo, subscription name, amount, billing cycle, status pill, auto badge).
+// - Render card back on tap flip animation (Category, payment method, start date, next due date, notes, edit & delete buttons).
+// - Apply dynamic brand gradient styling based on subscription name or category.
+//
+// Data Flow:
+// SubscriptionModel → SubscriptionCard → User Flip Gesture / Action Callbacks
+//
+// Important Rules:
+// - Height constraint fixed at 210px to prevent unbounded flex overflow in scroll views.
+// ============================================================
+
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

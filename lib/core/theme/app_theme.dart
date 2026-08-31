@@ -1,3 +1,26 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: app_theme.dart
+//
+// Purpose:
+// Material 3 theme data definitions for light and dark modes in PocketDay.
+//
+// Responsibilities:
+// - Build `lightTheme` and `darkTheme` ThemeData objects.
+// - Configure typography with Google Fonts (`Outfit` for headings, `Inter` for body).
+// - Define card shapes, input decoration themes, elevated button styles, and navigation bar themes.
+//
+// Data Flow:
+// AppTheme → PocketDayApp (MaterialApp) → Entire Widget Tree
+//
+// Important Rules:
+// - Always configure both lightTheme and darkTheme in tandem to avoid visual bugs when switching theme modes.
+//
+// Main Properties:
+// - lightTheme: M3 ThemeData configured with AppColors light palette
+// - darkTheme: M3 ThemeData configured with AppColors dark palette
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../constants/app_colors.dart';

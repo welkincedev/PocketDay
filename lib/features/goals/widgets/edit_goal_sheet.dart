@@ -1,3 +1,21 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: edit_goal_sheet.dart
+//
+// Purpose:
+// Modal bottom sheet form for editing an existing `GoalModel` target entity.
+//
+// Responsibilities:
+// - Populate initial values for goal name, target amount, emoji icon, and deadline date.
+// - Save edits via `goalsProvider.updateGoal()`.
+//
+// Data Flow:
+// GoalDetailScreen → EditGoalSheet._submit() → goalsProvider.updateGoal() → Hive (`goalsBox`)
+//
+// Important Rules:
+// - Maintains original creation timestamp while updating `updatedAt`.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';

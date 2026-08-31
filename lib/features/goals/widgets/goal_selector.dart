@@ -1,3 +1,21 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: goal_selector.dart
+//
+// Purpose:
+// Dropdown form widget for selecting an optional target `GoalModel` to link when logging an expense.
+//
+// Responsibilities:
+// - Render list of available goals from `goalsProvider`.
+// - Allow selecting 'None' (null) or a specific goal ID.
+//
+// Data Flow:
+// goalsProvider → GoalSelector → AddTransactionBottomSheet form state
+//
+// Important Rules:
+// - If no goals exist in state, renders `SizedBox.shrink()`.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';

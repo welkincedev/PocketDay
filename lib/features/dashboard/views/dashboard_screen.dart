@@ -1,3 +1,23 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: dashboard_screen.dart
+//
+// Purpose:
+// Main financial home view presenting hero metrics, spending charts, budget progress, and quick action sheets.
+//
+// Responsibilities:
+// - Display personalized time-aware greeting ('Good morning', 'Good afternoon', etc.).
+// - Render hero balance card (`DashboardCardWidget`), budget progress bar, savings summary, quick action bar, and pie charts.
+// - Provide pull-to-refresh (`RefreshIndicator`) to force reload dashboard data.
+// - Trigger modal bottom sheet for adding quick Income and Expense transactions.
+//
+// Data Flow:
+// dashboardProvider → DashboardScreen UI → QuickActions → AddTransactionBottomSheet → Repository
+//
+// Important Rules:
+// - All balance cards scale down gracefully without horizontal overflows.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/routes/app_router.dart';

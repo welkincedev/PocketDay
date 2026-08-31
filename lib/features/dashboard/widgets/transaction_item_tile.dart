@@ -1,3 +1,22 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: transaction_item_tile.dart
+//
+// Purpose:
+// Individual transaction list row tile widget displaying category icon, title, date, and formatted currency amount.
+//
+// Responsibilities:
+// - Lookup category metadata (color, icon) from `AppConstants.defaultCategories`.
+// - Render relative date timestamp via `DateFormatter.formatRelative()`.
+// - Format income amounts with `+₹` green text and expenses with `-₹` standard text.
+//
+// Data Flow:
+// TransactionModel → TransactionItemTile → UI List Row
+//
+// Important Rules:
+// - `onTap` callback opens transaction detail bottom sheet when clicked.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';

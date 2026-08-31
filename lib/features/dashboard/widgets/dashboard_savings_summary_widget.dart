@@ -1,3 +1,22 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: dashboard_savings_summary_widget.dart
+//
+// Purpose:
+// Compact savings goals overview card widget for the home dashboard.
+//
+// Responsibilities:
+// - Aggregate total saved balance across active goals using `goalsProvider`.
+// - Render linear progress indicator representing overall target completion.
+// - Navigate to Goals tab (index 3) when tapped.
+//
+// Data Flow:
+// goalsProvider → DashboardGoalsSummaryWidget → Navigation to Goals Screen
+//
+// Important Rules:
+// - Returns `SizedBox.shrink()` when goals list is loading or empty.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';

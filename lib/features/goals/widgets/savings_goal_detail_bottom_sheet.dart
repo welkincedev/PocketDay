@@ -1,3 +1,22 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: savings_goal_detail_bottom_sheet.dart
+//
+// Purpose:
+// Modal bottom sheet displaying detailed view and monthly required pace for a `SavingsGoalModel`.
+//
+// Responsibilities:
+// - Render saved vs target amount, percentage rate, and target date calculations.
+// - Calculate required monthly deposit pace (`neededMonthlyText`) if target date is set.
+// - Trigger edit form (`AddSavingsGoalBottomSheet`), deposit sheet (`AddSavingsBottomSheet`), or delete confirmation.
+//
+// Data Flow:
+// SavingsGoalCard → SavingsGoalDetailBottomSheet → savingsGoalsProvider
+//
+// Important Rules:
+// - Required monthly contribution calculation divides `remainingAmount` by remaining months.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';

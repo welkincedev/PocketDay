@@ -1,3 +1,23 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: subscription_provider.dart
+//
+// Purpose:
+// StateNotifier and state snapshot class managing recurring subscription trackers and automatic expense triggers.
+//
+// Responsibilities:
+// - Read, filter, search, and sort subscriptions from `subscriptionsBox`.
+// - Calculate dynamic total monthly recurring expense (`totalMonthlyRecurring`).
+// - Idempotently record automatic expense transactions (`processAutoExpenses`) when auto-record is enabled and payment is due.
+// - Perform CRUD operations via `SubscriptionRepository`.
+//
+// Data Flow:
+// Hive (`subscriptionsBox`) → SubscriptionRepository → SubscriptionNotifier → SubscriptionState → Subscriptions UI
+//
+// Important Rules:
+// - Automatic transaction logging uses `processedAutoExpensesBox` keys (`auto_exp_{id}_{period}`) to prevent duplicate charges.
+// ============================================================
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../../../core/services/hive_service.dart';

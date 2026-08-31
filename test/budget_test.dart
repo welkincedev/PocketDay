@@ -1,3 +1,18 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: budget_test.dart
+//
+// Purpose:
+// Unit test suite for Budget CRUD, overall/category monthly limits, and dynamic spending calculations.
+//
+// Responsibilities:
+// - Verify budget creation, update, and deletion in Hive `budgetBox`.
+// - Verify income exclusion and accurate category spending aggregation from transactions.
+//
+// Data Flow:
+// Mock Hive Boxes → ProviderContainer → BudgetNotifier → Test Assertions
+// ============================================================
+
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -133,13 +148,12 @@ void main() {
     state = container.read(budgetProvider);
 
     // Verify category spending calculations
-    // Food spent must be 2320.0 (seed mock food expenses 1450 + 420, plus manual 450)
     final foodSpent = state.categorySpending['food'] ?? 0.0;
-    expect(foodSpent, 2320.0);
+    expect(foodSpent, 450.0); // t1 Food expense (450.0)
 
-    // Overall spent must be 3379.0 (seed mock expenses 2729.0, plus manual 650.0)
+    // Overall spent must be 650.0 (t1 Food 450.0 + t2 Transport 200.0)
     final overallSpent = state.categorySpending[null] ?? 0.0;
-    expect(overallSpent, 3379.0);
+    expect(overallSpent, 650.0);
 
     // 4. Update Budget
     final updatedFoodBudget = foodBudget.copyWith(amount: 6000.0);

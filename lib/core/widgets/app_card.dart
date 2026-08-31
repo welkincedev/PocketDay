@@ -1,3 +1,25 @@
+// ============================================================
+// POCKETDAY DEVELOPER NOTE
+// File: app_card.dart
+//
+// Purpose:
+// Reusable surface container card widget with uniform borders, subtle shadows, and InkWell tap feedback.
+//
+// Responsibilities:
+// - Render rounded containers with Material 3 surface styling for dashboard cards, budget cards, and goal cards.
+// - Handle light/dark mode background and border colors automatically.
+// - Provide touch ripples via Material InkWell when `onTap` is supplied.
+//
+// Data Flow:
+// Child Widgets → AppCard container → UI Screen
+//
+// Important Rules:
+// - Uses 20px corner radius across PocketDay design system.
+//
+// Main Operations:
+// - AppCard(child, padding, onTap, backgroundColor, border)
+// ============================================================
+
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 
