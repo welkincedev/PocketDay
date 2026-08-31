@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "104455039089",
+    "project_id": "pocketday-1679a",
+    "storage_bucket": "pocketday-1679a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:104455039089:android:ff170940169db8258713d0",
+        "android_client_info": {
+          "package_name": "com.wclabs.pocketday"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "104455039089-8t1ktrtevttqkukheahbd90hhr25vi2p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wclabs.pocketday",
+            "certificate_hash": "5ee2f39abfd382905449c1f6dc11c7e2d610b291"
+          }
+        },
+        {
+          "client_id": "104455039089-ij4t0jqku157r56cpgnep7a5tg75pkj2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvV-GckjW4qRkJ2YyqXcZxsS4whPxnO1M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "104455039089-ij4t0jqku157r56cpgnep7a5tg75pkj2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "104455039089-3oh38eovk9vfdgatnprb2ho2tn61r613.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.wclabs.pocketday"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
