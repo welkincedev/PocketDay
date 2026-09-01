@@ -1,21 +1,11 @@
-// ============================================================
-// POCKETDAY DEVELOPER NOTE
+// ============================================================================
+// PocketDay
 // File: savings_goals_provider.dart
-//
-// Purpose:
-// StateNotifier and state snapshot class for explicit `SavingsGoalModel` entities.
-//
-// Responsibilities:
-// - Load and maintain savings goals list sorted by active vs completed status.
-// - Perform CRUD operations on savings goals.
-// - Support `addSavings(goalId, amount)` and `removeSavings(goalId, amount)` balance modifications.
-//
-// Data Flow:
-// Savings Goals UI → SavingsGoalsNotifier → SavingsGoalRepository → Hive (`goalsBox`)
-//
-// Important Rules:
-// - Sorts active incomplete goals first followed by completed goals.
-// ============================================================
+// Purpose: Savings goals state notifier managing saved amounts and target progress.
+// Architecture: Presentation / State Management Layer
+// State Management: Riverpod
+// Storage: Cloud Firestore with Native Offline Cache
+// ============================================================================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/savings_goal_model.dart';

@@ -1,30 +1,47 @@
 // ============================================================
-// POCKETDAY DEVELOPER NOTE
-// File: auth_repository.dart
+// PocketDay — AuthRepositoryImpl
+// ============================================================
 //
 // Purpose:
-// Abstract contract and local Hive repository implementation for user registration, authentication, and session persistence.
+// Primary data repository handling user authentication, OAuth credential exchange with Google Sign-In,
+// user profile persistence, app data reset, and account deletion.
 //
 // Responsibilities:
-// - Persist registered user accounts in Hive `userBox` under `'users_db'`.
-// - Enforce normalized email matching and prevent duplicate email registrations.
-// - Hash passwords (salted digest) to avoid plain-text storage in local database.
-// - Verify credentials during login and manage active session keys (`current_uid`, `uid`, `name`, `email`).
-// - Provide `getCurrentUser()` to restore active sessions across app restarts.
-// - Provide `logout()` to clear active session without deleting registered user accounts.
+// - Perform Google OAuth sign-in and email/password authentication using Firebase Authentication SDK.
+// - Manage user authentication state via authStateChanges stream and getCurrentUser().
+// - Asynchronously write user profile documents to Cloud Firestore (`users/{uid}` and `users/{uid}/profile/data`).
+// - Perform chunked batch deletion of financial data subcollections during app reset.
+// - Wipe all user subcollections, root profile document, and delete Firebase Auth user on account deletion.
 //
 // Data Flow:
-// AuthNotifier → AuthRepositoryImpl → HiveService.userBox (`users_db` & session keys)
+// Google Account / Email Form → GoogleSignIn / FirebaseAuth → User Credential → Firestore (`users/{uid}`) → UserModel → Riverpod (AuthProvider)
+//
+// Firestore Structure:
+// - Root Document: users/{uid}
+// - Profile Collection: users/{uid}/profile/data
+// - Financial Subcollections: users/{uid}/transactions, users/{uid}/budgets, users/{uid}/goals, users/{uid}/subscriptions, users/{uid}/savings_goals
 //
 // Important Rules:
-// - All email lookups use `email.trim().toLowerCase()` to prevent casing duplicates.
-// - `logout()` clears active session keys but preserves registered accounts in `users_db`.
+// - UID Isolation: All Firestore reads/writes are restricted to the currently authenticated user's UID (`request.auth.uid == userId`).
+// - Instant Auth Check: getCurrentUser() returns local cached user credentials immediately without awaiting Firestore network profile fetches.
+// - Unawaited Background Profile Sync: Profile updates to Firestore run asynchronously in background tasks (`unawaited`) so authentication flow never hangs on poor network.
+// - Chunked Batch Deletion: resetAppData() limits write batches to max 400 documents to respect Firestore's 500-operation transaction batch limit.
+// - Reset vs Delete Account: resetAppData() deletes user subcollections but PRESERVES the Firebase Auth user identity; deleteAccount() deletes subcollections, root user document, AND the Firebase Auth account.
 //
 // Main Operations:
-// - getCurrentUser(): Read active session from Hive
-// - registerWithEmail(email, password, name): Validate duplicate and save account to `users_db`
-// - loginWithEmail(email, password): Verify password hash against `users_db`
-// - logout(): Terminate active session
+// - getCurrentUser() — Synchronously inspects FirebaseAuth local token for instant startup routing.
+// - loginWithGoogle() — Initiates web popup or native Google OAuth flow and exchanges tokens with Firebase Auth.
+// - registerWithEmail() — Creates new Firebase Auth user with email/password and initializes Firestore profile.
+// - resetAppData() — Wipes financial subcollections in chunked 400-doc batches while keeping account.
+// - deleteAccount() — Wipes all user subcollections, root user document, and permanently deletes user account.
+// - logout() — Ends active Firebase and Google OAuth session.
+//
+// Dependencies / Collaborators:
+// - FirebaseAuth — Underlying authentication SDK provider.
+// - GoogleSignIn — Native Google OAuth credential picker.
+// - FirebaseFirestore — Document storage engine with native offline persistence.
+// - UserModel — Immutable user identity entity.
+//
 // ============================================================
 
 import 'dart:async';
@@ -45,6 +62,8 @@ abstract class AuthRepository {
   Future<UserModel> loginWithGoogle();
   Future<void> sendPasswordResetEmail(String email);
   Future<void> logout();
+  Future<void> resetAppData();
+  Future<void> deleteAccount();
   Stream<UserModel?> get authStateChanges;
 }
 
@@ -89,31 +108,11 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<UserModel?> getCurrentUser() async {
     try {
+      // Instant local auth check directly from Firebase Auth SDK local token cache.
+      // We intentionally do not perform a network call to Firestore here to ensure
+      // the application lands on Home immediately upon launch without startup lag.
       final user = _firebaseAuth?.currentUser;
       if (user != null) {
-        // Try reading user profile from Firestore
-        try {
-          if (_firestore != null) {
-            final doc = await _firestore!
-                .collection('users')
-                .doc(user.uid)
-                .collection('profile')
-                .doc('data')
-                .get();
-            if (doc.exists && doc.data() != null) {
-              final data = doc.data()!;
-              return UserModel(
-                uid: user.uid,
-                email: data['email'] ?? user.email ?? '',
-                displayName:
-                    data['displayName'] ?? user.displayName ?? 'PocketDay User',
-                photoUrl: data['photoUrl'] ?? user.photoURL,
-                createdAt: DateTime.now(),
-              );
-            }
-          }
-        } catch (_) {}
-
         return UserModel(
           uid: user.uid,
           email: user.email ?? '',
@@ -139,22 +138,7 @@ class AuthRepositoryImpl implements AuthRepository {
         );
 
         final user = credential.user!;
-        String name = user.displayName ?? 'PocketDay User';
-
-        // Fetch profile from Firestore
-        try {
-          if (_firestore != null) {
-            final doc = await _firestore!
-                .collection('users')
-                .doc(user.uid)
-                .collection('profile')
-                .doc('data')
-                .get();
-            if (doc.exists && doc.data() != null) {
-              name = doc.data()!['displayName'] ?? name;
-            }
-          }
-        } catch (_) {}
+        final name = user.displayName ?? 'PocketDay User';
 
         final userModel = UserModel(
           uid: user.uid,
@@ -209,24 +193,25 @@ class AuthRepositoryImpl implements AuthRepository {
           createdAt: DateTime.now(),
         );
 
-        // Create Firestore Profile Document
-        try {
-          if (_firestore != null) {
-            await _firestore!
-                .collection('users')
-                .doc(user.uid)
-                .collection('profile')
-                .doc('data')
-                .set({
-                  'uid': user.uid,
-                  'email': emailNorm,
-                  'displayName': cleanName,
-                  'photoUrl': user.photoURL,
-                  'createdAt': FieldValue.serverTimestamp(),
-                  'updatedAt': FieldValue.serverTimestamp(),
-                }, SetOptions(merge: true));
-          }
-        } catch (_) {}
+        // Save user profile document in Firestore asynchronously using unawaited.
+        // Running this task in the background prevents Firestore network delays from
+        // stalling screen navigation after registration.
+        if (_firestore != null) {
+          unawaited(_firestore!
+              .collection('users')
+              .doc(user.uid)
+              .collection('profile')
+              .doc('data')
+              .set({
+                'uid': user.uid,
+                'email': emailNorm,
+                'displayName': cleanName,
+                'photoUrl': user.photoURL,
+                'createdAt': FieldValue.serverTimestamp(),
+                'updatedAt': FieldValue.serverTimestamp(),
+              }, SetOptions(merge: true))
+              .catchError((_) {}));
+        }
 
         _testUser = userModel;
         return userModel;
@@ -249,25 +234,44 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<UserModel> loginWithGoogle() async {
+    // Authenticate with Google OAuth. On Web we use signInWithPopup() because native OAuth popups
+    // are supported by browsers, while on Android/iOS we use native GoogleSignIn.signIn() and exchange
+    // OAuth tokens with Firebase Auth to retrieve the unified user UID.
     if (_firebaseAuth != null) {
       try {
-        final GoogleSignIn googleSignIn = GoogleSignIn();
-        final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+        User? user;
+        String? emailFallback;
+        String? displayNameFallback;
+        String? photoUrlFallback;
 
-        if (googleUser == null) {
-          throw Exception('Google sign in was cancelled.');
+        if (kIsWeb) {
+          final GoogleAuthProvider googleProvider = GoogleAuthProvider();
+          final userCredential =
+              await _firebaseAuth!.signInWithPopup(googleProvider);
+          user = userCredential.user;
+        } else {
+          final GoogleSignIn googleSignIn = GoogleSignIn();
+          final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+
+          if (googleUser == null) {
+            throw Exception('Google sign in was cancelled.');
+          }
+
+          emailFallback = googleUser.email;
+          displayNameFallback = googleUser.displayName;
+          photoUrlFallback = googleUser.photoUrl;
+
+          final GoogleSignInAuthentication googleAuth =
+              await googleUser.authentication;
+          final OAuthCredential credential = GoogleAuthProvider.credential(
+            accessToken: googleAuth.accessToken,
+            idToken: googleAuth.idToken,
+          );
+
+          final UserCredential userCredential =
+              await _firebaseAuth!.signInWithCredential(credential);
+          user = userCredential.user;
         }
-
-        final GoogleSignInAuthentication googleAuth =
-            await googleUser.authentication;
-        final OAuthCredential credential = GoogleAuthProvider.credential(
-          accessToken: googleAuth.accessToken,
-          idToken: googleAuth.idToken,
-        );
-
-        final UserCredential userCredential = await _firebaseAuth!
-            .signInWithCredential(credential);
-        final User? user = userCredential.user;
 
         if (user == null) {
           throw Exception('Firebase authentication failed for Google user.');
@@ -275,46 +279,38 @@ class AuthRepositoryImpl implements AuthRepository {
 
         final userModel = UserModel(
           uid: user.uid,
-          email: user.email ?? googleUser.email,
+          email: user.email ?? emailFallback ?? '',
           displayName:
-              user.displayName ?? googleUser.displayName ?? 'PocketDay User',
-          photoUrl: user.photoURL ?? googleUser.photoUrl,
+              user.displayName ?? displayNameFallback ?? 'PocketDay User',
+          photoUrl: user.photoURL ?? photoUrlFallback,
           createdAt: DateTime.now(),
         );
 
-        // Save profile in Firestore
+        // Synchronize profile data to Firestore root document and profile subcollection in background (unawaited).
+        // This ensures the user model is returned immediately to navigate to Home without waiting for Firestore commits.
         if (_firestore != null) {
-          try {
-            debugPrint('🔥 [AUTH SUCCESS] UID: ${user.uid} | Email: ${userModel.email} | Name: ${userModel.displayName}');
-            debugPrint('🔥 [FIRESTORE PROFILE WRITE START] Path: users/${user.uid}');
+          final profileData = {
+            'uid': user.uid,
+            'email': userModel.email,
+            'displayName': userModel.displayName,
+            'photoUrl': userModel.photoUrl,
+            'createdAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          };
 
-            final profileData = {
-              'uid': user.uid,
-              'email': userModel.email,
-              'displayName': userModel.displayName,
-              'photoUrl': userModel.photoUrl,
-              'createdAt': FieldValue.serverTimestamp(),
-              'updatedAt': FieldValue.serverTimestamp(),
-            };
+          unawaited(_firestore!
+              .collection('users')
+              .doc(user.uid)
+              .set(profileData, SetOptions(merge: true))
+              .catchError((_) {}));
 
-            // Write user document
-            await _firestore!
-                .collection('users')
-                .doc(user.uid)
-                .set(profileData, SetOptions(merge: true));
-
-            // Write profile subcollection document
-            await _firestore!
-                .collection('users')
-                .doc(user.uid)
-                .collection('profile')
-                .doc('data')
-                .set(profileData, SetOptions(merge: true));
-
-            debugPrint('✅ [FIRESTORE PROFILE WRITE SUCCESS] Document created for UID: ${user.uid}');
-          } catch (e) {
-            debugPrint('❌ [FIRESTORE PROFILE WRITE FAILED] Error: $e');
-          }
+          unawaited(_firestore!
+              .collection('users')
+              .doc(user.uid)
+              .collection('profile')
+              .doc('data')
+              .set(profileData, SetOptions(merge: true))
+              .catchError((_) {}));
         }
 
         _testUser = userModel;
@@ -326,7 +322,7 @@ class AuthRepositoryImpl implements AuthRepository {
       }
     }
 
-    // Fallback for isolated unit tests where _firebaseAuth is null
+    // Fallback for isolated unit testing environments where Firebase Auth is uninitialized
     const email = 'unit.test@pocketday.app';
     const displayName = 'Test User';
     const uid = 'unit_test_uid_2026';
@@ -359,12 +355,81 @@ class AuthRepositoryImpl implements AuthRepository {
       if (_firebaseAuth != null) {
         await _firebaseAuth!.signOut();
       }
-      try {
-        await GoogleSignIn().signOut();
-      } catch (_) {}
+      if (!kIsWeb) {
+        try {
+          await GoogleSignIn().signOut();
+        } catch (_) {}
+      }
     } catch (_) {}
 
     _testUser = null;
+  }
+
+  @override
+  Future<void> resetAppData() async {
+    // Delete user-owned financial subcollections (transactions, budgets, goals, subscriptions, savings_goals).
+    // Operations are chunked in batches of 400 documents to respect Cloud Firestore's maximum 500-operation batch limit.
+    // Notice: resetAppData() deliberately DOES NOT delete the user's root document or Firebase Auth account.
+    final user = _firebaseAuth?.currentUser;
+    if (user == null || _firestore == null) return;
+
+    final userId = user.uid;
+    final collections = [
+      'transactions',
+      'budgets',
+      'goals',
+      'subscriptions',
+      'savings_goals',
+    ];
+
+    for (final col in collections) {
+      final snapshot = await _firestore!
+          .collection('users')
+          .doc(userId)
+          .collection(col)
+          .get();
+
+      if (snapshot.docs.isEmpty) continue;
+
+      WriteBatch batch = _firestore!.batch();
+      int count = 0;
+
+      for (final doc in snapshot.docs) {
+        batch.delete(doc.reference);
+        count++;
+        if (count >= 400) {
+          await batch.commit();
+          batch = _firestore!.batch();
+          count = 0;
+        }
+      }
+
+      if (count > 0) {
+        await batch.commit();
+      }
+    }
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    // Delete Account procedure:
+    // 1. Wipe all user subcollections via resetAppData().
+    // 2. Delete root Firestore user document (`users/{uid}`).
+    // 3. Delete Firebase Auth user account permanently via user.delete().
+    // 4. Sign out completely to ensure security token cleanup.
+    final user = _firebaseAuth?.currentUser;
+    if (user == null) return;
+
+    await resetAppData();
+
+    if (_firestore != null) {
+      try {
+        await _firestore!.collection('users').doc(user.uid).delete();
+      } catch (_) {}
+    }
+
+    await user.delete();
+    await logout();
   }
 
   String _mapAuthExceptionMessage(FirebaseAuthException e) {

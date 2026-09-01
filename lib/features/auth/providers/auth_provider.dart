@@ -1,27 +1,11 @@
-// ============================================================
-// POCKETDAY DEVELOPER NOTE
+// ============================================================================
+// PocketDay
 // File: auth_provider.dart
-//
-// Purpose:
-// Riverpod StateNotifier managing active user session state (`AsyncValue<UserModel?>`).
-//
-// Responsibilities:
-// - Check for existing logged-in user on app launch (`checkCurrentUser`).
-// - Handle email login, email registration, and Google sign-in.
-// - Manage password reset and user logout flow.
-//
-// Data Flow:
-// Auth Views → authProvider (AuthNotifier) → AuthRepository → Hive (`userBox`)
-//
-// Important Rules:
-// - Exposes state as `AsyncValue<UserModel?>` to communicate loading, authenticated user data, or unauthenticated null states.
-//
-// Main Operations:
-// - checkCurrentUser(): Verify active local session
-// - loginWithEmail(email, password): Authenticate user with email credentials
-// - registerWithEmail(email, password, name): Register user profile
-// - logout(): Terminate session and clear state
-// ============================================================
+// Purpose: User session state notifier managing Firebase Auth and Google Sign-In.
+// Architecture: Presentation / State Management Layer
+// State Management: Riverpod
+// Storage: Firebase Authentication & Cloud Firestore
+// ============================================================================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/user_model.dart';
@@ -105,6 +89,16 @@ class AuthNotifier extends StateNotifier<AsyncValue<UserModel?>> {
   Future<void> logout() async {
     state = const AsyncValue.loading();
     await _repo.logout();
+    state = const AsyncValue.data(null);
+  }
+
+  Future<void> resetAppData() async {
+    await _repo.resetAppData();
+  }
+
+  Future<void> deleteAccount() async {
+    state = const AsyncValue.loading();
+    await _repo.deleteAccount();
     state = const AsyncValue.data(null);
   }
 }

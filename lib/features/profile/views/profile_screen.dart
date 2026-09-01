@@ -1,21 +1,38 @@
 // ============================================================
-// POCKETDAY DEVELOPER NOTE
-// File: profile_screen.dart
+// PocketDay — ProfileScreen
+// ============================================================
 //
 // Purpose:
-// User profile tab displaying user credentials, theme mode toggle, subscription tracker entry point, and logout.
+// User account profile tab displaying authenticated user details, appearance settings,
+// subscription tracker navigation, and data management options (Reset App Data & Delete Account).
 //
 // Responsibilities:
-// - Render user avatar, name, and email from `authProvider`.
-// - Toggle dark/light theme via `themeProvider`.
-// - Navigate to Subscriptions screen (`AppRoutes.subscriptions`).
-// - Prompt confirmation dialog before signing out and clearing session.
+// - Render authenticated user avatar, display name, and email from authProvider.
+// - Toggle app theme (Light vs Dark mode) via themeProvider.
+// - Navigate to SubscriptionsScreen ('/subscriptions').
+// - Execute Reset App Data flow with user confirmation (wiping financial subcollections while keeping account).
+// - Execute Delete Account flow with user confirmation (wiping all Firestore data and Firebase Auth user).
+// - Execute Sign Out flow with user confirmation (ending current session and routing to LoginScreen).
 //
 // Data Flow:
-// authProvider + themeProvider → ProfileScreen → User Settings & Sign Out
+// authProvider & themeProvider → ProfileScreen UI → User Actions (Theme Toggle / Navigation / Reset / Delete / Logout) → AuthNotifier & Repositories
+//
+// Navigation Flow:
+// AppMainNavigationScreen Tab 4 → ProfileScreen → SubscriptionsScreen ('/subscriptions') OR LoginScreen ('/login')
 //
 // Important Rules:
-// - Sign-out clears auth state and replaces router stack with `AppRoutes.login`.
+// - Reset App Data: Deletes user financial subcollections in 400-doc batches but PRESERVES the Firebase Auth user identity.
+// - Delete Account: Deletes all user subcollections, root user document, AND permanently deletes the Firebase Auth account before routing to LoginScreen.
+// - Sign Out: Ends active authentication session without modifying cloud data and replaces route stack with LoginScreen.
+//
+// Main Operations:
+// - build(context, ref) — Renders user identity, theme switcher, settings tiles, and data action dialogs.
+//
+// Dependencies / Collaborators:
+// - authProvider — Riverpod provider supplying user model and authentication actions.
+// - themeProvider — Riverpod provider managing Light/Dark mode state.
+// - transactionsProvider / budgetProvider / goalsProvider — Feature providers reloaded after data reset.
+//
 // ============================================================
 
 import 'package:flutter/material.dart';
@@ -26,8 +43,9 @@ import '../../auth/providers/auth_provider.dart';
 import '../../transactions/providers/transactions_provider.dart';
 import '../../goals/providers/goals_provider.dart';
 import '../../budget/providers/budget_provider.dart';
-import '../../dashboard/providers/dashboard_provider.dart';
 import '../../../core/routes/app_router.dart';
+
+import '../../../core/widgets/pocketday_logo.dart';
 
 /// The Profile tab. Shows user account info, appearance settings,
 /// app metadata, and sign-out. Only displays functionality that actually exists.
@@ -137,42 +155,11 @@ class ProfileScreen extends ConsumerWidget {
 
               const _Divider(),
 
-              // ─── RECURRING ────────────────────────────────────────────────
-              _SectionLabel(label: 'RECURRING', isDark: isDark),
-              _SettingsTile(
-                icon: Icons.subscriptions_rounded,
-                label: 'Subscriptions Tracker',
-                trailing: const Icon(Icons.chevron_right_rounded, size: 20),
-                onTap: () =>
-                    Navigator.pushNamed(context, AppRoutes.subscriptions),
-              ),
-
-              const _Divider(),
-
-              // ─── APPEARANCE ───────────────────────────────────────────────
-              _SectionLabel(label: 'APPEARANCE', isDark: isDark),
-              SwitchListTile(
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 4,
-                ),
-                secondary: Icon(
-                  isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
-                  color: AppColors.primary,
-                ),
-                title: Text('Dark Mode', style: textTheme.bodyLarge),
-                value: isDark,
-                activeThumbColor: AppColors.primary,
-                onChanged: (_) =>
-                    ref.read(themeProvider.notifier).toggleTheme(),
-              ),
-
-              const _Divider(),
-
               // ─── ABOUT ────────────────────────────────────────────────────
+
               _SectionLabel(label: 'ABOUT', isDark: isDark),
               _SettingsTile(
-                icon: Icons.account_balance_wallet_rounded,
+                customLeading: const PocketDayLogo(size: PocketDayLogoSize.small),
                 label: 'PocketDay',
                 trailing: Text(
                   'Personal Money Manager',
@@ -197,22 +184,19 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-
               const _Divider(),
-
-              // ─── DEVELOPER ────────────────────────────────────────────────
-              _SectionLabel(label: 'DEVELOPER UTILITIES', isDark: isDark),
+              _SectionLabel(label: 'DATA MANAGEMENT', isDark: isDark),
               _SettingsTile(
                 icon: Icons.cleaning_services_rounded,
-                label: 'Reset Financial Data',
+                label: 'Reset App Data',
                 trailing: const Icon(Icons.chevron_right_rounded, size: 20),
                 onTap: () async {
                   final confirmed = await showDialog<bool>(
                     context: context,
                     builder: (ctx) => AlertDialog(
-                      title: const Text('Reset Financial Data'),
+                      title: const Text('Reset App Data'),
                       content: const Text(
-                        'This will clear all local transactions, budgets, goals, and subscriptions for a clean presentation test. Are you sure?',
+                        'This will permanently delete all your transactions, budgets, goals, and subscriptions from Cloud Firestore. Your Google login remains active. Are you sure?',
                       ),
                       actions: [
                         TextButton(
@@ -222,34 +206,95 @@ class ProfileScreen extends ConsumerWidget {
                         TextButton(
                           onPressed: () => Navigator.pop(ctx, true),
                           child: const Text(
-                            'Reset',
+                            'Reset Data',
                             style: TextStyle(color: AppColors.expense),
                           ),
                         ),
                       ],
                     ),
                   );
-                  if (confirmed == true) {
-                    ref.read(transactionsProvider.notifier).loadTransactions();
-                    ref.read(goalsProvider.notifier).loadGoals();
-                    ref.read(budgetProvider.notifier).loadBudgets();
-                    ref.read(dashboardProvider.notifier).loadDashboardData();
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Financial data refreshed.',
+                  if (confirmed == true && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Resetting cloud app data...')),
+                    );
+                    try {
+                      await ref.read(authProvider.notifier).resetAppData();
+                      await ref.read(transactionsProvider.notifier).loadTransactions();
+                      await ref.read(goalsProvider.notifier).loadGoals();
+                      await ref.read(budgetProvider.notifier).loadBudgets();
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'All financial app data was successfully reset.',
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Failed to reset app data: $e'),
+                            backgroundColor: AppColors.expense,
+                          ),
+                        );
+                      }
                     }
                   }
                 },
               ),
-
+              _SettingsTile(
+                icon: Icons.delete_forever_rounded,
+                label: 'Delete Account',
+                trailing: const Icon(Icons.chevron_right_rounded, size: 20),
+                onTap: () async {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Delete Account'),
+                      content: const Text(
+                        'This will permanently delete all your data and user account profile. Are you sure?',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, true),
+                          child: const Text(
+                            'Delete Account',
+                            style: TextStyle(color: AppColors.expense),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirmed == true && context.mounted) {
+                    try {
+                      await ref.read(authProvider.notifier).deleteAccount();
+                      if (context.mounted) {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          AppRoutes.login,
+                          (route) => false,
+                        );
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Account deletion failed: $e'),
+                            backgroundColor: AppColors.expense,
+                          ),
+                        );
+                      }
+                    }
+                  }
+                },
+              ),
               const _Divider(),
-
-              // ─── SIGN OUT ─────────────────────────────────────────────────
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
@@ -262,7 +307,7 @@ class ProfileScreen extends ConsumerWidget {
                       builder: (ctx) => AlertDialog(
                         title: const Text('Sign Out'),
                         content: const Text(
-                          'Your data stays on this device. Are you sure you want to sign out?',
+                          'Your data remains safely stored in your cloud account. Are you sure you want to sign out?',
                         ),
                         actions: [
                           TextButton(
@@ -321,7 +366,6 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
-/// Labelled section heading (e.g. ACCOUNT, APPEARANCE).
 class _SectionLabel extends StatelessWidget {
   final String label;
   final bool isDark;
@@ -347,15 +391,16 @@ class _SectionLabel extends StatelessWidget {
   }
 }
 
-/// A standard settings row with icon, label and optional trailing widget.
 class _SettingsTile extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final Widget? customLeading;
   final String label;
   final Widget? trailing;
   final VoidCallback? onTap;
 
   const _SettingsTile({
-    required this.icon,
+    this.icon,
+    this.customLeading,
     required this.label,
     this.trailing,
     this.onTap,
@@ -365,13 +410,14 @@ class _SettingsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
-      leading: Icon(icon, color: AppColors.primary, size: 22),
+      leading: customLeading ?? (icon != null ? Icon(icon, color: AppColors.primary, size: 22) : null),
       title: Text(label, style: Theme.of(context).textTheme.bodyLarge),
       trailing: trailing,
       onTap: onTap,
     );
   }
 }
+
 
 /// Subtle section divider.
 class _Divider extends StatelessWidget {

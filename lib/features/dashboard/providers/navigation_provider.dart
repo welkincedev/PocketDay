@@ -1,18 +1,25 @@
 // ============================================================
-// POCKETDAY DEVELOPER NOTE
-// File: navigation_provider.dart
+// PocketDay — navigationProvider
+// ============================================================
 //
 // Purpose:
-// Riverpod StateProvider holding the active bottom navigation bar tab index.
+// Riverpod StateProvider tracking the active tab index in AppMainNavigationScreen.
 //
 // Responsibilities:
-// - Expose active tab index (0: Dashboard, 1: Transactions, 2: Budget, 3: Goals).
+// - Hold selected bottom navigation bar index (0: Home/Dashboard, 1: Transactions, 2: Budget, 3: Goals, 4: Profile).
+// - Notify AppMainNavigationScreen IndexedStack when active tab selection changes.
+// - Allow programmatically switching tabs from quick action buttons or detail screens.
 //
 // Data Flow:
-// BottomNavigationBar → navigationProvider → MainShellScreen IndexedStack
+// NavigationBar / Quick Actions → navigationProvider.notifier.state = index → AppMainNavigationScreen (IndexedStack rebuilds active tab)
 //
 // Important Rules:
 // - Default tab index is 0 (Dashboard).
+// - Valid tab index range is 0 to 4.
+//
+// Dependencies / Collaborators:
+// - AppMainNavigationScreen — Primary listener consuming tab index state.
+//
 // ============================================================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';

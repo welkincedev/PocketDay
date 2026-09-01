@@ -26,7 +26,6 @@ import '../../../core/utils/date_formatter.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../data/models/transaction_model.dart';
-import '../../dashboard/providers/dashboard_provider.dart';
 import '../../dashboard/widgets/add_transaction_bottom_sheet.dart';
 import '../providers/transactions_provider.dart';
 
@@ -55,7 +54,6 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
               await ref
                   .read(transactionsProvider.notifier)
                   .deleteTransaction(transaction.id);
-              await ref.read(dashboardProvider.notifier).loadDashboardData();
             },
             child: const Text(
               'Delete',

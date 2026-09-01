@@ -1,27 +1,11 @@
-// ============================================================
-// POCKETDAY DEVELOPER NOTE
+// ============================================================================
+// PocketDay
 // File: transaction_model.dart
-//
-// Purpose:
-// Immutable financial transaction entity representing income or expense records.
-//
-// Responsibilities:
-// - Hold transaction details (id, title, amount, type, categoryId, categoryName, date, notes, goalId).
-// - Convert to/from Map for Hive storage in `transactionsBox`.
-// - Link optionally to a Goal via `goalId`.
-//
-// Data Flow:
-// Transaction Form / Sheets → TransactionsProvider ↔ TransactionModel ↔ Hive (`transactionsBox`)
-//
-// Important Rules:
-// - Goal-allocated transactions maintain `type: TransactionType.expense` for balance calculations while contributing positively to Goal progress.
-// - Amounts are stored as doubles.
-//
-// Main Operations:
-// - toMap(): Convert transaction entity to Hive-compatible map
-// - TransactionModel.fromMap(map): Reconstruct transaction entity from Hive map
-// - copyWith(): Copy with modified parameters
-// ============================================================
+// Purpose: Immutable entity representing an income or expense transaction.
+// Architecture: Domain / Data Model Layer
+// State Management: Riverpod (via TransactionsProvider)
+// Storage: Cloud Firestore with Native Offline Cache
+// ============================================================================
 
 /// Defines whether a transaction adds to or subtracts from the user's balance.
 enum TransactionType { income, expense }
@@ -30,12 +14,9 @@ enum TransactionType { income, expense }
 ///
 /// Important rule: A transaction may carry an optional [goalId] linking it
 /// to a [GoalModel]. When present:
-/// - The transaction still counts toward **global totals** (income or expense
-///   in Dashboard / Budget). It must NOT be excluded to avoid double-counting.
+/// - The transaction still counts toward global totals (income or expense
+///   in Dashboard / Budget).
 /// - The Goal provider uses [goalId] to calculate the goal's current balance.
-///
-/// Transactions are stored in Hive via [TransactionRepository] and exposed
-/// to the UI through [TransactionsProvider].
 class TransactionModel {
   final String id;
   final String title;

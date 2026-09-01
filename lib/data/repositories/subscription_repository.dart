@@ -1,27 +1,41 @@
 // ============================================================
-// POCKETDAY DEVELOPER NOTE
-// File: subscription_repository.dart
+// PocketDay — SubscriptionRepositoryImpl
+// ============================================================
 //
 // Purpose:
-// Abstract contract and local Hive repository implementation for recurring subscriptions.
+// Repository managing recurring subscription persistence, cache-first reads, and optimistic offline writes.
 //
 // Responsibilities:
-// - Read all subscriptions from Hive `subscriptionsBox` sorted by next payment date ascending.
-// - Save or update `SubscriptionModel` using `subscription.id` as primary key.
-// - Delete subscriptions from `subscriptionsBox`.
+// - Read SubscriptionModel documents from local Firestore cache first for instant UI rendering.
+// - Perform optimistic local updates and dispatch Firestore document writes in the background.
+// - Provide real-time Firestore snapshots stream via watchSubscriptions().
+// - Maintain in-memory store for unit test environments.
 //
 // Data Flow:
-// SubscriptionNotifier → SubscriptionRepository → HiveService.subscriptionsBox
+// AddSubscriptionSheet → SubscriptionProvider → SubscriptionRepositoryImpl → Firestore Cache / Cloud Storage
+//
+// Firestore Structure:
+// Path: users/{uid}/subscriptions/{subscriptionId}
 //
 // Important Rules:
-// - Sorts read subscriptions by `nextPaymentDate` ascending.
+// - UID Isolation: Requires active user authentication (`FirebaseAuth.instance.currentUser?.uid`).
+// - Cache-First Read: getSubscriptions() reads local cache first for instant rendering.
+// - Optimistic Writes: saveSubscription() and deleteSubscription() update local state and dispatch background Firestore writes (`unawaited`).
 //
 // Main Operations:
-// - getSubscriptions(): Fetch sorted active subscriptions
-// - saveSubscription(subscription): Upsert subscription model by ID
-// - deleteSubscription(id): Delete subscription from Hive
+// - getSubscriptions() — Returns cached subscriptions immediately, with fallback for fresh installs.
+// - saveSubscription() — Optimistically updates subscription and dispatches background Firestore write.
+// - deleteSubscription() — Optimistically removes subscription and dispatches background Firestore delete.
+// - watchSubscriptions() — Returns real-time Stream<List<SubscriptionModel>> of user subscriptions.
+//
+// Dependencies / Collaborators:
+// - FirebaseFirestore — Storage engine for subscription records.
+// - FirebaseAuth — Provides active user UID context.
+// - SubscriptionModel — Entity model representing recurring subscriptions.
+//
 // ============================================================
 
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -88,11 +102,30 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
     if (uid != null && uid.isNotEmpty && _firestore != null) {
       try {
-        final snapshot = await _firestore!
-            .collection('users')
-            .doc(uid)
-            .collection('subscriptions')
-            .get();
+        QuerySnapshot<Map<String, dynamic>> snapshot;
+        try {
+          snapshot = await _firestore!
+              .collection('users')
+              .doc(uid)
+              .collection('subscriptions')
+              .get(const GetOptions(source: Source.cache));
+          
+          if (snapshot.docs.isEmpty) {
+            snapshot = await _firestore!
+                .collection('users')
+                .doc(uid)
+                .collection('subscriptions')
+                .get()
+                .timeout(const Duration(seconds: 3));
+          }
+        } catch (_) {
+          snapshot = await _firestore!
+              .collection('users')
+              .doc(uid)
+              .collection('subscriptions')
+              .get()
+              .timeout(const Duration(seconds: 3));
+        }
 
         final List<SubscriptionModel> subscriptions = [];
         for (var doc in snapshot.docs) {
@@ -117,14 +150,13 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
     final uid = _currentUid;
     if (uid != null && uid.isNotEmpty && _firestore != null) {
-      try {
-        await _firestore!
-            .collection('users')
-            .doc(uid)
-            .collection('subscriptions')
-            .doc(subscription.id)
-            .set(subscription.toMap(), SetOptions(merge: true));
-      } catch (_) {}
+      unawaited(_firestore!
+          .collection('users')
+          .doc(uid)
+          .collection('subscriptions')
+          .doc(subscription.id)
+          .set(subscription.toMap(), SetOptions(merge: true))
+          .catchError((_) {}));
     }
   }
 
@@ -134,14 +166,13 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
     final uid = _currentUid;
     if (uid != null && uid.isNotEmpty && _firestore != null) {
-      try {
-        await _firestore!
-            .collection('users')
-            .doc(uid)
-            .collection('subscriptions')
-            .doc(id)
-            .delete();
-      } catch (_) {}
+      unawaited(_firestore!
+          .collection('users')
+          .doc(uid)
+          .collection('subscriptions')
+          .doc(id)
+          .delete()
+          .catchError((_) {}));
     }
   }
 }

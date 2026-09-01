@@ -1,22 +1,11 @@
-// ============================================================
-// POCKETDAY DEVELOPER NOTE
+// ============================================================================
+// PocketDay
 // File: subscription_provider.dart
-//
-// Purpose:
-// StateNotifier and state snapshot class managing recurring subscription trackers and automatic expense triggers.
-//
-// Responsibilities:
-// - Read, filter, search, and sort subscriptions from `subscriptionsBox`.
-// - Calculate dynamic total monthly recurring expense (`totalMonthlyRecurring`).
-// - Idempotently record automatic expense transactions (`processAutoExpenses`) when auto-record is enabled and payment is due.
-// - Perform CRUD operations via `SubscriptionRepository`.
-//
-// Data Flow:
-// Hive (`subscriptionsBox`) → SubscriptionRepository → SubscriptionNotifier → SubscriptionState → Subscriptions UI
-//
-// Important Rules:
-// - Automatic transaction logging uses `processedAutoExpensesBox` keys (`auto_exp_{id}_{period}`) to prevent duplicate charges.
-// ============================================================
+// Purpose: Subscriptions state notifier managing recurring expense trackers & auto-recording.
+// Architecture: Presentation / State Management Layer
+// State Management: Riverpod
+// Storage: Cloud Firestore with Native Offline Cache
+// ============================================================================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/subscription_model.dart';
@@ -132,17 +121,6 @@ final subscriptionProvider =
       return SubscriptionNotifier(repo, ref);
     });
 
-/// # Developer Notes
-///
-/// Manages state and business logic for Phase 7 Subscriptions.
-///
-/// ## Responsibilities
-/// - Handles loading, adding, editing, deleting, searching, filtering, and sorting subscriptions.
-/// - Idempotently processes automatic expenses when autoRecordExpense is ON and due date arrives.
-///
-/// ## Business Rule: Idempotent Automatic Expenses
-/// `sub.id` + `billingPeriod` is checked against `processedAutoExpensesBox` so maximum
-/// ONE automatic expense transaction is created per billing period.
 class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
   final SubscriptionRepository _repo;
   final Ref _ref;

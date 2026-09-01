@@ -1,26 +1,11 @@
-// ============================================================
-// POCKETDAY DEVELOPER NOTE
+// ============================================================================
+// PocketDay
 // File: user_model.dart
-//
-// Purpose:
-// Immutable domain entity representing an authenticated user profile in PocketDay.
-//
-// Responsibilities:
-// - Hold profile properties (uid, email, displayName, photoUrl, createdAt).
-// - Provide `toMap()` and `fromMap()` for Hive persistence in `userBox`.
-// - Provide `copyWith()` for state modification.
-//
-// Data Flow:
-// AuthRepository / AuthNotifier ↔ UserModel ↔ Hive (userBox)
-//
-// Important Rules:
-// - Dates are serialized as ISO 8601 strings.
-//
-// Main Operations:
-// - toMap(): Convert UserModel to Map<String, dynamic>
-// - UserModel.fromMap(map): Construct UserModel from Hive Map
-// - copyWith(): Return modified copy of UserModel
-// ============================================================
+// Purpose: Immutable domain model representing an authenticated user identity.
+// Architecture: Domain / Data Model Layer
+// State Management: Riverpod (via AuthProvider)
+// Storage: Firebase Authentication & Cloud Firestore
+// ============================================================================
 
 class UserModel {
   final String uid;

@@ -22,16 +22,25 @@
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_strings.dart';
+import '../utils/app_error_handler.dart';
 import 'app_button.dart';
 
 class ErrorView extends StatelessWidget {
   final String? message;
+  final dynamic error;
   final VoidCallback? onRetry;
 
-  const ErrorView({super.key, this.message, this.onRetry});
+  const ErrorView({
+    super.key,
+    this.message,
+    this.error,
+    this.onRetry,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final displayMessage = message ?? (error != null ? AppErrorHandler.toUserMessage(error) : AppStrings.somethingWentWrong);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -45,7 +54,7 @@ class ErrorView extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              message ?? AppStrings.somethingWentWrong,
+              displayMessage,
               style: Theme.of(context).textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),

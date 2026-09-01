@@ -1,22 +1,11 @@
-// ============================================================
-// POCKETDAY DEVELOPER NOTE
+// ============================================================================
+// PocketDay
 // File: transactions_provider.dart
-//
-// Purpose:
-// StateNotifier and state snapshot class managing transaction filtering, search, sorting, and CRUD.
-//
-// Responsibilities:
-// - Load and maintain raw and filtered lists of transactions.
-// - Apply text search, category filtering, type filtering (Income vs Expense), and date range presets.
-// - Apply sorting criteria (date descending/ascending, amount descending/ascending).
-// - Handle transaction edits and deletions via `TransactionRepository`.
-//
-// Data Flow:
-// Hive (`transactionsBox`) → TransactionRepository → TransactionsNotifier → TransactionsState → TransactionsScreen UI
-//
-// Important Rules:
-// - Filter operations are applied sequentially: Search → Category → Type → Date Range → Sorting.
-// ============================================================
+// Purpose: Transaction filtering, search, sorting, and CRUD state management.
+// Architecture: Presentation / State Management Layer
+// State Management: Riverpod
+// Storage: Cloud Firestore with Native Offline Cache
+// ============================================================================
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

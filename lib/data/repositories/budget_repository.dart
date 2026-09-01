@@ -1,27 +1,43 @@
 // ============================================================
-// POCKETDAY DEVELOPER NOTE
-// File: budget_repository.dart
+// PocketDay — BudgetRepositoryImpl
+// ============================================================
 //
 // Purpose:
-// Abstract contract and local Hive repository implementation for overall and category budget limits.
+// Repository managing monthly overall and category-specific budget persistence,
+// cache-first reads, and optimistic offline writes.
 //
 // Responsibilities:
-// - Read all stored budget records from Hive `budgetBox`.
-// - Save or update budget models by budget `id`.
-// - Delete budgets from `budgetBox`.
+// - Read budget targets from local Firestore cache first for instant UI startup.
+// - Perform optimistic local updates and dispatch Firestore document writes in the background.
+// - Provide real-time Firestore snapshots stream via watchBudgets().
+// - Maintain in-memory store for unit test environments.
 //
 // Data Flow:
-// BudgetNotifier → BudgetRepository → HiveService.budgetBox
+// AddBudgetBottomSheet → BudgetProvider → BudgetRepositoryImpl → Firestore Cache / Cloud Storage
+//
+// Firestore Structure:
+// Path: users/{uid}/budgets/{budgetId}
 //
 // Important Rules:
-// - `saveBudget` uses `budget.id` as key in Hive box to prevent duplicates upon editing.
+// - UID Isolation: Requires active user authentication (`FirebaseAuth.instance.currentUser?.uid`).
+// - Overall budget limit documents have categoryId == null; category limits have non-null categoryId.
+// - Cache-First Read: getBudgets() reads local cache first for instant rendering.
+// - Optimistic Writes: saveBudget() and deleteBudget() update local state and dispatch background Firestore writes (`unawaited`).
 //
 // Main Operations:
-// - getBudgets(): Read all budget entries
-// - saveBudget(budget): Upsert budget model by ID
-// - deleteBudget(id): Remove budget by ID
+// - getBudgets() — Returns cached budgets immediately, with fallback for fresh installs.
+// - saveBudget() — Optimistically updates budget and dispatches background Firestore write.
+// - deleteBudget() — Optimistically removes budget and dispatches background Firestore delete.
+// - watchBudgets() — Returns real-time Stream<List<BudgetModel>> of user budgets.
+//
+// Dependencies / Collaborators:
+// - FirebaseFirestore — Storage engine for budget records.
+// - FirebaseAuth — Provides active user UID context.
+// - BudgetModel — Entity model representing monthly budget targets.
+//
 // ============================================================
 
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -86,11 +102,30 @@ class BudgetRepositoryImpl implements BudgetRepository {
 
     if (uid != null && uid.isNotEmpty && _firestore != null) {
       try {
-        final snapshot = await _firestore!
-            .collection('users')
-            .doc(uid)
-            .collection('budgets')
-            .get();
+        QuerySnapshot<Map<String, dynamic>> snapshot;
+        try {
+          snapshot = await _firestore!
+              .collection('users')
+              .doc(uid)
+              .collection('budgets')
+              .get(const GetOptions(source: Source.cache));
+          
+          if (snapshot.docs.isEmpty) {
+            snapshot = await _firestore!
+                .collection('users')
+                .doc(uid)
+                .collection('budgets')
+                .get()
+                .timeout(const Duration(seconds: 3));
+          }
+        } catch (_) {
+          snapshot = await _firestore!
+              .collection('users')
+              .doc(uid)
+              .collection('budgets')
+              .get()
+              .timeout(const Duration(seconds: 3));
+        }
 
         final List<BudgetModel> budgets = [];
         for (var doc in snapshot.docs) {
@@ -110,14 +145,13 @@ class BudgetRepositoryImpl implements BudgetRepository {
 
     final uid = _currentUid;
     if (uid != null && uid.isNotEmpty && _firestore != null) {
-      try {
-        await _firestore!
-            .collection('users')
-            .doc(uid)
-            .collection('budgets')
-            .doc(budget.id)
-            .set(budget.toMap(), SetOptions(merge: true));
-      } catch (_) {}
+      unawaited(_firestore!
+          .collection('users')
+          .doc(uid)
+          .collection('budgets')
+          .doc(budget.id)
+          .set(budget.toMap(), SetOptions(merge: true))
+          .catchError((_) {}));
     }
   }
 
@@ -127,14 +161,13 @@ class BudgetRepositoryImpl implements BudgetRepository {
 
     final uid = _currentUid;
     if (uid != null && uid.isNotEmpty && _firestore != null) {
-      try {
-        await _firestore!
-            .collection('users')
-            .doc(uid)
-            .collection('budgets')
-            .doc(id)
-            .delete();
-      } catch (_) {}
+      unawaited(_firestore!
+          .collection('users')
+          .doc(uid)
+          .collection('budgets')
+          .doc(id)
+          .delete()
+          .catchError((_) {}));
     }
   }
 }

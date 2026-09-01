@@ -1,22 +1,11 @@
-// ============================================================
-// POCKETDAY DEVELOPER NOTE
+// ============================================================================
+// PocketDay
 // File: add_subscription_sheet.dart
-//
-// Purpose:
-// Modal bottom sheet form for adding or editing a `SubscriptionModel` entity.
-//
-// Responsibilities:
-// - Render quick presets (Netflix, Spotify, YouTube Premium, Amazon Prime, Google One, Gym).
-// - Collect subscription name, amount in ₹, billing cycle, payment method, category, and auto-expense toggle.
-// - Auto-calculate next payment date based on chosen cycle.
-// - Call `subscriptionProvider.addSubscription()` or `updateSubscription()`.
-//
-// Data Flow:
-// User Form Input → AddSubscriptionSheet._handleSubmit() → subscriptionProvider → Hive (`subscriptionsBox`)
-//
-// Important Rules:
-// - Changing billing cycle automatically recalculates `_nextPaymentDate` via `SubscriptionModel.calculateNextDate()`.
-// ============================================================
+// Purpose: Form sheet for adding or editing recurring subscriptions.
+// Architecture: Presentation Layer
+// State Management: Riverpod
+// Storage: Cloud Firestore with Native Offline Cache
+// ============================================================================
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

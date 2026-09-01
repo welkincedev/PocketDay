@@ -1,22 +1,31 @@
 // ============================================================
-// POCKETDAY DEVELOPER NOTE
-// File: add_transaction_bottom_sheet.dart
+// PocketDay — AddTransactionBottomSheet
+// ============================================================
 //
 // Purpose:
-// Modal bottom sheet form for adding or editing income and expense transactions.
+// Modal bottom sheet form for creating or editing income and expense transactions.
 //
 // Responsibilities:
 // - Collect transaction metadata (title, amount in ₹, type, category, date, notes, optional goal link).
-// - Validate numeric inputs and required fields.
-// - Save or update transaction records via `TransactionRepository`.
-// - Pass updated transaction model to optional `onAdd` callback.
+// - Validate numeric inputs and non-empty required fields.
+// - Save or update transaction records via TransactionsNotifier and TransactionRepository.
+// - Trigger reactive updates in in-memory dashboard totals upon save.
 //
 // Data Flow:
-// User Form Input → AddTransactionBottomSheet._submit() → TransactionRepository → Hive (`transactionsBox`)
+// User Form Input → AddTransactionBottomSheet._submit() → TransactionsNotifier.addTransaction() → TransactionRepository → Cloud Firestore (`users/{uid}/transactions/{id}`)
 //
 // Important Rules:
-// - `goalId` is only applicable when `_type == TransactionType.expense`.
-// - Income transactions do not link to goals.
+// - Goal linking (goalId) is supported for both direct contributions and goal-linked expenses.
+// - Modal pops immediately upon state update to ensure UI feels crisp and responsive.
+//
+// Main Operations:
+// - _submit() — Validates form inputs, creates TransactionModel, and persists via TransactionsNotifier.
+//
+// Dependencies / Collaborators:
+// - transactionsProvider — Riverpod notifier managing transaction state.
+// - TransactionModel — Immutable financial transaction entity.
+//
+// ============================================================
 //
 // Main Operations:
 // - _pickDate(): Open date picker dialog
@@ -34,7 +43,6 @@ import '../../../core/widgets/app_text_field.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../features/goals/widgets/goal_selector.dart';
 import '../../transactions/providers/transactions_provider.dart';
-import '../providers/dashboard_provider.dart';
 
 class AddTransactionBottomSheet extends ConsumerStatefulWidget {
   final TransactionType initialType;
@@ -150,7 +158,6 @@ class _AddTransactionBottomSheetState
         } else {
           await ref.read(transactionsProvider.notifier).addTransaction(txn);
         }
-        await ref.read(dashboardProvider.notifier).loadDashboardData();
 
         if (widget.onAdd != null) {
           widget.onAdd!(txn);

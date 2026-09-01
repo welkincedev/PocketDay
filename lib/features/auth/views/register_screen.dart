@@ -1,23 +1,34 @@
 // ============================================================
-// POCKETDAY DEVELOPER NOTE
-// File: register_screen.dart
+// PocketDay — RegisterScreen
+// ============================================================
 //
 // Purpose:
-// User registration screen for creating a new user profile in PocketDay.
+// User registration screen for creating a new user profile in PocketDay via email/password.
 //
 // Responsibilities:
-// - Collect user credentials (full name, email address, password).
-// - Validate inputs and dispatch registration request to `authProvider.notifier.registerWithEmail()`.
-// - Route to MainShellScreen on successful account creation.
+// - Present official PocketDay brand logo and collect user credentials (full name, email address, password, confirm password).
+// - Validate form inputs and dispatch registration request to authProvider.notifier.registerWithEmail().
+// - Handle loading states and error messages cleanly.
+// - Route user to AppMainNavigationScreen upon successful account registration.
+//
+// Data Flow:
+// User Form Input → _handleRegister() → authProvider.notifier.registerWithEmail() → FirebaseAuth & Firestore User Creation → AppMainNavigationScreen
 //
 // Navigation Flow:
-// RegisterScreen → MainShellScreen (`/main`) or back to LoginScreen
+// LoginScreen → RegisterScreen → AppMainNavigationScreen ('/main') OR back to LoginScreen
 //
 // Important Rules:
-// - Enforces name, email, and minimum 6-character password validation.
+// - Password must be at least 6 characters.
+// - Performs replacement navigation to AppMainNavigationScreen on success so registration screen is removed from back-stack.
 //
 // Main Operations:
-// - _handleRegister(): Validate form inputs and submit registration request
+// - _handleRegister() — Validates form fields and submits registration request.
+//
+// Dependencies / Collaborators:
+// - authProvider — Riverpod provider owning auth state & authentication actions.
+// - PocketDayLogo — Standardized brand logo component.
+// - AppMainNavigationScreen — Navigation destination upon successful registration.
+//
 // ============================================================
 
 import 'package:flutter/material.dart';
@@ -27,6 +38,7 @@ import '../../../core/constants/app_strings.dart';
 import '../../../core/routes/app_router.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
+import '../../../core/widgets/pocketday_logo.dart';
 import '../providers/auth_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -88,14 +100,23 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  const Center(
+                    child: PocketDayLogo(
+                      size: PocketDayLogoSize.medium,
+                      showBackground: true,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                   Text(
                     AppStrings.createAccount,
                     style: Theme.of(context).textTheme.headlineMedium,
+                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Join PocketDay to manage income, budgets & goals',
                     style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
 

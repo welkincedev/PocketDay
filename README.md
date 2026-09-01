@@ -1,32 +1,54 @@
 # 🚀 PocketDay — Smart Personal Finance Manager
 
-PocketDay is a modern, offline-first personal finance application built with **Flutter** and **Dart**. Designed with Google's **Material 3** design system, it delivers a minimal, clean, and intuitive experience for tracking income, managing expenses, monitoring category budget limits, tracking savings goals, and automating recurring subscription expenses in Indian Rupees (`₹`).
+PocketDay is a modern, Firebase-first personal money manager built with **Flutter**, **Riverpod**, and **Cloud Firestore**. Designed with Google's **Material 3** design system, it delivers a minimal, clean, and intuitive experience for tracking income, managing expenses, monitoring category budget limits, tracking savings goals, and automating recurring subscription expenses in Indian Rupees (`₹`).
 
 ---
 
-## 🌟 Key Features
+## 🌟 Core Features
 
-- 💼 **Total Balance & Financial Summary**: Real-time balance calculations (`Total Balance = Income - Expense`) with hide/show privacy toggle mode (`₹••••••`).
-- 💳 **Transactions Management**: Complete support for income and expense transactions, category tagging, goal allocations, custom date ranges, search, and filtering.
-- 📊 **Spending Analytics**: Interactive PieChart and bar previews powered by `fl_chart` illustrating category breakdowns and income vs. expense ratios.
-- 🎯 **Savings Goals**: Target tracking with visual progress indicators, goal-linked expense allocations, and contribution history.
-- 🔄 **Subscriptions Engine**: Recurring subscription tracking across weekly, monthly, and yearly cycles with idempotent automatic expense generation.
-- 📈 **Category Budget System**: Monthly overall and category-specific budget limits with dynamic warning states (Safe, Warning, Critical, Exceeded).
-- 🌓 **Dynamic Light & Dark Themes**: Material 3 theme customization using Google Fonts (`Outfit` for titles, `Inter` for body text).
-- ⚡ **Offline-First Local Storage**: Powered by **Hive**, storing user profile, settings, transactions, budgets, goals, and subscriptions locally with instant launch speeds.
+- 🔑 **Google Authentication**: Instant, single-click sign-in powered by Firebase Authentication and Google Sign-In.
+- 💼 **Total Balance & Summary**: Real-time balance calculations (`Total Balance = Income - Expense`) with hide/show privacy mode (`₹••••••`).
+- 💳 **Transaction Management**: Complete support for income and expense transactions, category tagging, date filtering, and search.
+- 📊 **Spending Analytics**: Breakdown pie charts powered by `fl_chart` illustrating category expenses.
+- 🎯 **Savings Goals**: Goal tracking with progress indicators, contributions, and target completion dates.
+- 🔄 **Subscriptions Engine**: Recurring subscription tracking with idempotent automatic expense generation.
+- 📈 **Category Budget Limits**: Monthly budget limits with dynamic warning indicators (Safe, Warning, Critical, Exceeded).
+- ⚙️ **Account Data Management**: Full user controls for **Reset App Data**, **Delete Account**, and **Sign Out**.
+- ⚡ **Offline-First Persistence**: Native Cloud Firestore offline caching for instant launch and offline read/write capability.
+- 🌐 **Web & Mobile Support**: Native support for Android (APK / AAB) and Web (`signInWithPopup`).
 
 ---
 
 ## 🛠️ Tech Stack & Architecture
 
-- **Frontend Framework**: [Flutter](https://flutter.dev) (Latest Stable)
-- **Language**: [Dart](https://dart.dev)
-- **Architecture**: Clean Layered Architecture (UI → Riverpod Notifiers → Repositories → Hive Storage)
+- **Frontend Framework**: [Flutter](https://flutter.dev) (v3.22+)
+- **Language**: [Dart](https://dart.dev) (v3.4+)
+- **Architecture**: Clean Feature-First MVVM / Repository Architecture
 - **State Management**: [Riverpod](https://riverpod.dev) (`flutter_riverpod`)
-- **Navigation**: [GoRouter](https://pub.dev/packages/go_router) with `StatefulShellRoute` for tab state preservation
-- **Local Storage Engine**: [Hive](https://pub.dev/packages/hive_flutter)
-- **Charts & Data Visualization**: [fl_chart](https://pub.dev/packages/fl_chart)
+- **Backend & Auth**: Firebase Authentication & Google Sign-In
+- **Database Engine**: Cloud Firestore with Native Offline Cache (**Hive is completely removed**)
+- **Data Visualization**: [fl_chart](https://pub.dev/packages/fl_chart)
 - **Design System**: Material 3 (M3)
+
+---
+
+## 🏗️ High-Level Architecture
+
+```text
+Google Account
+      ↓
+Firebase Authentication
+      ↓
+Firebase User UID
+      ↓
+Cloud Firestore (users/{uid})
+      ↓
+Firestore Native Offline Cache
+      ↓
+Riverpod State Notifiers
+      ↓
+PocketDay Flutter UI
+```
 
 ---
 
@@ -37,70 +59,91 @@ lib/
 ├── core/
 │   ├── constants/       # AppColors, AppConstants (₹), AppStrings
 │   ├── theme/           # AppTheme (M3 Light & Dark), ThemeProvider
-│   ├── routes/          # AppRouter (GoRouter setup with StatefulShellRoute)
-│   ├── services/        # HiveService (Hive boxes initializer)
-│   ├── utils/           # CurrencyFormatter (en_IN), DateFormatter
-│   └── widgets/         # AppButton, AppTextField, AppCard, BalanceDisplayWidget, SkeletonLoader, EmptyStateWidget, ErrorView
+│   ├── routes/          # AppRouter named routes table
+│   ├── utils/           # AppErrorHandler, CurrencyFormatter, DateFormatter
+│   └── widgets/         # AppButton, AppTextField, AppCard, ErrorView, AppErrorScreen
 ├── data/
-│   ├── models/          # UserModel, TransactionModel, BudgetModel, GoalModel, SavingsGoalModel, SubscriptionModel
-│   └── repositories/    # AuthRepository, TransactionRepository, BudgetRepository, GoalRepository, SavingsGoalRepository, SubscriptionRepository
+│   ├── models/          # UserModel, TransactionModel, BudgetModel, GoalModel, SubscriptionModel
+│   └── repositories/    # AuthRepository, TransactionRepository, BudgetRepository, GoalRepository, SubscriptionRepository
 ├── features/
-│   ├── auth/            # Splash, Onboarding, Login, Register, Forgot Password
-│   ├── dashboard/       # DashboardScreen, MainShellScreen, DashboardCard, SpendingChart, CategoryBudgetProgress, AddTransactionBottomSheet
-│   ├── transactions/    # TransactionsScreen, Filter & Detail Bottom Sheets
-│   ├── budget/          # BudgetScreen, Add & Detail Bottom Sheets
-│   ├── goals/           # GoalsScreen, SavingsGoalsScreen, Create & Edit Sheets
-│   ├── subscriptions/   # SubscriptionsScreen, Add & Detail Sheets
-│   └── profile/         # ProfileScreen (Theme toggle, Privacy settings, User info)
-└── main.dart            # Application entry point & ProviderScope
+│   ├── auth/            # Splash, Onboarding, LoginScreens
+│   ├── dashboard/       # DashboardScreen, AppMainNavigationScreen, DashboardCards, AnalyticsChart
+│   ├── transactions/    # TransactionsScreen, Search & Filter BottomSheets
+│   ├── budget/          # BudgetScreen (Budget & Subscriptions Tabs), Add & Detail Sheets
+│   ├── goals/           # GoalsScreen, SavingsGoalsScreen
+│   ├── subscriptions/   # SubscriptionsScreen, SubscriptionsContent, Add & Detail Sheets
+│   └── profile/         # ProfileScreen (Theme, Reset, Delete Account, Sign Out)
+└── main.dart            # Entry point & Firestore offline settings initializer
 ```
 
 ---
 
-## 🚀 Developer Commands & Execution
-
-### Prerequisites
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) (v3.22.0 or higher)
-- [Dart SDK](https://dart.dev/get-started) (v3.4.0 or higher)
+## 🚀 Developer Commands
 
 ### Setup & Run
 ```bash
-# 1. Fetch dependencies
+# Fetch dependencies
 flutter pub get
 
-# 2. Run static code analysis (0 warnings/errors expected)
+# Static analysis
 flutter analyze
 
-# 3. Format code
-dart format lib test
-
-# 4. Run full unit and integration test suite
+# Run unit & provider tests
 flutter test
 
-# 5. Run local app (Chrome / Android / Windows)
-flutter run -d chrome
+# Run application
 flutter run -d android
-flutter run -d windows
+flutter run -d chrome
 ```
 
-### Production Release Builds
+### Release Builds
 ```bash
-# Build Release Android APK
+# Build Release Universal APK
 flutter build apk --release
+
+# Build Split per-ABI APKs
+flutter build apk --release --split-per-abi
 
 # Build Release Android App Bundle (AAB)
 flutter build appbundle --release
 
 # Build Web Bundle
-flutter build web --release
+flutter build web
 ```
 
 ---
 
-## 📚 Technical Documentation
+## 🔒 Security
 
-Detailed architecture and audit documentation is available in the [`docs/`](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/docs/) directory:
-- [`docs/FINAL_PROJECT_AUDIT.md`](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/docs/FINAL_PROJECT_AUDIT.md) — Comprehensive health, risk, and stability audit.
-- [`docs/ARCHITECTURE.md`](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/docs/ARCHITECTURE.md) — System layer contracts and data flow.
-- [`docs/FIREBASE_MIGRATION_ASSESSMENT.md`](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/docs/FIREBASE_MIGRATION_ASSESSMENT.md) — Hive vs. Firebase comparison & future sync blueprint.
-- [`docs/RELEASE_CHECKLIST.md`](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/docs/RELEASE_CHECKLIST.md) — Release gate checklist and deployment verification.
+All Firestore security rules enforce user isolation via Firebase UID:
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+```
+
+---
+
+## 📚 Documentation Suite
+
+Comprehensive architecture and developer documentation is available in the [`docs/`](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/docs/) directory:
+- [`docs/project_overview.md`](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/docs/project_overview.md) — Product identity, feature inventory, platforms, and release status.
+- [`docs/architecture.md`](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/docs/architecture.md) — Layered architecture, Riverpod system, Firestore structure, security, and error handling.
+- [`docs/developer_guide.md`](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/docs/developer_guide.md) — Prerequisites, build guide, development patterns, and release checklist.
+- [`docs/release_checklist.md`](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/docs/release_checklist.md) — Pre-release verification report and subsystem checklist.
+- [`docs/test_plan.md`](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/docs/test_plan.md) — Physical device and web manual test protocol.
+
+---
+
+## 📌 Release Status
+
+- **Status**: READY FOR TEST RELEASE
+- **Version**: 1.0.0+1
+- **Analyze**: 0 Issues (Clean)
+- **Tests**: 30/30 Passed

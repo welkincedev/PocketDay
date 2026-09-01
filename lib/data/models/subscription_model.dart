@@ -1,27 +1,11 @@
-// ============================================================
-// POCKETDAY DEVELOPER NOTE
+// ============================================================================
+// PocketDay
 // File: subscription_model.dart
-//
-// Purpose:
-// Domain model representing recurring subscriptions (Netflix, Spotify, Cloud Storage).
-//
-// Responsibilities:
-// - Support weekly, monthly, quarterly, and yearly billing cycles.
-// - Calculate monthly equivalent costs for financial analytics.
-// - Perform date-safe next payment date calculations handling month-end (Jan 31 → Feb 28) and leap years.
-// - Convert to/from Map for Hive storage in `subscriptionsBox`.
-//
-// Data Flow:
-// Subscription Sheet → SubscriptionNotifier ↔ SubscriptionModel ↔ Hive (`subscriptionsBox`)
-//
-// Important Rules:
-// - Next date calculation uses `_addMonths` to clamp overflow days safely to the last valid day of the target month.
-//
-// Main Operations:
-// - calculateMonthlyEquivalent(): Convert any cycle cost to monthly rate
-// - calculateNextDate(fromDate, cycle): Compute next billing date safely
-// - isCurrentlyActive(): Evaluate date-aware active status
-// ============================================================
+// Purpose: Recurring subscription model, billing cycle, and status extensions.
+// Architecture: Domain / Data Model Layer
+// State Management: Riverpod (via SubscriptionProvider)
+// Storage: Cloud Firestore with Native Offline Cache
+// ============================================================================
 
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
@@ -93,16 +77,7 @@ enum SubscriptionStatus {
   }
 }
 
-/// # Developer Notes
-///
 /// Represents a recurring subscription tracked in PocketDay (e.g. Netflix, Spotify).
-///
-/// ## Responsibility
-/// Stores metadata including amount, cycle, next payment date, category, status, and auto-expense preferences.
-/// Evaluates date-aware active vs expired status dynamically and calculates monthly normalized cost.
-///
-/// ## Data flow
-/// Subscription UI → Subscription Provider → Subscription Repository → Hive
 class SubscriptionModel {
   final String id;
   final String name;
@@ -134,18 +109,15 @@ class SubscriptionModel {
     required this.updatedAt,
   });
 
-  /// Evaluates whether the subscription is currently active dynamically based on dates and status.
   bool isCurrentlyActive([DateTime? relativeTo]) {
     if (status == SubscriptionStatus.paused ||
         status == SubscriptionStatus.cancelled) {
       return false;
     }
     final now = relativeTo ?? DateTime.now();
-    // Active if nextPaymentDate is in the future or today
     return !nextPaymentDate.isBefore(DateTime(now.year, now.month, now.day));
   }
 
-  /// Calculates dynamic status label and date-aware details (e.g. "Renews in 12 days" or "Ended 24 Aug 2026").
   String calculateStatusDetail([DateTime? relativeTo]) {
     final now = relativeTo ?? DateTime.now();
     if (status == SubscriptionStatus.paused) {
@@ -167,12 +139,6 @@ class SubscriptionModel {
     }
   }
 
-  /// Normalizes the recurring cost to an equivalent monthly amount.
-  ///
-  /// - Weekly: amount * 52 / 12
-  /// - Monthly: amount
-  /// - Quarterly: amount / 3
-  /// - Yearly: amount / 12
   double calculateMonthlyEquivalent() {
     switch (billingCycle) {
       case SubscriptionBillingCycle.weekly:
@@ -186,7 +152,6 @@ class SubscriptionModel {
     }
   }
 
-  /// Calculates the next payment date based on [billingCycle], safely handling month-end dates.
   static DateTime calculateNextDate(
     DateTime fromDate,
     SubscriptionBillingCycle cycle,

@@ -1,20 +1,41 @@
 // ============================================================
-// POCKETDAY DEVELOPER NOTE
-// File: budget_screen.dart
+// PocketDay — BudgetScreen
+// ============================================================
 //
 // Purpose:
-// Main budget management screen displaying month navigation, overall monthly budget card, and category budgets.
+// Primary budget and subscriptions section view containing two internal tabs:
+// Tab 0: Budget (monthly overall & category limits)
+// Tab 1: Subscriptions (recurring payments tracker using SubscriptionsContent)
 //
 // Responsibilities:
-// - Render top persistent month navigation bar (`_buildMonthSelector`).
-// - Display overall monthly budget summary card and category budget cards.
-// - Trigger modal bottom sheet for creating new budgets or inspecting budget details.
+// - Manage TabController for switching between Budget limits and Recurring Subscriptions.
+// - Render top persistent month selector bar for active budget target month (YYYY-MM).
+// - Render overall monthly summary card and category budget limits list.
+// - Render SubscriptionsContent widget directly inside Tab 1 without nested Scaffolds or duplicate FABs.
+// - Render dynamic parent Scaffold FloatingActionButton based on active tab index (Add Budget vs Add Subscription).
 //
 // Data Flow:
-// budgetProvider → BudgetScreen → BudgetCardWidget / AddBudgetBottomSheet / BudgetDetailBottomSheet
+// Cloud Firestore → BudgetRepository & SubscriptionRepository → budgetProvider & subscriptionProvider → BudgetScreen UI
+//
+// Navigation Flow:
+// AppMainNavigationScreen Tab 2 → BudgetScreen → Tab 0 (Budget) / Tab 1 (Subscriptions)
 //
 // Important Rules:
-// - overallBudget is identified by `categoryId == null`.
+// - Default selected tab MUST be Tab 0 (Budget) every time the section is displayed.
+// - Exactly ONE parent Scaffold FAB exists at a time; no nested Scaffolds or duplicate FABs.
+//
+// Main Operations:
+// - build(context, ref) — Manages TabController and renders TabBarView with Budget view and SubscriptionsContent.
+// - _openAddBudgetSheet() — Displays modal bottom sheet for creating/editing monthly budgets.
+// - _openAddSubscriptionSheet() — Displays modal bottom sheet for creating recurring subscriptions.
+//
+// Dependencies / Collaborators:
+// - budgetProvider — Riverpod state notifier owning monthly budgets and active month selection.
+// - subscriptionProvider — Riverpod state notifier owning recurring subscriptions.
+// - SubscriptionsContent — Reusable recurring subscription view widget.
+// - AddBudgetBottomSheet — Modal bottom sheet for instantiating budgets.
+// - AddSubscriptionSheet — Modal bottom sheet for instantiating subscriptions.
+//
 // ============================================================
 
 import 'package:flutter/material.dart';
@@ -25,13 +46,40 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/empty_state_widget.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../data/models/budget_model.dart';
+import '../../subscriptions/widgets/add_subscription_sheet.dart';
+import '../../subscriptions/widgets/subscriptions_content.dart';
 import '../providers/budget_provider.dart';
 import '../widgets/add_budget_bottom_sheet.dart';
 import '../widgets/budget_card_widget.dart';
 import '../widgets/budget_detail_bottom_sheet.dart';
 
-class BudgetScreen extends ConsumerWidget {
+class BudgetScreen extends ConsumerStatefulWidget {
   const BudgetScreen({super.key});
+
+  @override
+  ConsumerState<BudgetScreen> createState() => _BudgetScreenState();
+}
+
+class _BudgetScreenState extends ConsumerState<BudgetScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   void _openAddBudgetSheet(BuildContext context, DateTime selectedMonth) {
     showModalBottomSheet(
@@ -39,6 +87,15 @@ class BudgetScreen extends ConsumerWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => AddBudgetBottomSheet(month: selectedMonth),
+    );
+  }
+
+  void _openAddSubscriptionSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const AddSubscriptionSheet(),
     );
   }
 
@@ -52,11 +109,67 @@ class BudgetScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final state = ref.watch(budgetProvider);
     final notifier = ref.read(budgetProvider.notifier);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Budget & Subscriptions'),
+        elevation: 0,
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: AppColors.primary,
+          indicatorWeight: 3,
+          labelColor: AppColors.primary,
+          unselectedLabelColor: isDark
+              ? AppColors.darkTextSecondary
+              : AppColors.lightTextSecondary,
+          labelStyle: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+          tabs: const [
+            Tab(text: 'Budget'),
+            Tab(text: 'Subscriptions'),
+          ],
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // Tab 0: Budget Limits View
+          _buildBudgetView(context, state, notifier, isDark),
+          // Tab 1: Subscriptions View (Reusable widget, no nested Scaffold)
+          const SubscriptionsContent(),
+        ],
+      ),
+      floatingActionButton: _tabController.index == 0
+          ? FloatingActionButton(
+              heroTag: 'fab_budget_tab',
+              onPressed: () => _openAddBudgetSheet(context, state.selectedMonth),
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              child: const Icon(Icons.add_rounded),
+            )
+          : FloatingActionButton.extended(
+              heroTag: 'fab_subscriptions_tab',
+              onPressed: () => _openAddSubscriptionSheet(context),
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('Subscription'),
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+            ),
+    );
+  }
+
+  Widget _buildBudgetView(
+    BuildContext context,
+    BudgetState state,
+    BudgetNotifier notifier,
+    bool isDark,
+  ) {
     BudgetModel? overallBudget;
     try {
       overallBudget = state.currentBudgets.firstWhere(
@@ -70,90 +183,81 @@ class BudgetScreen extends ConsumerWidget {
         .where((b) => b.categoryId != null)
         .toList();
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Budgets'), elevation: 0),
-      body: Column(
-        children: [
-          // Persistent Month Selector
-          _buildMonthSelector(context, state, notifier, isDark),
+    return Column(
+      children: [
+        // Persistent Month Selector
+        _buildMonthSelector(context, state, notifier, isDark),
 
-          Expanded(
-            child: state.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : state.currentBudgets.isEmpty
-                ? _buildEmptyState(context, state.selectedMonth)
-                : ListView(
-                    padding: const EdgeInsets.all(16),
-                    physics: const BouncingScrollPhysics(),
-                    children: [
-                      // 1. Overall Budget Summary Card
-                      if (overallBudget != null) ...[
-                        _buildSectionHeader(context, 'Monthly Summary', isDark),
-                        BudgetCardWidget(
-                          title: 'Overall Limit',
-                          budgetAmount: overallBudget.amount,
-                          spentAmount: state.categorySpending[null] ?? 0.0,
-                          icon: Icons.all_inclusive_rounded,
-                          iconColor: AppColors.primary,
-                          onTap: () =>
-                              _showDetailBottomSheet(context, overallBudget!),
-                        ),
-                        const SizedBox(height: 24),
-                      ] else ...[
-                        _buildSectionHeader(context, 'Monthly Summary', isDark),
-                        _buildAddOverallPrompt(
-                          context,
-                          state.selectedMonth,
-                          isDark,
-                        ),
-                        const SizedBox(height: 24),
-                      ],
-
-                      // 2. Category Budgets Section
-                      if (categoryBudgets.isNotEmpty) ...[
-                        _buildSectionHeader(context, 'Category Limits', isDark),
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: categoryBudgets.length,
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(height: 14),
-                          itemBuilder: (context, index) {
-                            final budget = categoryBudgets[index];
-                            final spent =
-                                state.categorySpending[budget.categoryId] ??
-                                0.0;
-                            final catMeta = AppConstants.defaultCategories
-                                .firstWhere(
-                                  (c) => c['id'] == budget.categoryId,
-                                  orElse: () => {
-                                    'icon': Icons.category_rounded,
-                                    'color': AppColors.primary,
-                                  },
-                                );
-                            return BudgetCardWidget(
-                              title: budget.categoryName ?? '',
-                              budgetAmount: budget.amount,
-                              spentAmount: spent,
-                              icon: catMeta['icon'] as IconData,
-                              iconColor: catMeta['color'] as Color,
-                              onTap: () =>
-                                  _showDetailBottomSheet(context, budget),
-                            );
-                          },
-                        ),
-                      ],
+        Expanded(
+          child: state.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : state.currentBudgets.isEmpty
+              ? _buildEmptyState(context, state.selectedMonth)
+              : ListView(
+                  padding: const EdgeInsets.all(16),
+                  physics: const BouncingScrollPhysics(),
+                  children: [
+                    // 1. Overall Budget Summary Card
+                    if (overallBudget != null) ...[
+                      _buildSectionHeader(context, 'Monthly Summary', isDark),
+                      BudgetCardWidget(
+                        title: 'Overall Limit',
+                        budgetAmount: overallBudget.amount,
+                        spentAmount: state.categorySpending[null] ?? 0.0,
+                        icon: Icons.all_inclusive_rounded,
+                        iconColor: AppColors.primary,
+                        onTap: () =>
+                            _showDetailBottomSheet(context, overallBudget!),
+                      ),
+                      const SizedBox(height: 24),
+                    ] else ...[
+                      _buildSectionHeader(context, 'Monthly Summary', isDark),
+                      _buildAddOverallPrompt(
+                        context,
+                        state.selectedMonth,
+                        isDark,
+                      ),
+                      const SizedBox(height: 24),
                     ],
-                  ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _openAddBudgetSheet(context, state.selectedMonth),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.add_rounded),
-      ),
+
+                    // 2. Category Budgets Section
+                    if (categoryBudgets.isNotEmpty) ...[
+                      _buildSectionHeader(context, 'Category Limits', isDark),
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: categoryBudgets.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 14),
+                        itemBuilder: (context, index) {
+                          final budget = categoryBudgets[index];
+                          final spent =
+                              state.categorySpending[budget.categoryId] ??
+                              0.0;
+                          final catMeta = AppConstants.defaultCategories
+                              .firstWhere(
+                                (c) => c['id'] == budget.categoryId,
+                                orElse: () => {
+                                  'icon': Icons.category_rounded,
+                                  'color': AppColors.primary,
+                                },
+                              );
+                          return BudgetCardWidget(
+                            title: budget.categoryName ?? '',
+                            budgetAmount: budget.amount,
+                            spentAmount: spent,
+                            icon: catMeta['icon'] as IconData,
+                            iconColor: catMeta['color'] as Color,
+                            onTap: () =>
+                                _showDetailBottomSheet(context, budget),
+                          );
+                        },
+                      ),
+                    ],
+                  ],
+                ),
+        ),
+      ],
     );
   }
 

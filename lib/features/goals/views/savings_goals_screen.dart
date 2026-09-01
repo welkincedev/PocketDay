@@ -1,20 +1,35 @@
 // ============================================================
-// POCKETDAY DEVELOPER NOTE
-// File: savings_goals_screen.dart
+// PocketDay — GoalsScreen (savings_goals_screen.dart)
+// ============================================================
 //
 // Purpose:
-// Goals overview tab screen listing active and completed financial targets.
+// Primary savings goals view displaying active and completed financial targets, total savings summary,
+// progress indicators, and goal creation/detail navigation.
 //
 // Responsibilities:
-// - Render list of active financial goals and completed goals dynamically using `goalsProvider`.
-// - Render `GoalCard` for each target goal.
-// - Launch goal creation sheet (`CreateGoalSheet`) or navigate to `GoalDetailScreen`.
+// - Render list of active financial targets and completed goals using goalsProvider state.
+// - Render summary metrics (total target amount vs total current saved progress).
+// - Open CreateGoalSheet for adding new target goals via floating action button or action tile.
+// - Navigate to GoalDetailScreen upon tapping a goal card.
 //
 // Data Flow:
-// goalsProvider → GoalsScreen → GoalCard → GoalDetailScreen
+// Cloud Firestore → GoalRepository → goalsProvider (listens to transactionsProvider) → GoalsScreen UI → GoalCard → GoalDetailScreen
+//
+// Navigation Flow:
+// AppMainNavigationScreen Tab 3 → GoalsScreen → GoalDetailScreen / CreateGoalSheet
 //
 // Important Rules:
-// - Completed goals are rendered with subtle 72% opacity.
+// - Goal progress calculations react automatically to transaction contributions and goal-linked expenses.
+// - Completed goals render with subtle opacity formatting to separate them from active goals.
+//
+// Main Operations:
+// - build(context, ref) — Listens to goalsProvider state and renders target goals list and summary header.
+//
+// Dependencies / Collaborators:
+// - goalsProvider — Riverpod provider owning target goals list and transaction calculation bindings.
+// - GoalCard — Card widget displaying goal emoji, progress bar, target date, and current balance.
+// - CreateGoalSheet — Modal bottom sheet for instantiating new goals.
+//
 // ============================================================
 
 import 'package:flutter/material.dart';

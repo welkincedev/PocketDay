@@ -1,27 +1,39 @@
 // ============================================================
-// POCKETDAY DEVELOPER NOTE
-// File: savings_goal_repository.dart
+// PocketDay — SavingsGoalRepositoryImpl
+// ============================================================
 //
 // Purpose:
-// Abstract contract and local Hive implementation for savings target entities.
+// Repository managing dedicated savings goal persistence, cache-first reads, and optimistic offline writes.
 //
 // Responsibilities:
-// - Read all saved goals from Hive `goalsBox`.
-// - Save or update `SavingsGoalModel` by ID.
-// - Delete savings goals by ID.
+// - Read explicit SavingsGoalModel documents from local Firestore cache first for instant UI rendering.
+// - Perform optimistic local updates and dispatch Firestore document writes in the background.
+// - Maintain in-memory store for unit test environments.
 //
 // Data Flow:
-// SavingsGoalsNotifier → SavingsGoalRepository → HiveService.goalsBox
+// AddSavingsGoalBottomSheet / AddSavingsBottomSheet → SavingsGoalsProvider → SavingsGoalRepositoryImpl → Firestore Cache / Cloud Storage
+//
+// Firestore Structure:
+// Path: users/{uid}/savings_goals/{goalId}
 //
 // Important Rules:
-// - Stores savings goal maps using `goal.id` primary keys.
+// - UID Isolation: Requires active user authentication (`FirebaseAuth.instance.currentUser?.uid`).
+// - Cache-First Read: getGoals() reads local cache first for instant rendering.
+// - Optimistic Writes: saveGoal() and deleteGoal() update local state and dispatch background Firestore writes (`unawaited`).
 //
 // Main Operations:
-// - getGoals(): Fetch all savings goals from Hive
-// - saveGoal(goal): Upsert goal by ID
-// - deleteGoal(id): Delete goal from Hive
+// - getGoals() — Returns cached savings goals immediately, with fallback for fresh installs.
+// - saveGoal() — Optimistically updates savings goal and dispatches background Firestore write.
+// - deleteGoal() — Optimistically removes savings goal and dispatches background Firestore delete.
+//
+// Dependencies / Collaborators:
+// - FirebaseFirestore — Document storage engine for savings goal records.
+// - FirebaseAuth — Provides active user UID context.
+// - SavingsGoalModel — Entity model representing explicit savings targets.
+//
 // ============================================================
 
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -64,11 +76,30 @@ class SavingsGoalRepositoryImpl implements SavingsGoalRepository {
 
     if (uid != null && uid.isNotEmpty && _firestore != null) {
       try {
-        final snapshot = await _firestore!
-            .collection('users')
-            .doc(uid)
-            .collection('savings_goals')
-            .get();
+        QuerySnapshot<Map<String, dynamic>> snapshot;
+        try {
+          snapshot = await _firestore!
+              .collection('users')
+              .doc(uid)
+              .collection('savings_goals')
+              .get(const GetOptions(source: Source.cache));
+          
+          if (snapshot.docs.isEmpty) {
+            snapshot = await _firestore!
+                .collection('users')
+                .doc(uid)
+                .collection('savings_goals')
+                .get()
+                .timeout(const Duration(seconds: 3));
+          }
+        } catch (_) {
+          snapshot = await _firestore!
+              .collection('users')
+              .doc(uid)
+              .collection('savings_goals')
+              .get()
+              .timeout(const Duration(seconds: 3));
+        }
 
         final List<SavingsGoalModel> goals = [];
         for (var doc in snapshot.docs) {
@@ -88,14 +119,13 @@ class SavingsGoalRepositoryImpl implements SavingsGoalRepository {
 
     final uid = _currentUid;
     if (uid != null && uid.isNotEmpty && _firestore != null) {
-      try {
-        await _firestore!
-            .collection('users')
-            .doc(uid)
-            .collection('savings_goals')
-            .doc(goal.id)
-            .set(goal.toMap(), SetOptions(merge: true));
-      } catch (_) {}
+      unawaited(_firestore!
+          .collection('users')
+          .doc(uid)
+          .collection('savings_goals')
+          .doc(goal.id)
+          .set(goal.toMap(), SetOptions(merge: true))
+          .catchError((_) {}));
     }
   }
 
@@ -105,14 +135,13 @@ class SavingsGoalRepositoryImpl implements SavingsGoalRepository {
 
     final uid = _currentUid;
     if (uid != null && uid.isNotEmpty && _firestore != null) {
-      try {
-        await _firestore!
-            .collection('users')
-            .doc(uid)
-            .collection('savings_goals')
-            .doc(id)
-            .delete();
-      } catch (_) {}
+      unawaited(_firestore!
+          .collection('users')
+          .doc(uid)
+          .collection('savings_goals')
+          .doc(id)
+          .delete()
+          .catchError((_) {}));
     }
   }
 }

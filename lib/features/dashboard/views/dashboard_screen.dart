@@ -1,21 +1,39 @@
 // ============================================================
-// POCKETDAY DEVELOPER NOTE
-// File: dashboard_screen.dart
+// PocketDay — DashboardScreen
+// ============================================================
 //
 // Purpose:
-// Main financial home view presenting hero metrics, spending charts, budget progress, and quick action sheets.
+// Primary financial overview screen presenting account balance, monthly income/expense metrics,
+// safe spending budget progress, savings summaries, spending breakdown charts, and recent activity.
 //
 // Responsibilities:
-// - Display personalized time-aware greeting ('Good morning', 'Good afternoon', etc.).
-// - Render hero balance card (`DashboardCardWidget`), budget progress bar, savings summary, quick action bar, and pie charts.
-// - Provide pull-to-refresh (`RefreshIndicator`) to force reload dashboard data.
-// - Trigger modal bottom sheet for adding quick Income and Expense transactions.
+// - Render personalized time-aware greeting ('Good morning', 'Good afternoon', 'Good evening').
+// - Display total balance card with privacy toggle, income/expense totals, and safe-to-spend budget progress.
+// - Render category expense pie charts powered by fl_chart.
+// - Provide quick action buttons for recording transactions, setting budgets, and adding savings goals.
+// - Support pull-to-refresh (RefreshIndicator) for forcing background data synchronization.
 //
 // Data Flow:
-// dashboardProvider → DashboardScreen UI → QuickActions → AddTransactionBottomSheet → Repository
+// Cloud Firestore → Repository → dashboardProvider (in-memory O(N) calculation) → DashboardScreen UI
+//
+// Navigation Flow:
+// AppMainNavigationScreen Tab 0 → DashboardScreen → AddTransactionBottomSheet / AddBudgetBottomSheet / AppRoutes.subscriptions
 //
 // Important Rules:
-// - All balance cards scale down gracefully without horizontal overflows.
+// - Derived metrics (balance, monthly spending) are calculated in memory by dashboardProvider without issuing redundant Firestore reads.
+// - Loading state presents skeleton loaders without causing full-screen flickering.
+// - Layout elements use responsive constraints to prevent horizontal pixel overflow.
+//
+// Main Operations:
+// - build(context, ref) — Watches dashboardProvider state and renders home dashboard sections.
+// - _getGreeting() — Derives greeting string dynamically from system hour.
+//
+// Dependencies / Collaborators:
+// - dashboardProvider — Riverpod provider containing derived financial metrics.
+// - authProvider — Riverpod provider containing user profile identity.
+// - DashboardCardWidget — Hero balance card component.
+// - SpendingChartWidget — Category spending breakdown pie chart.
+//
 // ============================================================
 
 import 'package:flutter/material.dart';

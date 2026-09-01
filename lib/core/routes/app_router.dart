@@ -1,34 +1,46 @@
 // ============================================================
-// POCKETDAY DEVELOPER NOTE
-// File: app_router.dart
+// PocketDay — AppRoutes
+// ============================================================
 //
 // Purpose:
-// Centralized named route definitions and screen mapping table for PocketDay.
+// Centralized application routing table and path string definitions.
+// Maps named route strings to corresponding feature screen widgets.
 //
 // Responsibilities:
-// - Define route constants (splash, onboarding, login, register, forgotPassword, main, profile, subscriptions).
-// - Expose `routes` map mapping route paths to screen widgets.
+// - Define static route path constants (splash, onboarding, login, main, profile, subscriptions, error).
+// - Maintain named route map for MaterialApp navigation.
+// - Ensure consistent route naming conventions across all feature screens.
+//
+// Data Flow:
+// MaterialApp.routes → AppRoutes.routes → Named Screen Widgets
 //
 // Navigation Flow:
-// Splash → Onboarding/Login → MainShellScreen (Tab shell: Dashboard, Transactions, Budget, Goals) → Profile / Subscriptions
+// SplashScreen ('/') → LoginScreen ('/login') → AppMainNavigationScreen ('/main')
 //
 // Important Rules:
-// - Main navigation shell is served by `MainShellScreen`.
-// - Screen navigation uses `Navigator.pushNamed()` or `Navigator.pushReplacementNamed()`.
+// - All primary authenticated navigation routes to AppMainNavigationScreen.
+// - Use Navigator.pushReplacementNamed() for authentication state transitions to prevent back-stack leaks.
 //
-// Route Constants:
-// - splash: '/'
-// - main: '/main'
-// - subscriptions: '/subscriptions'
+// Main Operations:
+// - routes getter — Returns Map<String, WidgetBuilder> mapping paths to screens.
+//
+// Dependencies / Collaborators:
+// - SplashScreen — Initial route.
+// - LoginScreen — Unauthenticated route.
+// - AppMainNavigationScreen — Primary authenticated tab container.
+// - ProfileScreen — User account screen.
+// - SubscriptionsScreen — Recurring subscription tracker screen.
+//
 // ============================================================
 
 import 'package:flutter/material.dart';
 import '../../features/auth/views/splash_screen.dart';
 import '../../features/auth/views/onboarding_screen.dart';
 import '../../features/auth/views/login_screen.dart';
-import '../../features/dashboard/views/main_shell_screen.dart';
+import '../../features/dashboard/views/app_main_navigation_screen.dart';
 import '../../features/profile/views/profile_screen.dart';
 import '../../features/subscriptions/views/subscriptions_screen.dart';
+import '../widgets/app_error_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -39,6 +51,7 @@ class AppRoutes {
   static const String main = '/main';
   static const String profile = '/profile';
   static const String subscriptions = '/subscriptions';
+  static const String error = '/error';
 
   static Map<String, WidgetBuilder> get routes => {
     splash: (context) => const SplashScreen(),
@@ -46,8 +59,9 @@ class AppRoutes {
     login: (context) => const LoginScreen(),
     register: (context) => const LoginScreen(),
     forgotPassword: (context) => const LoginScreen(),
-    main: (context) => const MainShellScreen(),
+    main: (context) => const AppMainNavigationScreen(),
     profile: (context) => const ProfileScreen(),
     subscriptions: (context) => const SubscriptionsScreen(),
+    error: (context) => const AppErrorScreen(),
   };
 }

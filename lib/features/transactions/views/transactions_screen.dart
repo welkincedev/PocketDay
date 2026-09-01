@@ -1,20 +1,36 @@
 // ============================================================
-// POCKETDAY DEVELOPER NOTE
-// File: transactions_screen.dart
+// PocketDay — TransactionsScreen
+// ============================================================
 //
 // Purpose:
-// Main transactions feed screen supporting live search, filtering, and detail inspection.
+// Primary financial transactions history view providing full-text search, category/type filtering,
+// date-based grouping, transaction detail viewing, editing, and deletion.
 //
 // Responsibilities:
-// - Render complete historical transaction list using `TransactionItemTile`.
-// - Render search bar and filter button (opening `TransactionsFilterBottomSheet`).
-// - Trigger modal bottom sheet for adding or inspecting transaction details.
+// - Render complete transaction feed sorted descending by date.
+// - Render real-time search input bar for title/category/notes searching.
+// - Render type filter tabs (All, Income, Expenses) and category filter bottom sheet launcher.
+// - Open AddTransactionBottomSheet for creating new transactions via floating action button.
+// - Open TransactionDetailBottomSheet for viewing, editing, or deleting existing transactions.
 //
 // Data Flow:
-// transactionsProvider → TransactionsScreen → TransactionItemTile / Filter / Detail Sheets
+// Cloud Firestore → TransactionRepository → transactionsProvider → TransactionsScreen UI → Item Details / Filters
+//
+// Navigation Flow:
+// AppMainNavigationScreen Tab 1 → TransactionsScreen → TransactionDetailBottomSheet / AddTransactionBottomSheet
 //
 // Important Rules:
-// - FAB launches add flow dialog allowing user to choose between Income and Expense.
+// - All transaction modifications (add/edit/delete) write to Cloud Firestore via TransactionRepository and pop sheet immediately.
+// - Empty states render clean illustrations when no transactions match active search or filter criteria.
+//
+// Main Operations:
+// - build(context, ref) — Listens to transactionsProvider state and renders search bar, filters, and transaction list.
+//
+// Dependencies / Collaborators:
+// - transactionsProvider — Riverpod provider owning transaction list, search query, and category filters.
+// - TransactionItemTile — ListItem widget rendering single transaction details.
+// - TransactionDetailBottomSheet — Detail sheet for transaction inspection and deletion.
+//
 // ============================================================
 
 import 'package:flutter/material.dart';

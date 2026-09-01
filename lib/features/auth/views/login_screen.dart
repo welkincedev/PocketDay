@@ -1,18 +1,27 @@
 // ============================================================
-// POCKETDAY DEVELOPER NOTE
-// File: login_screen.dart
+// PocketDay — LoginScreen (Product Landing & Auth Entry Point)
+// ============================================================
 //
 // Purpose:
-// Single, streamlined Google Authentication screen for PocketDay.
+// Primary product landing screen and single-click Google OAuth entry point for PocketDay.
 //
 // Responsibilities:
-// - Present PocketDay branding and single-click "Continue with Google" action.
-// - Dispatch Google login requests to `authProvider.notifier.loginWithGoogle()`.
-// - Handle loading state and user cancellations gracefully.
-// - Navigate to MainShellScreen upon successful authentication.
+// - Render official PocketDay brand logo, value proposition, and clean landing page hierarchy.
+// - Provide single-click "Continue with Google" authentication action.
+// - Handle loading spinner state and suppress user-canceled OAuth dialog alerts cleanly.
+// - Navigate authenticated users immediately to AppMainNavigationScreen ('/main') on success.
+//
+// Data Flow:
+// User Tap "Continue with Google" → _handleGoogleLogin() → authProvider.notifier.loginWithGoogle() → Firebase Auth & Firestore Profile → AppMainNavigationScreen
 //
 // Navigation Flow:
-// LoginScreen → MainShellScreen (`/main`)
+// SplashScreen / OnboardingScreen → LoginScreen → AppMainNavigationScreen ('/main')
+//
+// Important Rules:
+// - Uses replacement navigation (Navigator.pushReplacementNamed) so LoginScreen is popped off back-stack.
+// - User-cancelled sign-in dialogs are caught gracefully and do not display error banners.
+// - Disables button during active login request to prevent duplicate submissions.
+//
 // ============================================================
 
 import 'package:flutter/material.dart';
@@ -21,6 +30,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/routes/app_router.dart';
 import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/pocketday_logo.dart';
 import '../providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -31,7 +41,8 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  void _handleGoogleLogin() async {
+  Future<void> _handleGoogleLogin() async {
+    if (ref.read(authProvider).isLoading) return;
     final success = await ref.read(authProvider.notifier).loginWithGoogle();
     if (success && mounted) {
       Navigator.pushReplacementNamed(context, AppRoutes.main);
@@ -41,85 +52,76 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      backgroundColor: AppColors.lightBackground,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
+              constraints: const BoxConstraints(maxWidth: 400),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 40),
-
-                  // Brand Icon Container
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withAlpha(30),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: AppColors.primary.withAlpha(60),
-                          width: 2,
-                        ),
-                      ),
-                      child: const Icon(
-                        Icons.account_balance_wallet_rounded,
-                        size: 56,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ),
                   const SizedBox(height: 32),
 
-                  // Welcome Headline
+                  // Brand Logo Mark
+                  const Center(
+                    child: PocketDayLogo(
+                      size: PocketDayLogoSize.large,
+                      showBackground: true,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+
+                  // App Title & Tagline
                   Text(
-                    'PocketDay',
+                    AppStrings.appTitle,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
+                      color: AppColors.lightTextPrimary,
                       letterSpacing: -0.5,
+                      fontSize: 28,
                     ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Your personal money manager',
+                    AppStrings.appTagline,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: isDark
-                          ? AppColors.darkTextSecondary
-                          : AppColors.lightTextSecondary,
-                      fontWeight: FontWeight.w500,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
+
+                  // Value Proposition Supporting Text
                   Text(
-                    'Track spending, set budgets, and achieve financial goals with real-time cloud backup.',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: isDark
-                          ? AppColors.darkTextSecondary.withAlpha(180)
-                          : AppColors.lightTextSecondary.withAlpha(180),
+                    'Take control of your money.\nKnow where it goes. Know how long it lasts.',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: AppColors.lightTextSecondary,
+                      height: 1.45,
+                      fontSize: 14,
                     ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 48),
 
-                  // Error Banner (ignoring user-initiated cancellations)
+                  // Error Banner (suppresses user-initiated cancellations)
                   if (authState.hasError &&
                       !authState.error.toString().contains('cancelled')) ...[
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color: AppColors.expense.withAlpha(20),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppColors.expense.withAlpha(50),
+                          color: AppColors.expense.withAlpha(60),
                         ),
                       ),
                       child: Text(
@@ -130,6 +132,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         style: const TextStyle(
                           color: AppColors.expense,
                           fontSize: 13,
+                          fontWeight: FontWeight.w500,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -137,7 +140,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: 24),
                   ],
 
-                  // Google Sign-In Primary Action Button
+                  // Single-Click Google OAuth Action Button
                   AppButton(
                     text: AppStrings.continueWithGoogle,
                     variant: AppButtonVariant.google,
@@ -147,20 +150,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   const SizedBox(height: 48),
 
-                  // Footer Tagline
-                  Text(
-                    'Your money. Your control.',
-                    style: TextStyle(
-                      color: isDark
-                          ? AppColors.darkTextSecondary.withAlpha(120)
-                          : AppColors.lightTextSecondary.withAlpha(120),
-                      fontSize: 12,
-                      letterSpacing: 0.5,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    textAlign: TextAlign.center,
+                  // Trust & Security Footnote
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.shield_outlined,
+                        size: 14,
+                        color: AppColors.lightTextSecondary,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Your money. Your control. • Secure Cloud Sync',
+                        style: TextStyle(
+                          color: AppColors.lightTextSecondary.withAlpha(160),
+                          fontSize: 12,
+                          letterSpacing: 0.2,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),

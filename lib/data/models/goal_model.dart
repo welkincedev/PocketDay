@@ -1,27 +1,11 @@
-// ============================================================
-// POCKETDAY DEVELOPER NOTE
+// ============================================================================
+// PocketDay
 // File: goal_model.dart
-//
-// Purpose:
-// Domain model and calculation extension for target savings goals.
-//
-// Responsibilities:
-// - Hold goal target criteria (id, name, targetAmount, emoji, targetDate, createdAt, updatedAt).
-// - Provide `toMap()` and `fromMap()` for Hive storage in `goalsBox`.
-// - Expose `GoalCalculations` extension to derive goal progress, remaining amount, and completion status from transactions.
-//
-// Data Flow:
-// Goal Sheet / Transactions ↔ GoalModel ↔ GoalCalculations extension ↔ GoalsNotifier
-//
-// Important Rules:
-// - Goal contributions and goal-linked expenses add positively (`+txn.amount`) to goal progress.
-// - Financial calculations are derived dynamically at read time from transactions.
-//
-// Main Operations:
-// - calculateCurrentAmount(transactions): Sum total saved balance
-// - calculateProgress(currentAmount): Derive 0.0-1.0 progress ratio
-// - isGoalCompleted(currentAmount): Check if balance >= target
-// ============================================================
+// Purpose: Target savings goal model and progress calculation extensions.
+// Architecture: Domain / Data Model Layer
+// State Management: Riverpod (via GoalsProvider)
+// Storage: Cloud Firestore with Native Offline Cache
+// ============================================================================
 
 import 'transaction_model.dart';
 
@@ -29,19 +13,12 @@ import 'transaction_model.dart';
 ///
 /// A Goal has a [targetAmount] and tracks progress through linked transactions:
 /// - Income transactions with `categoryId == 'goal_contribution'` and
-///   matching [GoalModel.id] in [TransactionModel.goalId] are **direct additions**.
+///   matching [GoalModel.id] in [TransactionModel.goalId] are direct additions.
 /// - Expense transactions with a matching [TransactionModel.goalId] are
-///   **goal-linked purchases** — they count as **positive progress** toward
-///   the goal (the user spent money on the thing they're saving for).
+///   goal-linked purchases — they count as positive progress toward the goal.
 ///
-/// A goal-linked expense is still a normal expense in the global financial
-/// system (Dashboard, Budget, Transaction list). The goal calculation is a
-/// separate interpretation of the same transaction.
-///
-/// All financial values (current balance, progress, remaining) are **derived
-/// at read time** from the transaction list — they are never stored.
-///
-/// See [GoalCalculations] for the calculation helpers.
+/// All financial values (current balance, progress, remaining) are derived
+/// at read time from the transaction list.
 class GoalModel {
   final String id;
   final String name;
@@ -113,37 +90,19 @@ class GoalModel {
 }
 
 extension GoalCalculations on GoalModel {
-  /// Calculates the current progress amount for this goal from [transactions].
-  ///
-  /// Goal progress rule:
-  /// ```
-  /// progress = sum of goal_contributions + sum of goal-linked expense amounts
-  /// ```
-  ///
-  /// Both contribution income AND goal-linked purchases count as positive
-  /// progress. A goal-linked expense means "I spent money toward this goal",
-  /// which is progress, not a deduction.
   double calculateCurrentAmount(List<TransactionModel> transactions) {
     double balance = 0.0;
     for (var txn in transactions) {
       if (txn.goalId == id) {
-        // Both direct contributions and goal-linked expenses increase progress
         balance += txn.amount;
       }
     }
     return balance;
   }
 
-  /// Returns the goal-context impact of a single [transaction].
-  ///
-  /// In goal context, ALL linked transactions are positive progress:
-  /// - Direct contributions: +amount
-  /// - Goal-linked expenses: +amount (spending toward the goal)
-  ///
-  /// Returns 0 if the transaction is not linked to this goal.
   double calculateGoalImpact(TransactionModel transaction) {
     if (transaction.goalId != id) return 0.0;
-    return transaction.amount; // always positive in goal context
+    return transaction.amount;
   }
 
   double calculateRemainingAmount(double currentAmount) {

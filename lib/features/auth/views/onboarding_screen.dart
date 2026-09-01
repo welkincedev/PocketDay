@@ -1,26 +1,34 @@
 // ============================================================
-// POCKETDAY DEVELOPER NOTE
-// File: onboarding_screen.dart
+// PocketDay — OnboardingScreen
+// ============================================================
 //
 // Purpose:
-// Introductory PageView slider introducing key features (Expense Tracking, Budgeting, Savings Goals).
+// Introductory PageView slider presenting key PocketDay features to first-time users.
 //
 // Responsibilities:
-// - Render 3 onboarding slides with custom icons, titles, and descriptions.
-// - Persist completion flag to Hive via `HiveService.setHasOnboarded(true)`.
-// - Transition user to `LoginScreen` upon tapping 'Get Started' or 'Skip'.
+// - Render 3 interactive onboarding slides (Track Expenses, Smart Budgets, Financial Goals).
+// - Provide smooth page indicator and Next / Skip / Get Started controls.
+// - Navigate to LoginScreen ('/login') upon completing or skipping onboarding.
+//
+// Data Flow:
+// User Actions (Swipe / Skip / Get Started) → _onComplete() → Navigator.pushReplacementNamed(LoginScreen)
 //
 // Navigation Flow:
-// SplashScreen → OnboardingScreen → LoginScreen
+// SplashScreen → OnboardingScreen → LoginScreen ('/login')
 //
 // Important Rules:
-// - Tapping 'Skip' or finishing the slider marks `hasOnboarded = true`.
+// - Navigation uses replacement routing so onboarding is removed from back-stack.
 //
 // Main Operations:
-// - _onComplete(): Set onboarding flag and navigate to LoginScreen
+// - _onComplete() — Navigates to LoginScreen upon completion.
+//
+// Dependencies / Collaborators:
+// - LoginScreen — Next destination for unauthenticated users.
+//
 // ============================================================
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/routes/app_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
@@ -58,11 +66,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     },
   ];
 
-  void _onComplete() {
+  Future<void> _onComplete() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('has_completed_onboarding', true);
+    } catch (_) {}
+
     if (mounted) {
       Navigator.pushReplacementNamed(context, AppRoutes.login);
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

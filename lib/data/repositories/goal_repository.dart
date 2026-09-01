@@ -1,27 +1,41 @@
 // ============================================================
-// POCKETDAY DEVELOPER NOTE
-// File: goal_repository.dart
+// PocketDay — GoalRepositoryImpl
+// ============================================================
 //
 // Purpose:
-// Abstract contract and local Hive repository implementation for financial goals.
+// Repository managing target financial goal persistence, cache-first reads, and optimistic offline writes.
 //
 // Responsibilities:
-// - Read all stored goal records from Hive `goalsBox`.
-// - Save or update goal models using `goal.id` as primary key.
-// - Delete goals from `goalsBox`.
+// - Read target GoalModel documents from local Firestore cache first for instant UI rendering.
+// - Perform optimistic local updates and dispatch Firestore document writes in the background.
+// - Provide real-time Firestore snapshots stream via watchGoals().
+// - Maintain in-memory store for unit test environments.
 //
 // Data Flow:
-// GoalsNotifier → GoalRepository → HiveService.goalsBox
+// CreateGoalSheet / EditGoalSheet → GoalsProvider → GoalRepositoryImpl → Firestore Cache / Cloud Storage
+//
+// Firestore Structure:
+// Path: users/{uid}/goals/{goalId}
 //
 // Important Rules:
-// - All updates and saves use `goal.id` key to prevent duplicate entries upon editing.
+// - UID Isolation: Requires active user authentication (`FirebaseAuth.instance.currentUser?.uid`).
+// - Cache-First Read: getGoals() reads local cache first for instant rendering.
+// - Optimistic Writes: saveGoal() and deleteGoal() update local state and dispatch background Firestore writes (`unawaited`).
 //
 // Main Operations:
-// - getGoals(): Read all stored goal entities
-// - saveGoal(goal): Upsert goal by ID
-// - deleteGoal(id): Delete goal entry by ID
+// - getGoals() — Returns cached goals immediately, with fallback for fresh installs.
+// - saveGoal() — Optimistically updates goal and dispatches background Firestore write.
+// - deleteGoal() — Optimistically removes goal and dispatches background Firestore delete.
+// - watchGoals() — Returns real-time Stream<List<GoalModel>> of user target goals.
+//
+// Dependencies / Collaborators:
+// - FirebaseFirestore — Document storage engine for goal targets.
+// - FirebaseAuth — Provides active user UID context.
+// - GoalModel — Entity model representing target financial goals.
+//
 // ============================================================
 
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -86,11 +100,30 @@ class GoalRepositoryImpl implements GoalRepository {
 
     if (uid != null && uid.isNotEmpty && _firestore != null) {
       try {
-        final snapshot = await _firestore!
-            .collection('users')
-            .doc(uid)
-            .collection('goals')
-            .get();
+        QuerySnapshot<Map<String, dynamic>> snapshot;
+        try {
+          snapshot = await _firestore!
+              .collection('users')
+              .doc(uid)
+              .collection('goals')
+              .get(const GetOptions(source: Source.cache));
+          
+          if (snapshot.docs.isEmpty) {
+            snapshot = await _firestore!
+                .collection('users')
+                .doc(uid)
+                .collection('goals')
+                .get()
+                .timeout(const Duration(seconds: 3));
+          }
+        } catch (_) {
+          snapshot = await _firestore!
+              .collection('users')
+              .doc(uid)
+              .collection('goals')
+              .get()
+              .timeout(const Duration(seconds: 3));
+        }
 
         final List<GoalModel> goals = [];
         for (var doc in snapshot.docs) {
@@ -110,14 +143,13 @@ class GoalRepositoryImpl implements GoalRepository {
 
     final uid = _currentUid;
     if (uid != null && uid.isNotEmpty && _firestore != null) {
-      try {
-        await _firestore!
-            .collection('users')
-            .doc(uid)
-            .collection('goals')
-            .doc(goal.id)
-            .set(goal.toMap(), SetOptions(merge: true));
-      } catch (_) {}
+      unawaited(_firestore!
+          .collection('users')
+          .doc(uid)
+          .collection('goals')
+          .doc(goal.id)
+          .set(goal.toMap(), SetOptions(merge: true))
+          .catchError((_) {}));
     }
   }
 
@@ -127,14 +159,13 @@ class GoalRepositoryImpl implements GoalRepository {
 
     final uid = _currentUid;
     if (uid != null && uid.isNotEmpty && _firestore != null) {
-      try {
-        await _firestore!
-            .collection('users')
-            .doc(uid)
-            .collection('goals')
-            .doc(id)
-            .delete();
-      } catch (_) {}
+      unawaited(_firestore!
+          .collection('users')
+          .doc(uid)
+          .collection('goals')
+          .doc(id)
+          .delete()
+          .catchError((_) {}));
     }
   }
 }

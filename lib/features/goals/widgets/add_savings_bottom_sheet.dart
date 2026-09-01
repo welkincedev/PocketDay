@@ -1,22 +1,11 @@
-// ============================================================
-// POCKETDAY DEVELOPER NOTE
+// ============================================================================
+// PocketDay
 // File: add_savings_bottom_sheet.dart
-//
-// Purpose:
-// Modal bottom sheet component for depositing money into a `SavingsGoalModel`.
-//
-// Responsibilities:
-// - Collect savings amount in ₹.
-// - Calculate preview of new total savings balance.
-// - Warn user and require explicit confirmation (`_confirmOverTarget`) if deposit exceeds goal target.
-// - Save deposit via `savingsGoalsProvider.addSavings()`.
-//
-// Data Flow:
-// User Deposit Form → addSavings() → savingsGoalsProvider → Hive (`goalsBox`)
-//
-// Important Rules:
-// - Deposits exceeding target amount trigger a two-stage tap confirmation flow.
-// ============================================================
+// Purpose: Form sheet for depositing money into a savings goal.
+// Architecture: Presentation Layer
+// State Management: Riverpod
+// Storage: Cloud Firestore with Native Offline Cache
+// ============================================================================
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

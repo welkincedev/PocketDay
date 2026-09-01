@@ -1,26 +1,11 @@
-// ============================================================
-// POCKETDAY DEVELOPER NOTE
+// ============================================================================
+// PocketDay
 // File: budget_model.dart
-//
-// Purpose:
-// Domain model representing an overall or category-specific monthly spending budget.
-//
-// Responsibilities:
-// - Track overall monthly budget (when `categoryId == null`) or category budget (`categoryId != null`).
-// - Format target month as `YYYY-MM`.
-// - Convert to/from Map for Hive storage in `budgetBox`.
-//
-// Data Flow:
-// Budget Sheet → BudgetNotifier ↔ BudgetModel ↔ Hive (`budgetBox`)
-//
-// Important Rules:
-// - `categoryId == null` denotes the overall global monthly budget limit.
-//
-// Main Operations:
-// - toMap(): Serialize budget model to Hive map
-// - BudgetModel.fromMap(map): Deserialize Hive map to budget model
-// - copyWith(): Return updated budget instance
-// ============================================================
+// Purpose: Immutable domain model representing monthly budget limits.
+// Architecture: Domain / Data Model Layer
+// State Management: Riverpod (via BudgetProvider)
+// Storage: Cloud Firestore with Native Offline Cache
+// ============================================================================
 
 class BudgetModel {
   final String id;

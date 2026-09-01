@@ -1,22 +1,11 @@
-// ============================================================
-// POCKETDAY DEVELOPER NOTE
+// ============================================================================
+// PocketDay
 // File: goals_provider.dart
-//
-// Purpose:
-// Riverpod StateNotifier managing financial goal entities and listening to transaction progress updates.
-//
-// Responsibilities:
-// - Read and maintain list of target goals from Hive `goalsBox`.
-// - Listen to `transactionsProvider` updates so goal progress calculations update dynamically.
-// - Create, update, and delete goals via `GoalRepository`.
-// - Nullify `goalId` references in `transactionsBox` upon goal deletion to avoid orphaned goal links.
-//
-// Data Flow:
-// Goal UI / TransactionsProvider → GoalsNotifier → GoalRepository → Hive (`goalsBox`)
-//
-// Important Rules:
-// - Deleting a goal unlinks (nullifies `goalId`) all associated transactions rather than deleting the transactions.
-// ============================================================
+// Purpose: Financial goals state notifier listening to transaction progress updates.
+// Architecture: Presentation / State Management Layer
+// State Management: Riverpod
+// Storage: Cloud Firestore with Native Offline Cache
+// ============================================================================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/goal_model.dart';
@@ -25,11 +14,6 @@ import '../../../data/repositories/goal_repository.dart';
 import '../../transactions/providers/transactions_provider.dart';
 
 /// Immutable state container for the Goals feature.
-///
-/// [goals] is the persisted list of [GoalModel] objects.
-/// [transactions] is a copy of the current transaction list, injected from
-/// [transactionsProvider] so that goal calculations can react to any
-/// transaction add / edit / delete without extra plumbing.
 class GoalsState {
   final List<GoalModel> goals;
   final List<TransactionModel> transactions;

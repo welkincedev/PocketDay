@@ -1,22 +1,11 @@
-// ============================================================
-// POCKETDAY DEVELOPER NOTE
+// ============================================================================
+// PocketDay
 // File: add_budget_bottom_sheet.dart
-//
-// Purpose:
-// Modal bottom sheet form for setting or editing monthly overall and category budgets.
-//
-// Responsibilities:
-// - Collect budget limit amount in ₹.
-// - Select budget scope (Overall or specific category).
-// - Select target month (`YYYY-MM`).
-// - Warn user if a budget already exists for the chosen month and category scope before overwriting.
-//
-// Data Flow:
-// User Form Input → AddBudgetBottomSheet._submit() → budgetProvider.saveBudget() → Hive (`budgetBox`)
-//
-// Important Rules:
-// - `_selectedCategoryId == null` represents an overall monthly budget.
-// ============================================================
+// Purpose: Form sheet for setting or editing overall & category budgets.
+// Architecture: Presentation Layer
+// State Management: Riverpod
+// Storage: Cloud Firestore with Native Offline Cache
+// ============================================================================
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
