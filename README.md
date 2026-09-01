@@ -1,149 +1,430 @@
-# 🚀 PocketDay — Smart Personal Finance Manager
+# 💰 PocketDay
 
-PocketDay is a modern, Firebase-first personal money manager built with **Flutter**, **Riverpod**, and **Cloud Firestore**. Designed with Google's **Material 3** design system, it delivers a minimal, clean, and intuitive experience for tracking income, managing expenses, monitoring category budget limits, tracking savings goals, and automating recurring subscription expenses in Indian Rupees (`₹`).
+### Personal Finance Manager for Everyday Spending
 
----
+PocketDay is a simple, focused personal finance manager designed to help you understand **where your money goes, how much you can safely spend, and how long your balance can last.**
 
-## 🌟 Core Features
+Built with Flutter and Firebase, PocketDay focuses on fast expense tracking, spending awareness, budgeting, and savings — without unnecessary complexity.
 
-- 🔑 **Google Authentication**: Instant, single-click sign-in powered by Firebase Authentication and Google Sign-In.
-- 💼 **Total Balance & Summary**: Real-time balance calculations (`Total Balance = Income - Expense`) with hide/show privacy mode (`₹••••••`).
-- 💳 **Transaction Management**: Complete support for income and expense transactions, category tagging, date filtering, and search.
-- 📊 **Spending Analytics**: Breakdown pie charts powered by `fl_chart` illustrating category expenses.
-- 🎯 **Savings Goals**: Goal tracking with progress indicators, contributions, and target completion dates.
-- 🔄 **Subscriptions Engine**: Recurring subscription tracking with idempotent automatic expense generation.
-- 📈 **Category Budget Limits**: Monthly budget limits with dynamic warning indicators (Safe, Warning, Critical, Exceeded).
-- ⚙️ **Account Data Management**: Full user controls for **Reset App Data**, **Delete Account**, and **Sign Out**.
-- ⚡ **Offline-First Persistence**: Native Cloud Firestore offline caching for instant launch and offline read/write capability.
-- 🌐 **Web & Mobile Support**: Native support for Android (APK / AAB) and Web (`signInWithPopup`).
+> **PocketDay — Know your money. Control your day.**
 
 ---
 
-## 🛠️ Tech Stack & Architecture
+## ✨ Features
 
-- **Frontend Framework**: [Flutter](https://flutter.dev) (v3.22+)
-- **Language**: [Dart](https://dart.dev) (v3.4+)
-- **Architecture**: Clean Feature-First MVVM / Repository Architecture
-- **State Management**: [Riverpod](https://riverpod.dev) (`flutter_riverpod`)
-- **Backend & Auth**: Firebase Authentication & Google Sign-In
-- **Database Engine**: Cloud Firestore with Native Offline Cache (**Hive is completely removed**)
-- **Data Visualization**: [fl_chart](https://pub.dev/packages/fl_chart)
-- **Design System**: Material 3 (M3)
+### 🏠 Home
+
+* Current balance
+* Today's spending
+* Safe daily spending
+* Survival days remaining
+* Recent activity
+
+### 💸 Transactions
+
+* Add income
+* Add expenses
+* Categorize transactions
+* View transaction history
+* Edit and manage transactions
+
+### 📊 Budget
+
+* Set and monitor budgets
+* Track spending against budgets
+* Subscription management
+* Budget overview
+
+### 🎯 Savings
+
+* Create savings goals
+* Track progress
+* Monitor saved amounts
+
+### 👤 Profile
+
+* Account information
+* User settings
+* Logout
+
+### 🔐 Authentication
+
+* Google Sign-In
+* Firebase Authentication
+* Persistent login sessions
+
+### ☁️ Cloud Data
+
+* Firebase Cloud Firestore
+* User-specific data
+* Cloud synchronization
 
 ---
 
-## 🏗️ High-Level Architecture
+## 🎨 Design Philosophy
+
+PocketDay is intentionally designed around:
+
+* **Light mode**
+* Clean and minimal interfaces
+* Clear financial information
+* Fast interactions
+* Consistent typography
+* Subtle animations
+* Simple navigation
+* Trustworthy financial presentation
+
+PocketDay avoids unnecessary visual clutter, excessive gradients, decorative elements, and complicated interfaces.
+
+---
+
+## 🧭 Navigation
+
+PocketDay uses five primary destinations:
 
 ```text
-Google Account
-      ↓
-Firebase Authentication
-      ↓
-Firebase User UID
-      ↓
-Cloud Firestore (users/{uid})
-      ↓
-Firestore Native Offline Cache
-      ↓
-Riverpod State Notifiers
-      ↓
-PocketDay Flutter UI
+Home
+Transactions
+Budget
+Savings
+Profile
+```
+
+The Budget section also contains:
+
+```text
+Budget | Subscriptions
 ```
 
 ---
 
-## 📂 Project Structure
+## 🚀 Getting Started
+
+### Requirements
+
+Make sure you have:
+
+* Flutter SDK
+* Dart SDK
+* Android Studio
+* Android SDK
+* Git
+
+Check your Flutter installation:
+
+```bash
+flutter doctor
+```
+
+---
+
+### Clone the Repository
+
+```bash
+git clone <repository-url>
+cd pocketday
+```
+
+Install dependencies:
+
+```bash
+flutter pub get
+```
+
+---
+
+### Run the Application
+
+```bash
+flutter run
+```
+
+For a release APK:
+
+```bash
+flutter build apk --release
+```
+
+The generated APK will be located at:
+
+```text
+build/app/outputs/flutter-apk/app-release.apk
+```
+
+---
+
+## 🔥 Firebase
+
+PocketDay uses Firebase for authentication and cloud storage.
+
+### Services
+
+* Firebase Authentication
+* Google Sign-In
+* Cloud Firestore
+
+The application uses the authenticated Firebase user's UID to scope personal financial data.
+
+### Important
+
+Firebase configuration files are environment/project-specific and should **not be committed if they contain credentials or configuration that should remain private**.
+
+For a new development environment, configure Firebase using the appropriate FlutterFire setup for the project.
+
+---
+
+## 🏗️ Architecture
+
+PocketDay follows a feature-oriented architecture with separation between UI, state management, and data access.
+
+```text
+Feature
+│
+├── View
+├── ViewModel
+├── Repository
+└── Models
+```
+
+### Main Technologies
+
+| Technology      | Purpose               |
+| --------------- | --------------------- |
+| Flutter         | Application framework |
+| Dart            | Programming language  |
+| Riverpod        | State management      |
+| Firebase Auth   | Authentication        |
+| Cloud Firestore | Cloud database        |
+| Material 3      | UI foundation         |
+
+---
+
+## 📁 Project Structure
+
+The project follows a feature-first organization.
 
 ```text
 lib/
+│
 ├── core/
-│   ├── constants/       # AppColors, AppConstants (₹), AppStrings
-│   ├── theme/           # AppTheme (M3 Light & Dark), ThemeProvider
-│   ├── routes/          # AppRouter named routes table
-│   ├── utils/           # AppErrorHandler, CurrencyFormatter, DateFormatter
-│   └── widgets/         # AppButton, AppTextField, AppCard, ErrorView, AppErrorScreen
-├── data/
-│   ├── models/          # UserModel, TransactionModel, BudgetModel, GoalModel, SubscriptionModel
-│   └── repositories/    # AuthRepository, TransactionRepository, BudgetRepository, GoalRepository, SubscriptionRepository
+│   ├── constants/
+│   ├── theme/
+│   ├── routing/
+│   └── services/
+│
 ├── features/
-│   ├── auth/            # Splash, Onboarding, LoginScreens
-│   ├── dashboard/       # DashboardScreen, AppMainNavigationScreen, DashboardCards, AnalyticsChart
-│   ├── transactions/    # TransactionsScreen, Search & Filter BottomSheets
-│   ├── budget/          # BudgetScreen (Budget & Subscriptions Tabs), Add & Detail Sheets
-│   ├── goals/           # GoalsScreen, SavingsGoalsScreen
-│   ├── subscriptions/   # SubscriptionsScreen, SubscriptionsContent, Add & Detail Sheets
-│   └── profile/         # ProfileScreen (Theme, Reset, Delete Account, Sign Out)
-└── main.dart            # Entry point & Firestore offline settings initializer
+│   ├── auth/
+│   ├── onboarding/
+│   ├── home/
+│   ├── transactions/
+│   ├── budget/
+│   ├── savings/
+│   └── profile/
+│
+└── main.dart
 ```
+
+The exact structure may evolve as the application develops.
 
 ---
 
-## 🚀 Developer Commands
+## 🔐 Authentication Flow
 
-### Setup & Run
-```bash
-# Fetch dependencies
-flutter pub get
+PocketDay uses a lightweight startup flow:
 
-# Static analysis
-flutter analyze
-
-# Run unit & provider tests
-flutter test
-
-# Run application
-flutter run -d android
-flutter run -d chrome
+```text
+App Launch
+     ↓
+PocketDay Splash
+     ↓
+Onboarding Check
+     ↓
+Authentication Check
+     ↓
+ ┌───────────────┐
+ │               │
+Onboarding     Authenticated
+ │               │
+Login           Home
+ │
+Google Login
+ │
+Home
 ```
 
-### Release Builds
+The splash screen remains visible briefly while lightweight local startup checks are performed.
+
+Heavy Firestore operations are not intended to block the initial application launch.
+
+---
+
+## 🧪 Testing
+
+Before a test release, run:
+
 ```bash
-# Build Release Universal APK
+flutter analyze
+flutter test
 flutter build apk --release
+```
 
-# Build Split per-ABI APKs
-flutter build apk --release --split-per-abi
+For web:
 
-# Build Release Android App Bundle (AAB)
-flutter build appbundle --release
-
-# Build Web Bundle
+```bash
 flutter build web
 ```
 
+### Current Test Release
+
+**Version:** `1.0.0-beta.1`
+
+**Status:** 🟡 Beta / Test Release
+
+This build is intended for testing and feedback rather than production financial use.
+
 ---
 
-## 🔒 Security
+## 📱 Test APK
 
-All Firestore security rules enforce user isolation via Firebase UID:
+Test builds are distributed through **GitHub Releases**.
 
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{userId}/{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-  }
-}
+The latest release can be found under the repository's Releases section.
+
+Download the APK from the release assets and install it on a compatible Android device.
+
+---
+
+## 📝 Beta Testing
+
+When testing PocketDay, please pay particular attention to:
+
+### Authentication
+
+* Google Sign-In
+* Login persistence
+* Logout
+* App restart after login
+
+### Transactions
+
+* Adding income
+* Adding expenses
+* Editing transactions
+* Deleting transactions
+* Transaction history
+
+### Financial Calculations
+
+* Balance
+* Today's spending
+* Safe daily spending
+* Budget calculations
+* Savings progress
+* Survival days
+
+### Cloud Data
+
+* Data synchronization
+* Data persistence after restarting
+* Correct user data
+
+### UI
+
+* Screen layout
+* Navigation
+* Text overflow
+* Buttons
+* Loading states
+* Dark/light system interactions
+* Small-screen layouts
+
+### Startup
+
+* Splash screen
+* Onboarding
+* Login
+* Home navigation
+
+---
+
+## 🐛 Reporting Issues
+
+When reporting a bug, include:
+
+1. What you were doing
+2. What you expected
+3. What actually happened
+4. Device model
+5. Android version
+6. Screenshots or screen recordings if possible
+
+Example:
+
+```text
+Bug: Expense disappears after app restart
+
+Steps:
+1. Login with Google
+2. Add ₹500 expense
+3. Close the application
+4. Reopen PocketDay
+
+Expected:
+The ₹500 expense should still be visible.
+
+Actual:
+The expense is missing.
 ```
 
 ---
 
-## 📚 Documentation Suite
+## 🛣️ Roadmap
 
-Comprehensive architecture and developer documentation is available in the [`docs/`](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/docs/) directory:
-- [`docs/project_overview.md`](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/docs/project_overview.md) — Product identity, feature inventory, platforms, and release status.
-- [`docs/architecture.md`](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/docs/architecture.md) — Layered architecture, Riverpod system, Firestore structure, security, and error handling.
-- [`docs/developer_guide.md`](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/docs/developer_guide.md) — Prerequisites, build guide, development patterns, and release checklist.
-- [`docs/release_checklist.md`](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/docs/release_checklist.md) — Pre-release verification report and subsystem checklist.
-- [`docs/test_plan.md`](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/docs/test_plan.md) — Physical device and web manual test protocol.
+PocketDay is being developed incrementally.
+
+Potential future improvements include:
+
+* Smarter spending insights
+* Improved budget intelligence
+* Advanced analytics
+* Better savings planning
+* Recurring transaction improvements
+* Additional personalization
+* Performance improvements
+* Production hardening
+
+Features will be added only when they improve the core PocketDay experience.
 
 ---
 
-## 📌 Release Status
+## ⚠️ Disclaimer
 
-- **Status**: READY FOR TEST RELEASE
-- **Version**: 1.0.0+1
-- **Analyze**: 0 Issues (Clean)
-- **Tests**: 30/30 Passed
+PocketDay is a personal finance management application intended to help users track and understand their own spending.
+
+It does **not** provide financial, investment, tax, or legal advice.
+
+During the beta period, users should not rely on PocketDay as the sole record of their financial information.
+
+---
+
+## 📄 License
+
+License information will be added when the project license is finalized.
+
+---
+
+## 👨‍💻 Development
+
+PocketDay is an independent software project built with Flutter.
+
+**Project:** PocketDay
+**Platform:** Android / Web
+**Framework:** Flutter
+**Backend:** Firebase
+**Status:** Beta
+
+---
+
+<p align="center">
+  Made with Flutter · Built for everyday money management
+</p>
