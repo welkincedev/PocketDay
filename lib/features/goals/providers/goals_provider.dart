@@ -8,6 +8,7 @@
 // ============================================================================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/utils/app_error_handler.dart';
 import '../../../data/models/goal_model.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../data/repositories/goal_repository.dart';
@@ -74,8 +75,15 @@ class GoalsNotifier extends StateNotifier<GoalsState> {
     try {
       final goals = await _repo.getGoals();
       state = state.copyWith(goals: goals, isLoading: false);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Load Goals', e, stackTrace);
+      state = state.copyWith(
+        isLoading: false,
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't load your savings goals. Please try again.",
+        ),
+      );
     }
   }
 
@@ -98,8 +106,14 @@ class GoalsNotifier extends StateNotifier<GoalsState> {
     try {
       await _repo.saveGoal(newGoal);
       await loadGoals();
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Add Goal', e, stackTrace);
+      state = state.copyWith(
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't save your savings goal. Please try again.",
+        ),
+      );
     }
   }
 
@@ -108,8 +122,14 @@ class GoalsNotifier extends StateNotifier<GoalsState> {
     try {
       await _repo.saveGoal(updated);
       await loadGoals();
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Update Goal', e, stackTrace);
+      state = state.copyWith(
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't save your savings goal. Please try again.",
+        ),
+      );
     }
   }
 
@@ -117,8 +137,14 @@ class GoalsNotifier extends StateNotifier<GoalsState> {
     try {
       await _repo.deleteGoal(id);
       await loadGoals();
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Delete Goal', e, stackTrace);
+      state = state.copyWith(
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't delete your savings goal. Please try again.",
+        ),
+      );
     }
   }
 }

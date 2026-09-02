@@ -31,6 +31,7 @@ import '../../../core/constants/app_strings.dart';
 import '../../../core/routes/app_router.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/pocketday_logo.dart';
+import '../../../core/utils/app_error_handler.dart';
 import '../providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -112,27 +113,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   const SizedBox(height: 48),
 
-                  // Error Banner (suppresses user-initiated cancellations)
+                  // Error Banner (ignoring user-initiated cancellations)
                   if (authState.hasError &&
-                      !authState.error.toString().contains('cancelled')) ...[
+                      AppErrorHandler.toAuthUserMessage(authState.error).isNotEmpty) ...[
                     Container(
-                      padding: const EdgeInsets.all(14),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: AppColors.expense.withAlpha(20),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: AppColors.expense.withAlpha(60),
+                          color: AppColors.expense.withAlpha(50),
                         ),
                       ),
                       child: Text(
-                        authState.error.toString().replaceAll(
-                          'Exception: ',
-                          '',
-                        ),
+                        AppErrorHandler.toAuthUserMessage(authState.error),
                         style: const TextStyle(
                           color: AppColors.expense,
                           fontSize: 13,
-                          fontWeight: FontWeight.w500,
                         ),
                         textAlign: TextAlign.center,
                       ),

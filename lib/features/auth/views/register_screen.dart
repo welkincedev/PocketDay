@@ -39,6 +39,7 @@ import '../../../core/routes/app_router.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/pocketday_logo.dart';
+import '../../../core/utils/app_error_handler.dart';
 import '../providers/auth_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -193,7 +194,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   const SizedBox(height: 24),
 
                   // Error Display
-                  if (authState.hasError) ...[
+                  if (authState.hasError &&
+                      AppErrorHandler.toAuthUserMessage(authState.error).isNotEmpty) ...[
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -201,10 +203,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        authState.error.toString().replaceAll(
-                          'Exception: ',
-                          '',
-                        ),
+                        AppErrorHandler.toAuthUserMessage(authState.error),
                         style: const TextStyle(
                           color: AppColors.expense,
                           fontSize: 13,

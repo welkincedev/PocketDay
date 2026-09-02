@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/app_error_handler.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
@@ -75,11 +76,19 @@ class _AddToGoalSheetState extends ConsumerState<AddToGoalSheet> {
       await ref.read(dashboardProvider.notifier).loadDashboardData();
 
       if (mounted) Navigator.of(context).pop();
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Add to Goal', e, stackTrace);
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add to goal: $e')),
+          SnackBar(
+            content: Text(
+              AppErrorHandler.toUserMessage(
+                e,
+                defaultMessage: "Couldn't save your savings goal. Please try again.",
+              ),
+            ),
+          ),
         );
       }
     }

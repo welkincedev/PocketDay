@@ -9,6 +9,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/utils/app_error_handler.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../data/repositories/transaction_repository.dart';
 
@@ -87,8 +88,15 @@ class TransactionsNotifier extends StateNotifier<TransactionsState> {
       final txns = await _repo.getTransactions();
       state = state.copyWith(transactions: txns, isLoading: false);
       _applyFilters();
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Load Transactions', e, stackTrace);
+      state = state.copyWith(
+        isLoading: false,
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't load your transactions. Please check your connection and try again.",
+        ),
+      );
     }
   }
 
@@ -300,8 +308,15 @@ class TransactionsNotifier extends StateNotifier<TransactionsState> {
     try {
       await _repo.addTransaction(txn);
       await loadTransactions();
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Add Transaction', e, stackTrace);
+      state = state.copyWith(
+        isLoading: false,
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't save this transaction. Please try again.",
+        ),
+      );
     }
   }
 
@@ -310,8 +325,15 @@ class TransactionsNotifier extends StateNotifier<TransactionsState> {
     try {
       await _repo.updateTransaction(txn);
       await loadTransactions();
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Update Transaction', e, stackTrace);
+      state = state.copyWith(
+        isLoading: false,
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't update this transaction. Please try again.",
+        ),
+      );
     }
   }
 
@@ -320,8 +342,15 @@ class TransactionsNotifier extends StateNotifier<TransactionsState> {
     try {
       await _repo.deleteTransaction(id);
       await loadTransactions();
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Delete Transaction', e, stackTrace);
+      state = state.copyWith(
+        isLoading: false,
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't delete this transaction. Please try again.",
+        ),
+      );
     }
   }
 }

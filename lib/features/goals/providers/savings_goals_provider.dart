@@ -8,6 +8,7 @@
 // ============================================================================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/utils/app_error_handler.dart';
 import '../../../data/models/savings_goal_model.dart';
 import '../../../data/repositories/savings_goal_repository.dart';
 
@@ -61,8 +62,15 @@ class SavingsGoalsNotifier extends StateNotifier<SavingsGoalsState> {
         return b.createdAt.compareTo(a.createdAt);
       });
       state = state.copyWith(goals: goals, isLoading: false);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Load Savings Goals', e, stackTrace);
+      state = state.copyWith(
+        isLoading: false,
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't load your savings goals. Please try again.",
+        ),
+      );
     }
   }
 
@@ -86,8 +94,14 @@ class SavingsGoalsNotifier extends StateNotifier<SavingsGoalsState> {
     try {
       await _repo.saveGoal(newGoal);
       await loadGoals();
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Add Savings Goal', e, stackTrace);
+      state = state.copyWith(
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't save your savings goal. Please try again.",
+        ),
+      );
     }
   }
 
@@ -96,8 +110,14 @@ class SavingsGoalsNotifier extends StateNotifier<SavingsGoalsState> {
     try {
       await _repo.saveGoal(updated);
       await loadGoals();
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Update Savings Goal', e, stackTrace);
+      state = state.copyWith(
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't save your savings goal. Please try again.",
+        ),
+      );
     }
   }
 
@@ -105,8 +125,14 @@ class SavingsGoalsNotifier extends StateNotifier<SavingsGoalsState> {
     try {
       await _repo.deleteGoal(id);
       await loadGoals();
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Delete Savings Goal', e, stackTrace);
+      state = state.copyWith(
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't delete your savings goal. Please try again.",
+        ),
+      );
     }
   }
 
@@ -120,8 +146,14 @@ class SavingsGoalsNotifier extends StateNotifier<SavingsGoalsState> {
       );
       await _repo.saveGoal(updated);
       await loadGoals();
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Add Savings', e, stackTrace);
+      state = state.copyWith(
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't save your savings goal. Please try again.",
+        ),
+      );
     }
   }
 
@@ -137,8 +169,14 @@ class SavingsGoalsNotifier extends StateNotifier<SavingsGoalsState> {
       );
       await _repo.saveGoal(updated);
       await loadGoals();
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Remove Savings', e, stackTrace);
+      state = state.copyWith(
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't update your savings goal. Please try again.",
+        ),
+      );
     }
   }
 }

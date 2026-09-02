@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/app_error_handler.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../data/models/savings_goal_model.dart';
@@ -144,11 +145,19 @@ class _AddSavingsGoalBottomSheetState
       if (mounted) {
         Navigator.of(context).pop();
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Save Savings Goal', e, stackTrace);
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save savings goal: $e')),
+          SnackBar(
+            content: Text(
+              AppErrorHandler.toUserMessage(
+                e,
+                defaultMessage: "Couldn't save your savings goal. Please try again.",
+              ),
+            ),
+          ),
         );
       }
     }

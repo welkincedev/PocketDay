@@ -8,6 +8,7 @@
 // ============================================================================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/utils/app_error_handler.dart';
 import '../../../data/models/subscription_model.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../data/repositories/subscription_repository.dart';
@@ -138,8 +139,15 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
       final list = await _repo.getSubscriptions();
       state = state.copyWith(subscriptions: list, isLoading: false);
       await processAutoExpenses();
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Load Subscriptions', e, stackTrace);
+      state = state.copyWith(
+        isLoading: false,
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't load your subscriptions. Please try again.",
+        ),
+      );
     }
   }
 
@@ -226,8 +234,14 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
     try {
       await _repo.saveSubscription(model);
       await loadSubscriptions();
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Add Subscription', e, stackTrace);
+      state = state.copyWith(
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't save this subscription. Please try again.",
+        ),
+      );
     }
   }
 
@@ -236,8 +250,14 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
     try {
       await _repo.saveSubscription(updated);
       await loadSubscriptions();
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Update Subscription', e, stackTrace);
+      state = state.copyWith(
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't save this subscription. Please try again.",
+        ),
+      );
     }
   }
 
@@ -245,8 +265,14 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
     try {
       await _repo.deleteSubscription(id);
       await loadSubscriptions();
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Delete Subscription', e, stackTrace);
+      state = state.copyWith(
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't delete this subscription. Please try again.",
+        ),
+      );
     }
   }
 }

@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/app_error_handler.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../data/models/subscription_model.dart';
@@ -216,11 +217,19 @@ class _AddSubscriptionSheetState extends ConsumerState<AddSubscriptionSheet> {
         if (mounted) {
           Navigator.of(context).pop();
         }
-      } catch (e) {
+      } catch (e, stackTrace) {
+        AppErrorHandler.logError('Save Subscription', e, stackTrace);
         if (mounted) {
           setState(() => _isLoading = false);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to save subscription: $e')),
+            SnackBar(
+              content: Text(
+                AppErrorHandler.toUserMessage(
+                  e,
+                  defaultMessage: "Couldn't save this subscription. Please try again.",
+                ),
+              ),
+            ),
           );
         }
       }

@@ -44,7 +44,7 @@ import '../../transactions/providers/transactions_provider.dart';
 import '../../goals/providers/goals_provider.dart';
 import '../../budget/providers/budget_provider.dart';
 import '../../../core/routes/app_router.dart';
-
+import '../../../core/utils/app_error_handler.dart';
 import '../../../core/widgets/pocketday_logo.dart';
 
 /// The Profile tab. Shows user account info, appearance settings,
@@ -231,11 +231,17 @@ class ProfileScreen extends ConsumerWidget {
                           ),
                         );
                       }
-                    } catch (e) {
+                    } catch (e, stackTrace) {
+                      AppErrorHandler.logError('Reset App Data', e, stackTrace);
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Failed to reset app data: $e'),
+                            content: Text(
+                              AppErrorHandler.toUserMessage(
+                                e,
+                                defaultMessage: "Couldn't reset app data. Please try again.",
+                              ),
+                            ),
                             backgroundColor: AppColors.expense,
                           ),
                         );
@@ -281,11 +287,17 @@ class ProfileScreen extends ConsumerWidget {
                           (route) => false,
                         );
                       }
-                    } catch (e) {
+                    } catch (e, stackTrace) {
+                      AppErrorHandler.logError('Delete Account', e, stackTrace);
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Account deletion failed: $e'),
+                            content: Text(
+                              AppErrorHandler.toUserMessage(
+                                e,
+                                defaultMessage: "Couldn't delete account. Please try again.",
+                              ),
+                            ),
                             backgroundColor: AppColors.expense,
                           ),
                         );

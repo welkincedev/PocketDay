@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/app_error_handler.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../providers/goals_provider.dart';
@@ -112,11 +113,19 @@ class _CreateGoalSheetState extends ConsumerState<CreateGoalSheet> {
       if (mounted) {
         Navigator.of(context).pop();
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Create Goal', e, stackTrace);
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create goal: $e')),
+          SnackBar(
+            content: Text(
+              AppErrorHandler.toUserMessage(
+                e,
+                defaultMessage: "Couldn't save your savings goal. Please try again.",
+              ),
+            ),
+          ),
         );
       }
     }

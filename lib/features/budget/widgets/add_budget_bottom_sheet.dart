@@ -13,6 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/utils/app_error_handler.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../data/models/budget_model.dart';
@@ -142,11 +143,19 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
         if (mounted) {
           Navigator.of(context).pop();
         }
-      } catch (e) {
+      } catch (e, stackTrace) {
+        AppErrorHandler.logError('Save Budget', e, stackTrace);
         if (mounted) {
           setState(() => _isLoading = false);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to save budget: $e')),
+            SnackBar(
+              content: Text(
+                AppErrorHandler.toUserMessage(
+                  e,
+                  defaultMessage: "Couldn't save your budget. Please try again.",
+                ),
+              ),
+            ),
           );
         }
       }

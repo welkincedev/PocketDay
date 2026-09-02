@@ -9,6 +9,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../../../core/utils/app_error_handler.dart';
 import '../../../data/models/budget_model.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../data/repositories/budget_repository.dart';
@@ -85,8 +86,15 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
       final budgets = await _repo.getBudgets();
       state = state.copyWith(allBudgets: budgets, isLoading: false);
       _calculateAndApply();
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Load Budgets', e, stackTrace);
+      state = state.copyWith(
+        isLoading: false,
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't load your budget. Please try again.",
+        ),
+      );
     }
   }
 
@@ -135,8 +143,14 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
     try {
       await _repo.saveBudget(budget);
       await loadBudgets();
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Save Budget', e, stackTrace);
+      state = state.copyWith(
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't save your budget. Please try again.",
+        ),
+      );
     }
   }
 
@@ -144,8 +158,14 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
     try {
       await _repo.deleteBudget(id);
       await loadBudgets();
-    } catch (e) {
-      state = state.copyWith(error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Delete Budget', e, stackTrace);
+      state = state.copyWith(
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't delete your budget. Please try again.",
+        ),
+      );
     }
   }
 }

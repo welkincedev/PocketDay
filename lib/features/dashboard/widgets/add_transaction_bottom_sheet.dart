@@ -40,6 +40,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
+import '../../../core/utils/app_error_handler.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../features/goals/widgets/goal_selector.dart';
 import '../../transactions/providers/transactions_provider.dart';
@@ -166,11 +167,21 @@ class _AddTransactionBottomSheetState
         if (mounted) {
           Navigator.of(context).pop();
         }
-      } catch (e) {
+      } catch (e, stackTrace) {
+        AppErrorHandler.logError('Save Transaction', e, stackTrace);
         if (mounted) {
           setState(() => _isLoading = false);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to save transaction: $e')),
+            SnackBar(
+              content: Text(
+                AppErrorHandler.toUserMessage(
+                  e,
+                  defaultMessage: widget.transactionToEdit == null
+                      ? "Couldn't save this transaction. Please try again."
+                      : "Couldn't update this transaction. Please try again.",
+                ),
+              ),
+            ),
           );
         }
       }

@@ -35,6 +35,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../../../core/utils/app_error_handler.dart';
 import '../../../data/models/budget_model.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../data/repositories/budget_repository.dart';
@@ -133,8 +134,15 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       _transactions = txns;
       _budgets = budgets;
       _recalculate();
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (e, stackTrace) {
+      AppErrorHandler.logError('Load Dashboard', e, stackTrace);
+      state = state.copyWith(
+        isLoading: false,
+        error: AppErrorHandler.toUserMessage(
+          e,
+          defaultMessage: "Couldn't load dashboard data. Please check your connection and try again.",
+        ),
+      );
     }
   }
 
