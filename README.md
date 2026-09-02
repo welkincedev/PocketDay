@@ -23,8 +23,14 @@
 <br>
 
 <p align="center">
-  <img src="assets/images/pocketday_preview.png" alt="PocketDay Preview" width="850">
+  <img src="assets/screenshots/pdsplash.jpg" alt="PocketDay Preview" width="200">
+  <img src="assets/screenshots/pdonboard.jpg" alt="PocketDay Preview" width="200">
+  <img src="assets/screenshots/pdlogin.jpg" alt="PocketDay Preview" width="200">
+  <img src="assets/screenshots/pdhome.jpg" alt="PocketDay Preview" width="200">
+  <img src="assets/screenshots/pdbudget.jpg" alt="PocketDay Preview" width="200">
+  <img src="assets/screenshots/pdsubscrption.jpg" alt="PocketDay Preview" width="200">
 </p>
+
 
 ---
 
