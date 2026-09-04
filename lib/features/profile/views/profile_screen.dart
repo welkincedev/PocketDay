@@ -156,10 +156,11 @@ class ProfileScreen extends ConsumerWidget {
               const _Divider(),
 
               // ─── ABOUT ────────────────────────────────────────────────────
-
               _SectionLabel(label: 'ABOUT', isDark: isDark),
               _SettingsTile(
-                customLeading: const PocketDayLogo(size: PocketDayLogoSize.small),
+                customLeading: const PocketDayLogo(
+                  size: PocketDayLogoSize.small,
+                ),
                 label: 'PocketDay',
                 trailing: Text(
                   'Personal Money Manager',
@@ -195,9 +196,7 @@ class ProfileScreen extends ConsumerWidget {
                     context: context,
                     builder: (ctx) => AlertDialog(
                       title: const Text('Reset App Data'),
-                      content: const Text(
-                        'This will permanently delete all your transactions, budgets, goals, and subscriptions from Cloud Firestore. Your Google login remains active. Are you sure?',
-                      ),
+                      content: const Text('Should i delete everything?'),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(ctx, false),
@@ -215,19 +214,21 @@ class ProfileScreen extends ConsumerWidget {
                   );
                   if (confirmed == true && context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Resetting cloud app data...')),
+                      const SnackBar(
+                        content: Text('Resetting cloud app data...'),
+                      ),
                     );
                     try {
                       await ref.read(authProvider.notifier).resetAppData();
-                      await ref.read(transactionsProvider.notifier).loadTransactions();
+                      await ref
+                          .read(transactionsProvider.notifier)
+                          .loadTransactions();
                       await ref.read(goalsProvider.notifier).loadGoals();
                       await ref.read(budgetProvider.notifier).loadBudgets();
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text(
-                              'All financial app data was successfully reset.',
-                            ),
+                            content: Text('Ready to start Fresh.'),
                           ),
                         );
                       }
@@ -239,7 +240,8 @@ class ProfileScreen extends ConsumerWidget {
                             content: Text(
                               AppErrorHandler.toUserMessage(
                                 e,
-                                defaultMessage: "Couldn't reset app data. Please try again.",
+                                defaultMessage:
+                                    "Couldn't reset app data. Please try again.",
                               ),
                             ),
                             backgroundColor: AppColors.expense,
@@ -295,7 +297,8 @@ class ProfileScreen extends ConsumerWidget {
                             content: Text(
                               AppErrorHandler.toUserMessage(
                                 e,
-                                defaultMessage: "Couldn't delete account. Please try again.",
+                                defaultMessage:
+                                    "Couldn't delete account. Please try again.",
                               ),
                             ),
                             backgroundColor: AppColors.expense,
@@ -319,7 +322,7 @@ class ProfileScreen extends ConsumerWidget {
                       builder: (ctx) => AlertDialog(
                         title: const Text('Sign Out'),
                         content: const Text(
-                          'Your data remains safely stored in your cloud account. Are you sure you want to sign out?',
+                          'Dont Worry everything is in cloud. Do you wanna sign out?',
                         ),
                         actions: [
                           TextButton(
@@ -422,14 +425,17 @@ class _SettingsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
-      leading: customLeading ?? (icon != null ? Icon(icon, color: AppColors.primary, size: 22) : null),
+      leading:
+          customLeading ??
+          (icon != null
+              ? Icon(icon, color: AppColors.primary, size: 22)
+              : null),
       title: Text(label, style: Theme.of(context).textTheme.bodyLarge),
       trailing: trailing,
       onTap: onTap,
     );
   }
 }
-
 
 /// Subtle section divider.
 class _Divider extends StatelessWidget {

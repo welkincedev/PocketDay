@@ -135,10 +135,12 @@ class DashboardScreen extends ConsumerWidget {
                           radius: 20,
                           backgroundColor: AppColors.primary.withAlpha(40),
                           backgroundImage:
-                              user?.photoUrl != null && user!.photoUrl!.isNotEmpty
-                                  ? NetworkImage(user.photoUrl!)
-                                  : null,
-                          child: user?.photoUrl == null || user!.photoUrl!.isEmpty
+                              user?.photoUrl != null &&
+                                  user!.photoUrl!.isNotEmpty
+                              ? NetworkImage(user.photoUrl!)
+                              : null,
+                          child:
+                              user?.photoUrl == null || user!.photoUrl!.isEmpty
                               ? Text(
                                   user?.displayName.isNotEmpty == true
                                       ? user!.displayName[0].toUpperCase()
@@ -172,6 +174,7 @@ class DashboardScreen extends ConsumerWidget {
                     budgetRemaining: dashboardState.remainingBudget,
                   ),
                 ],
+                const SizedBox(height: 20),
                 const DashboardBudgetProgressWidget(),
                 const SizedBox(height: 20),
                 const DashboardGoalsSummaryWidget(),

@@ -41,6 +41,9 @@ class AppStrings {
   static const String getStarted = 'Get Started';
   static const String skip = 'Skip';
   static const String next = 'Next';
+  static const String next1 = 'Show me how';
+  static const String next2 = 'Love it, What Else';
+  static const String next3 = 'I need this';
   static const String login = 'Log In';
   static const String register = 'Register';
   static const String welcomeBack = 'Welcome Back!';

@@ -77,7 +77,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -180,7 +179,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   AppButton(
                     text: _currentIndex == _pages.length - 1
                         ? AppStrings.getStarted
-                        : AppStrings.next,
+                        : [
+                            AppStrings.next1,
+                            AppStrings.next2,
+                            AppStrings.next3,
+                          ][_currentIndex],
                     onPressed: () {
                       if (_currentIndex == _pages.length - 1) {
                         _onComplete();
