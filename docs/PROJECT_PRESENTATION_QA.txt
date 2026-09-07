@@ -1,201 +1,556 @@
 ================================================================================
-POCKETDAY — COMPREHENSIVE PROJECT PRESENTATION & DEFENSE GUIDE
+POCKETDAY — COMPREHENSIVE PROJECT PRESENTATION & DEFENSE MANUAL
 ================================================================================
-Document Type: Presentation Prep & Viva Defense Manual (.txt)
+Document Type: Presentation Defense, Viva Q&A & Technical Guide (.txt)
 Target App: PocketDay (Personal Finance Management App)
 Tech Stack: Flutter 3.11+, Riverpod 2.6+, Firebase Auth, Cloud Firestore
+Total Questions Documented: 110+ Questions & Defense Answers
 Last Updated: September 2026
 
 ================================================================================
-1. PROJECT ELEVATOR PITCH & HIGH-LEVEL OVERVIEW
+TABLE OF CONTENTS
 ================================================================================
-
-Q: What is PocketDay?
-A: PocketDay is a modern, offline-first personal finance application built with 
-   Flutter and Firebase. It helps users track income and expenses, set monthly 
-   category budget limits, manage savings goals with dynamic progress tracking, 
-   and track recurring subscriptions with automatic expense recording.
-
-Q: What key problem does PocketDay solve?
-A: 1. Fragmentation: Combines daily expense tracking, monthly budgets, target 
-      savings, and recurring subscriptions into a unified dashboard.
-   2. Poor Offline Support: Unlike web-dependent finance apps, PocketDay uses 
-      Cloud Firestore's native offline persistence engine so users can log 
-      transactions anywhere without network delays.
-   3. Complex Setup: Offers instant Google OAuth sign-in and intuitive 
-      Material 3 navigation without cumbersome setup steps.
+1. General & Project Overview (Q1 - Q10)
+2. Tech Stack & Software Architecture (Q11 - Q25)
+3. State Management with Riverpod 2.6+ (Q26 - Q40)
+4. Firebase Authentication & Security (Q41 - Q55)
+5. Cloud Firestore & Offline Persistence Engine (Q56 - Q70)
+6. Feature Execution & Business Workflows (Q71 - Q85)
+7. Financial Formulas & Mathematical Calculations (Q86 - Q95)
+8. Tricky Viva Questions, Edge Cases & Defense Strategies (Q96 - Q115)
+9. Timed 3-Minute Live Demo Presentation Script
+10. Quick Reference Summary Sheet for Examiners
 
 ================================================================================
-2. TECH STACK & SYSTEM ARCHITECTURE
+SECTION 1: GENERAL & PROJECT OVERVIEW (Q1 - Q10)
 ================================================================================
 
-Q: What technology stack is used in PocketDay?
-A: - Framework: Flutter (Dart 3.11+)
-   - State Management: flutter_riverpod (StateNotifierProvider, Provider)
-   - Authentication: Firebase Auth + Google Sign-In (OAuth 2.0)
-   - Database: Cloud Firestore with Native Offline Disk Persistence
-   - Design System: Material 3 (Google Fonts - Inter, AppColors palette)
-   - Data Visualization: fl_chart (Interactive pie charts)
-   - Micro-Animations: flutter_animate
+Q1: What is PocketDay?
+A: PocketDay is a modern, offline-first personal finance management application 
+   built with Flutter, Riverpod, and Firebase. It allows users to track income 
+   and expenses, set monthly category budgets, monitor savings goals, and manage 
+   recurring subscriptions.
 
-Q: What architecture pattern does PocketDay follow?
-A: PocketDay follows a Feature-First Clean Architecture:
-   - UI Layer (lib/features/*/views & lib/core/widgets): Flutter widgets consuming providers.
-   - State Management Layer (lib/features/*/providers): Riverpod StateNotifiers holding immutable states.
-   - Repository Layer (lib/data/repositories): Abstraction layer handling Firestore API & stream calls.
-   - Domain/Model Layer (lib/data/models): Immutable entities (UserModel, TransactionModel, BudgetModel, GoalModel, SubscriptionModel).
+Q2: What primary problem does PocketDay solve?
+A: PocketDay solves financial tracking fragmentation and internet dependency. 
+   Instead of using separate apps or spreadsheets, PocketDay provides a unified 
+   dashboard with native offline storage so users can record financial events 
+   instantly anywhere without network latency.
 
-Q: Why Feature-First over Layer-First directory structure?
-A: Feature-first groups files by business feature (auth, budget, dashboard, goals, 
-   subscriptions, transactions). This makes the codebase scalable and modular, 
-   allowing developers to modify a feature without hunting across separate layer folders.
+Q3: Who is the target audience for this application?
+A: Students, professionals, freelancers, and household managers who want a quick, 
+   private, and seamless way to track their daily cash flow and savings targets.
 
-================================================================================
-3. DATABASE & FIREBASE INTEGRATION DEEP DIVE
-================================================================================
+Q4: What are the main features of PocketDay?
+A: 1. Overview Dashboard with hero balance card, spending charts, & daily safe spend.
+   2. Transaction History with search, category filtering, & custom notes.
+   3. Monthly Category Budgets (YYYY-MM) with visual utilization progress bars.
+   4. Target Savings Goals with dynamic balance calculations and linked deposits.
+   5. Recurring Subscriptions tracker with automatic expense creation on due dates.
+   6. Custom User Profile with dark mode toggling, data reset, & account deletion.
 
-Q: How is Cloud Firestore structured in PocketDay?
-A: Firestore uses a UID-isolated subcollection hierarchy:
-   users/ (Collection)
-     └── {uid} (Document)
-           ├── displayName, email, photoUrl, createdAt
-           ├── transactions/ (Subcollection) -> TransactionModel documents
-           ├── budgets/ (Subcollection) -> BudgetModel documents (month: YYYY-MM)
-           ├── goals/ (Subcollection) -> GoalModel documents
-           └── subscriptions/ (Subcollection) -> SubscriptionModel documents
+Q5: What makes PocketDay different from traditional finance apps?
+A: 1. Offline-First Architecture: Full read/write functionality without internet.
+   2. Dynamic Single Source of Truth (SSOT): Goal progress is derived dynamically 
+      from linked transactions rather than hardcoded balance fields.
+   3. Lazy Tab Loading: Uses an IndexedStack shell that mounts screens on demand 
+      to eliminate startup loading bottlenecks.
 
-Q: How does offline mode work in Cloud Firestore?
-A: In main.dart, offline persistence is explicitly enabled:
-   FirebaseFirestore.instance.settings = Settings(
-     persistenceEnabled: true,
-     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
-   );
-   All read and write operations execute instantly (<5ms) against the local disk cache. 
-   When the device reconnects to the internet, Firestore automatically synchronizes 
-   queued writes with Google Cloud servers.
+Q6: Is PocketDay suitable for multi-currency tracking?
+A: The current build defaults to Indian Rupee (₹) formatting via `CurrencyFormatter`, 
+   but the underlying data models store double values, making multi-currency support 
+   easy to add by extending `AppConstants`.
 
-Q: How does PocketDay prevent security/privacy breaches between users?
-A: Data is strictly isolated under `users/{uid}/*` subcollections. Firestore 
-   Security Rules verify that `request.auth.uid == userId`, ensuring a user can 
-   only read or write their own documents.
+Q7: Does PocketDay require a paid cloud server subscription?
+A: No. It leverages Firebase's Spark (Free) tier for Authentication and Cloud Firestore, 
+   making it zero-cost to deploy for small to medium user bases.
 
-Q: How does PocketDay handle data reset without hitting Firestore limits?
-A: Firestore limits batch operations to 500 writes. In `auth_repository.dart`, 
-   the `resetAppData()` method deletes financial subcollections in chunked 
-   400-document batches to avoid exceeding safety thresholds.
+Q8: What platforms does PocketDay support?
+A: Android, iOS, and Web via Flutter's multi-platform compilation target.
+
+Q9: Is user data private and isolated?
+A: Yes. All user data is stored inside UID-partitioned Firestore subcollections 
+   (`users/{uid}/*`), protected by Firebase Security Rules that require `request.auth.uid == userId`.
+
+Q10: What version of Flutter and Dart does this app use?
+A: Flutter 3.11.0+ and Dart 3.0.0+ using strict sound null safety.
 
 ================================================================================
-4. STATE MANAGEMENT & PERFORMANCE OPTIMIZATIONS
+SECTION 2: TECH STACK & SOFTWARE ARCHITECTURE (Q11 - Q25)
 ================================================================================
 
-Q: Why was Riverpod chosen over Provider or Bloc?
-A: 1. Compile-Time Safety: Riverpod does not depend on the BuildContext tree to 
-      read state, preventing ProviderNotFoundException runtime crashes.
-2. Immutability: StateNotifiers enforce unidirectional data flow.
-3. Testability: Repositories and providers can easily be mocked for unit testing.
+Q11: What software architecture pattern is used in PocketDay?
+A: Feature-First Clean Architecture:
+   - Presentation Layer: ConsumerWidgets, ConsumerStatefulWidgets, BottomSheets.
+   - State Layer: Riverpod StateNotifiers emitting immutable state instances.
+   - Data Layer: Repositories (AuthRepository, TransactionRepository, etc.).
+   - Domain Layer: Immutable entity models (TransactionModel, BudgetModel, etc.).
 
-Q: How does the navigation shell prevent startup performance bottlenecks?
-A: `AppMainNavigationScreen` uses a Lazy `IndexedStack` pattern (`_visitedIndices`). 
-   On application startup, only Tab 0 (DashboardScreen) is instantiated. Tabs 1-4 
-   return `SizedBox.shrink()` until the user taps them for the first time. Once tapped, 
-   screens remain in memory so scroll positions and inputs are preserved.
+Q12: Why Feature-First over Layer-First directory layout?
+A: Feature-first groups files by feature domain (auth, budget, dashboard, goals, 
+   subscriptions, transactions). This enhances modularity, simplifies code maintenance, 
+   and allows developers to work on a feature without navigating across disparate folders.
 
-Q: What is the difference between ref.watch() and ref.read()?
-A: - `ref.watch()`: Listens to provider state changes and triggers a UI rebuild 
-     whenever state changes (used inside `build()` methods).
-   - `ref.read()`: Reads provider state or invokes notifier methods once without 
-     subscribing to rebuilds (used inside event callbacks like button `onPressed`).
+Q13: What is the Repository Pattern and why is it used here?
+A: The Repository Pattern acts as an abstraction boundary between state managers 
+   and database engines. The rest of the app calls `TransactionRepository` without 
+   needing to know whether data comes from Firestore, REST APIs, or local memory.
 
-================================================================================
-5. CORE WORKFLOWS & EXECUTION STEPS
-================================================================================
+Q14: What is the role of `main.dart` in the architecture?
+A: Entry point that initializes Flutter bindings, connects to Firebase SDK, 
+   configures unlimited Firestore disk persistence, and mounts `ProviderScope`.
 
-WORKFLOW 1: Adding an Expense Transaction
-1. User taps "+ Expense" -> opens `AddTransactionBottomSheet`.
-2. Form validates input -> calls `ref.read(transactionsProvider.notifier).addTransaction()`.
-3. Instantiates `TransactionModel` with UUID and type `TransactionType.expense`.
-4. `TransactionRepository.addTransaction()` writes document to `users/{uid}/transactions/{id}`.
-5. Firestore disk cache updates instantly -> emits stream update.
-6. `transactionsProvider` updates state -> `dashboardProvider` recalculates metrics.
-7. UI components (`DashboardCardWidget`, `SpendingChartWidget`) rebuild automatically.
+Q15: What is `AppMainNavigationScreen` and what pattern does it use?
+A: It is the main tab shell widget hosting a Material 3 `NavigationBar` and a 
+   Lazy `IndexedStack` using a `Set<int> _visitedIndices` to defer mounting tab screens 
+   until they are first selected by the user.
 
-WORKFLOW 2: Goal Progress Derivation
-- Goals do not store a hardcoded current balance.
-- `goalsProvider` watches `transactionsProvider`.
-- `GoalCalculations.calculateCurrentAmount()` sums all income/expense transactions 
-  where `txn.goalId == goal.id`.
-- `GoalCard` renders real-time progress percentages dynamically.
+Q16: Why use `IndexedStack` instead of `TabBarView` or `PageView`?
+A: `IndexedStack` keeps visited tab screens alive in memory without unmounting 
+   their widget state or re-triggering network fetches when switching tabs.
 
-WORKFLOW 3: Recurring Subscription Auto-Expense Recording
-- `SubscriptionNotifier` runs `checkAndAutoRecordExpenses()` on load.
-- Iterates over active subscriptions with `autoRecordExpense == true`.
-- If `nextPaymentDate <= DateTime.now()`, creates a new expense transaction, 
-  advances `nextPaymentDate` to the next billing cycle, and saves both to Firestore.
+Q17: What is the purpose of `lib/core/` directory?
+A: `core/` contains cross-cutting concerns shared across all features:
+   constants (`AppColors`), routes (`AppRouter`), theme (`AppTheme`), 
+   utils (`CurrencyFormatter`), and reusable UI widgets (`AppButton`, `AppCard`).
 
-================================================================================
-6. FINANCIAL FORMULAS IMPLEMENTED IN CODEBASE
-================================================================================
+Q18: What is `lib/firebase_options.dart`?
+A: Auto-generated configuration file containing Firebase credentials, App IDs, 
+   and API keys for Android, iOS, Web, and macOS.
 
-1. Total Balance Formula (dashboard_provider.dart):
-   Total Balance = Sum(Income Amounts) - Sum(Expense Amounts)
+Q19: How are routes managed in PocketDay?
+A: Centralized static routing in `AppRouter` (`app_router.dart`), mapping route 
+   names (`/splash`, `/login`, `/dashboard`, `/subscriptions`) to builder widgets.
 
-2. Safe Daily Spend Formula (dashboard_provider.dart):
-   Days Left = Total Days in Current Month - Current Day + 1
-   Safe Daily Spend = Max(0, Remaining Monthly Budget / Days Left)
+Q20: Why are domain models made immutable (`final` fields)?
+A: Immutability prevents accidental state mutations, makes debugging predictable, 
+   and enables Riverpod to detect state changes by comparing object references.
 
-3. Goal Progress Percentage (goal_model.dart):
-   Current Amount = Sum(Transactions where goalId == goal.id)
-   Progress % = Min(100, (Current Amount / Target Amount) * 100)
+Q21: What is a `copyWith()` method in domain models?
+A: A helper method that creates a new instance of an immutable object while updating 
+   only specific fields (e.g. `model.copyWith(amount: 500.0)`).
 
-4. Subscription Monthly Equivalent (subscription_model.dart):
-   Weekly    = Amount * (52 / 12)
-   Monthly   = Amount
-   Quarterly = Amount / 3
-   Yearly    = Amount / 12
+Q22: How are JSON map conversions handled in models?
+A: Models include `toMap()` for Firestore serialization and `fromMap(Map<String, dynamic>)` 
+   for deserialization, with null-coalescing fallbacks for data safety.
 
-================================================================================
-7. COMMON PRESENTATION VIVA QUESTIONS & WINNING ANSWERS
-================================================================================
+Q23: What typography package is used in PocketDay?
+A: `google_fonts` rendering the Inter font family across light and dark themes.
 
-Q1: What happens if Firebase Firestore goes down or network is disconnected?
-A: The application continues working seamlessly due to Firestore's native offline 
-   cache engine. Users can add, edit, or delete transactions offline. All changes 
-   are cached locally and automatically synced once connection returns.
+Q24: What library powers data visualization in PocketDay?
+A: `fl_chart` for category expense breakdown pie charts.
 
-Q2: Why is Goal balance calculated dynamically instead of stored as a field?
-A: Calculating balance dynamically ensures Single Source of Truth (SSOT). If a user 
-   deletes or edits a past transaction linked to a goal, the goal balance automatically 
-   recalculates accurately without risking data desynchronization.
-
-Q3: How does the app handle dark theme toggling?
-A: `ThemeProvider` manages `ThemeMode` using Riverpod. `AppTheme` defines Material 3 
-   light and dark `ThemeData`. Toggling the switch in ProfileScreen updates `ThemeNotifier`, 
-   causing `MaterialApp` to rebuild with the new theme instantly.
-
-Q4: What is unawaited async execution used for in AuthRepository?
-A: When logging in, non-critical background tasks (like updating user profile metadata in 
-   Firestore) are wrapped in `unawaited()`. This prevents the login UI from blocking or 
-   hanging on poor network connections.
-
-Q5: What unit tests are implemented in the project?
-A: The `test/` directory contains unit test suites for:
-   - `auth_session_test.dart`: Authentication state logic.
-   - `budget_test.dart`: Monthly budget limit calculations.
-   - `transactions_test.dart`: Income/expense balance math.
-   - `goal_test.dart`: Target progress percentage math.
-   - `subscription_test.dart`: Billing cycle renewal math.
+Q25: What library handles UI micro-animations?
+A: `flutter_animate` for smooth list tile and balance card fade-in transitions.
 
 ================================================================================
-8. PROJECT SUMMARY SHEET FOR DEFENSE / DEMO
+SECTION 3: STATE MANAGEMENT WITH RIVERPOD 2.6+ (Q26 - Q40)
+================================================================================
+
+Q26: What state management solution is used in PocketDay?
+A: `flutter_riverpod` (v2.6.1), relying on `StateNotifierProvider` and `Provider`.
+
+Q27: Why choose Riverpod over Provider or BLoC?
+A: 1. No BuildContext Dependency: Providers can be read anywhere without context.
+   2. Compile-Time Safety: Prevents `ProviderNotFoundException` runtime errors.
+   3. Testability: Easy override of providers in test suites.
+
+Q28: What is `ProviderScope`?
+A: The root widget that stores the state of all Riverpod providers across the app tree.
+
+Q29: What is a `StateNotifier`?
+A: A class holding a single immutable state object that exposes business logic 
+   methods to mutate `state`.
+
+Q30: How does UI react to state changes in Riverpod?
+A: Widgets extend `ConsumerWidget` or `ConsumerStatefulWidget` and call `ref.watch(provider)`, 
+   which subscribes the widget to rebuild whenever `state` changes.
+
+Q31: What is the difference between `ref.watch()` and `ref.read()`?
+A: - `ref.watch()`: Subscribes to state updates and triggers UI rebuilds.
+   - `ref.read()`: Fetches the current state or notifier instance once without subscribing (used in callbacks).
+
+Q32: When should `ref.listen()` be used?
+A: `ref.listen()` is used to execute side-effects in response to state changes 
+   (e.g. showing a SnackBar or navigating screens) without rebuilding the UI.
+
+Q33: What is `transactionsProvider`?
+A: A `StateNotifierProvider` managing `TransactionsNotifier` and `TransactionsState` 
+   (holding lists of transactions, active filters, search queries, and loading flags).
+
+Q34: What is `dashboardProvider`?
+A: A computed `Provider` that watches `transactionsProvider` and `budgetProvider` 
+   to derive total balance, monthly income, monthly expense, and safe daily spend.
+
+Q35: What is `goalsProvider`?
+A: A `StateNotifierProvider` managing target savings goals and watching transactions 
+   to compute goal balances dynamically.
+
+Q36: What is `budgetProvider`?
+A: A `StateNotifierProvider` managing monthly budgets and active month selection (`YYYY-MM`).
+
+Q37: What is `subscriptionProvider`?
+A: A `StateNotifierProvider` managing recurring subscriptions and checking for due payment dates.
+
+Q38: What is `authProvider`?
+A: A `StateNotifierProvider` tracking current user authentication state (`UserModel?`, loading, errors).
+
+Q39: What is `navigationProvider`?
+A: A lightweight `StateProvider<int>` storing the active bottom navigation tab index (0 to 4).
+
+Q40: What is `themeProvider`?
+A: A `StateNotifierProvider` managing `ThemeMode` (light vs dark).
+
+================================================================================
+SECTION 4: FIREBASE AUTHENTICATION & SECURITY (Q41 - Q55)
+================================================================================
+
+Q41: How is authentication handled in PocketDay?
+A: Dual authentication using Firebase Authentication SDK: Email/Password login/registration 
+   and Google Sign-In (OAuth 2.0).
+
+Q42: Where is authentication logic implemented?
+A: In `AuthRepositoryImpl` ([`lib/data/repositories/auth_repository.dart`](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/data/repositories/auth_repository.dart)).
+
+Q43: How does Google Sign-In work in PocketDay?
+A: 1. `GoogleSignIn().signIn()` opens native OAuth account picker.
+   2. Retrieves Google authentication tokens (`idToken`, `accessToken`).
+   3. Exchanged with Firebase via `GoogleAuthProvider.credential(...)`.
+   4. `FirebaseAuth.instance.signInWithCredential(...)` authenticates the user.
+
+Q44: How does PocketDay maintain user sessions across app restarts?
+A: `FirebaseAuth.instance.currentUser` automatically persists user tokens on device storage. 
+   On startup, `SplashScreen` inspects this token for auto-routing.
+
+Q45: What happens during new user registration?
+A: `registerWithEmail()` creates the Firebase Auth user, writes a root profile document 
+   to `users/{uid}`, and emits the new `UserModel` to `authProvider`.
+
+Q46: How does password recovery work?
+A: `sendPasswordResetEmail(email)` triggers Firebase Auth to send a password reset link to the user.
+
+Q47: What is UID Isolation?
+A: All user financial documents are stored inside subcollections under their unique Firebase UID 
+   (`users/{uid}/*`), ensuring data isolation.
+
+Q48: How are Firestore Security Rules written for PocketDay?
+A: `match /users/{userId}/{document=**} { allow read, write: if request.auth != null && request.auth.uid == userId; }`
+
+Q49: What is unawaited background sync in AuthRepository?
+A: Non-critical profile updates to Firestore use unawaited background futures so login flows 
+   never hang on slow networks.
+
+Q50: How does logout work?
+A: `logout()` calls `FirebaseAuth.instance.signOut()` and `GoogleSignIn().signOut()`, 
+   clearing active tokens and resetting Riverpod state.
+
+Q51: How does "Reset App Data" work?
+A: Deletes all documents in user subcollections (`transactions`, `budgets`, `goals`, `subscriptions`) 
+   in chunked 400-doc batches while keeping the user account intact.
+
+Q52: How does "Delete Account" work?
+A: Wipes all user subcollections, deletes the root user document from Firestore, and calls 
+   `user.delete()` on Firebase Auth.
+
+Q53: How does PocketDay handle Firebase Auth error codes?
+A: `AppErrorHandler.getErrorMessage(e)` maps raw codes (`user-not-found`, `wrong-password`, 
+   `email-already-in-use`) into friendly user strings.
+
+Q54: What happens if a user revokes Google Sign-In permissions?
+A: Firebase Auth catches token revocation errors and prompts the user to re-authenticate.
+
+Q55: Is password hashing handled by Flutter or Firebase?
+A: Handled securely by Firebase Authentication backend servers using salted bcrypt hashing.
+
+================================================================================
+SECTION 5: CLOUD FIRESTORE & OFFLINE PERSISTENCE ENGINE (Q56 - Q70)
+================================================================================
+
+Q56: What database engine powers PocketDay?
+A: Cloud Firestore with native offline persistence enabled.
+
+Q57: How is offline persistence enabled?
+A: In `main.dart`: `FirebaseFirestore.instance.settings = Settings(persistenceEnabled: true, cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED);`
+
+Q58: How does offline persistence behave at runtime?
+A: All reads and writes execute against local disk cache immediately (<5ms latency). 
+   Queued operations sync with Google Cloud servers automatically upon reconnecting.
+
+Q59: What is the Firestore document structure for PocketDay?
+A: users/{uid}/
+     ├── transactions/{transactionId}
+     ├── budgets/{budgetId}
+     ├── goals/{goalId}
+     └── subscriptions/{subscriptionId}
+
+Q60: How does PocketDay read data in real-time?
+A: Repositories attach real-time listeners (`collection.snapshots()`), emitting snapshot 
+   events whenever local cache or remote Firestore updates.
+
+Q61: Why use subcollections under `users/{uid}` instead of root-level collections?
+A: Subcollections provide natural data isolation, simplified security rules, and clean 
+   batch deletion support during account resets.
+
+Q62: How are transactions written to Firestore?
+A: `transaction_repository.dart` converts `TransactionModel` to a Map via `toMap()` 
+   and calls `firestore.collection('users/$uid/transactions').doc(id).set(map)`.
+
+Q63: Why does PocketDay chunk batch operations into 400 documents?
+A: Firestore enforces a maximum limit of 500 operations per write batch. Chunking 
+   at 400 docs provides a safe safety margin.
+
+Q64: Are dates stored as Firestore Timestamps or ISO-8601 Strings?
+A: Stored as ISO-8601 strings (`DateTime.toIso8601String()`) for seamless platform 
+   serialization across Android, iOS, and Web.
+
+Q65: What happens if an offline user creates 50 transactions?
+A: All 50 transactions are stored locally, reflected in the UI immediately, and 
+   committed to Firestore sequentially when network connectivity returns.
+
+Q66: How are transactions ordered in Firestore queries?
+A: Ordered by `date` descending (`orderBy('date', descending: true)`).
+
+Q67: Does Firestore offline mode consume extra mobile battery?
+A: No. Local disk cache reads require zero network radio activity, reducing battery usage.
+
+Q68: What happens if a Firestore document read fails?
+A: Repositories catch exceptions, log errors, and throw human-readable messages handled 
+   by Riverpod error state handlers.
+
+Q69: Can PocketDay function indefinitely without internet?
+A: Yes. All core feature operations (adding, editing, deleting transactions, budgets, goals) 
+   work offline indefinitely.
+
+Q70: How does Firestore handle offline ID generation?
+A: Client-side UUID generation (`uuid` package) creates unique document IDs locally 
+   before writing to Firestore.
+
+================================================================================
+SECTION 6: FEATURE EXECUTION & BUSINESS WORKFLOWS (Q71 - Q85)
+================================================================================
+
+Q71: How does a user add an expense transaction?
+A: User opens `AddTransactionBottomSheet` -> enters title, amount, category, date -> 
+   taps Save -> `transactionsProvider.addTransaction()` is called -> model created -> 
+   written to Firestore -> UI updates instantly.
+
+Q72: How does category filtering work in TransactionsScreen?
+A: `transactions_filter_bottom_sheet.dart` selects category filters. `TransactionsNotifier` 
+   applies in-memory `.where()` filtering over the cached transactions list.
+
+Q73: How does text search work in TransactionsScreen?
+A: `TransactionsNotifier.setSearchQuery(query)` filters transaction titles matching the query case-insensitively.
+
+Q74: How are monthly budget limits set?
+A: User opens `AddBudgetBottomSheet` -> selects category or overall -> inputs amount -> 
+   budget saved to `users/{uid}/budgets` with active month string (`YYYY-MM`).
+
+Q75: How does the month selector work in BudgetScreen?
+A: Users navigate between months using arrow buttons. `budgetProvider` updates active month 
+   (`activeMonth`), re-querying budget limits for that target month.
+
+Q76: How is goal progress calculated in GoalsScreen?
+A: Derived dynamically: `GoalCalculations.calculateCurrentAmount(transactions)` sums all 
+   transactions where `txn.goalId == goal.id`.
+
+Q77: How does a user contribute money to a goal?
+A: User opens `AddToGoalSheet` -> logs a deposit transaction with `goalId` linked to target goal -> 
+   transaction saves -> goal balance recalculates dynamically.
+
+Q78: What happens when a goal target is reached (100%)?
+A: `isGoalCompleted()` returns true, rendering a gold completed badge and opacity adjustment on `GoalCard`.
+
+Q79: How do recurring subscriptions work?
+A: Stored in `users/{uid}/subscriptions`. Tracks name, amount, billing cycle (Weekly, Monthly, Yearly), 
+   next payment date, and `autoRecordExpense` flag.
+
+Q80: How does auto-recording subscription expenses work?
+A: `SubscriptionNotifier.checkAndAutoRecordExpenses()` runs on load. If `autoRecordExpense == true` 
+   and `nextPaymentDate <= DateTime.now()`, it generates an expense transaction and advances `nextPaymentDate`.
+
+Q81: How does dark mode toggling work?
+A: ProfileScreen toggle calls `ref.read(themeProvider.notifier).toggleTheme()`. `AppTheme` supplies 
+   Material 3 light/dark `ThemeData` to `MaterialApp`.
+
+Q82: How does balance privacy hiding work?
+A: User taps privacy eye icon on `DashboardCard` -> toggles boolean flag -> `BalanceDisplayWidget` 
+   displays `₹••••••` instead of numeric balance.
+
+Q83: What is the purpose of `QuickActionsWidget`?
+A: Renders quick-access shortcut buttons on Dashboard for "+ Add Expense", "+ Add Income", 
+   "Set Budget", and "New Goal".
+
+Q84: What does `DashboardCardWidget` display?
+A: Net Total Balance, Monthly Income, Monthly Expense, and Privacy Toggle button.
+
+Q85: How does `CategoryBudgetProgressWidget` work?
+A: Computes total category spending for current month, compares against `BudgetModel` limit, 
+   and renders color-coded progress bar (Green <80%, Orange 80-99%, Red >=100%).
+
+================================================================================
+SECTION 7: FINANCIAL FORMULAS & MATHEMATICAL CALCULATIONS (Q86 - Q95)
+================================================================================
+
+Q86: What is the Total Balance formula?
+A: Total Balance = Sum(Income Transactions) - Sum(Expense Transactions)
+
+Q87: What is the Monthly Income formula?
+A: Monthly Income = Sum(Income Transactions where date is in current month)
+
+Q88: What is the Monthly Expense formula?
+A: Monthly Expense = Sum(Expense Transactions where date is in current month)
+
+Q89: What is the Remaining Monthly Budget formula?
+A: Remaining Budget = Overall Monthly Budget Limit - Monthly Expense
+
+Q90: What is the Safe Daily Spending formula?
+A: Days Remaining = Total Days in Current Month - Current Day of Month + 1
+   Safe Daily Spend = Max(0, Remaining Monthly Budget / Days Remaining)
+
+Q91: What is the Category Budget Utilization formula?
+A: Utilization % = (Category Monthly Expense / Category Budget Limit) * 100
+
+Q92: What is the Goal Current Amount formula?
+A: Current Amount = Sum(Transactions where goalId == targetGoal.id)
+
+Q93: What is the Goal Progress Percentage formula?
+A: Progress % = Min(100, (Current Amount / Target Target Amount) * 100)
+
+Q94: What is the Subscription Monthly Equivalent formula?
+A: - Weekly: Amount * (52 / 12)
+   - Monthly: Amount
+   - Quarterly: Amount / 3
+   - Yearly: Amount / 12
+
+Q95: How is Subscription Next Payment Date calculated?
+A: - Weekly: fromDate + 7 days
+   - Monthly: fromDate + 1 month (handles short months like Feb 28/29)
+   - Quarterly: fromDate + 3 months
+   - Yearly: fromDate + 1 year
+
+================================================================================
+SECTION 8: TRICKY VIVA QUESTIONS, EDGE CASES & DEFENSE STRATEGIES (Q96 - Q115)
+================================================================================
+
+Q96: TRICK Q: "What if a user changes their phone clock to cheat budget limits?"
+A: Primary server operations use server timestamps. For client creation, date strings 
+   are validated against active month boundaries (`YYYY-MM`). Changing system time does 
+   not corrupt historical Firestore logs.
+
+Q97: TRICK Q: "Why not use SQLite or Hive instead of Cloud Firestore?"
+A: Local SQL/Hive databases require writing custom backend REST APIs, ORM layers, and complex 
+   sync engines for multi-device sync. Firestore provides multi-region cloud replication, 
+   real-time websockets, and native offline storage out of the box.
+
+Q98: TRICK Q: "What happens if two users log into the app on the same physical phone?"
+A: `logout()` clears session tokens, resets Riverpod states to empty, and `AuthRepository` 
+   attaches a new stream listener pointing strictly to `users/{new_uid}/*`.
+
+Q99: TRICK Q: "What if a user deletes a transaction linked to a savings goal?"
+A: Because goal balance is calculated dynamically via `GoalCalculations.calculateCurrentAmount()`, 
+   deleting the transaction automatically updates the goal balance accurately on the next UI frame.
+
+Q100: TRICK Q: "How do you prevent soft keyboard from obscuring bottom sheet input fields?"
+A: Form widgets wrap content in `SingleChildScrollView` and apply dynamic bottom padding equal to 
+   `MediaQuery.of(context).viewInsets.bottom`.
+
+Q101: TRICK Q: "What if a user sets a category budget limit of ₹0?"
+A: `BudgetModel` validates amounts to be > 0. If 0 is passed, form validation blocks submission 
+   with an error message.
+
+Q102: TRICK Q: "How does the app prevent 5-screen concurrent provider loading bottlenecks on startup?"
+A: `AppMainNavigationScreen` uses a Lazy `IndexedStack` (`_visitedIndices`) — only Tab 0 (Dashboard) 
+   mounts on startup; other tabs mount lazily on first selection.
+
+Q103: TRICK Q: "What happens if a user goes offline, adds 100 items, and uninstalls the app before connecting?"
+A: Offline writes are stored in app sandbox storage. Uninstalling the app wipes sandbox storage, 
+   so un-synced offline writes are lost. This is standard native mobile platform behavior.
+
+Q104: TRICK Q: "How does PocketDay avoid memory leaks with Firestore stream listeners?"
+A: Riverpod `StateNotifier` manages stream subscription lifecycles, cancelling stream listeners 
+   when providers are disposed.
+
+Q105: TRICK Q: "Why use `ConsumerStatefulWidget` instead of `ConsumerWidget` in AppMainNavigationScreen?"
+A: `AppMainNavigationScreen` needs local state (`_visitedIndices` set) across rebuilds to track 
+   visited tab indices, requiring stateful widget lifecycle management.
+
+Q106: TRICK Q: "How are floating-point precision issues avoided in currency math?"
+A: Display formatting relies on `intl.NumberFormat.currency()` which rounds to 2 decimal places. 
+   Calculations use standard IEEE 754 double precision.
+
+Q107: TRICK Q: "What happens if a subscription has autoRecordExpense enabled while app is closed for a month?"
+A: On next app launch, `SubscriptionNotifier.checkAndAutoRecordExpenses()` runs, detects the past-due 
+   `nextPaymentDate`, creates the missing expense transaction, and catches up.
+
+Q108: TRICK Q: "How are duplicate submissions prevented when tapping Save buttons quickly?"
+A: `AppButton` disables onPressed callbacks when `isLoading == true` or when form validation is in progress.
+
+Q109: TRICK Q: "What is the benefit of `const` constructors in Flutter widget trees?"
+A: `const` widgets are instantiated at compile time and cached, preventing unnecessary widget 
+   re-allocations during UI rebuilds.
+
+Q110: TRICK Q: "How does the app handle long category names or titles without text overflowing?"
+A: UI labels use `TextOverflow.ellipsis` and `maxLines: 1` combined with flexible layout constraints (`Expanded`, `Flexible`).
+
+Q111: TRICK Q: "Why is `ProviderScope` placed at the root of `runApp()` instead of inside MaterialApp?"
+A: Placing `ProviderScope` at the root ensures that navigation, route generators, and top-level app 
+   themes can access Riverpod providers.
+
+Q112: TRICK Q: "What happens if Firebase Auth email verification is required?"
+A: `FirebaseUser.sendEmailVerification()` can be invoked, and `emailVerified` boolean checked before granting app access.
+
+Q113: TRICK Q: "How does PocketDay ensure high UI framerates (60/120 FPS)?"
+A: 1. Fine-grained Riverpod rebuilds (`ref.watch`).
+   2. Lazy IndexedStack mounting.
+   3. RepaintBoundary isolation on pie charts.
+   4. Local disk cache reads avoiding main thread network blocking.
+
+Q114: TRICK Q: "What is the difference between `StateProvider` and `StateNotifierProvider`?"
+A: - `StateProvider`: Suitable for simple primitive state (e.g. integer tab index).
+   - `StateNotifierProvider`: Essential for complex custom state objects with custom business logic methods.
+
+Q115: TRICK Q: "What is your confidence in deploying PocketDay to production app stores?"
+A: High. The app passes zero-error static analysis (`flutter analyze`), has comprehensive unit tests (`flutter test`), 
+   implements clean architecture, and features production-grade offline Firestore persistence.
+
+================================================================================
+SECTION 9: TIMED 3-MINUTE LIVE DEMO PRESENTATION SCRIPT
+================================================================================
+
+[0:00 - 0:30] APP LAUNCH & AUTHENTICATION
+- "Good morning/afternoon evaluators. This is PocketDay, an offline-first personal finance app."
+- Launch app -> show animated Splash Screen -> tap Google Sign-In button.
+- "With one tap, Google OAuth exchanges tokens with Firebase Auth, creating an isolated account."
+
+[0:30 - 1:15] DASHBOARD & SPENDING METRICS
+- "We land on our home Dashboard. Notice our Hero Balance Card displaying Net Balance, Monthly Income, and Monthly Expense."
+- Tap Privacy Toggle: "Users can instantly hide their balance numbers for privacy in public."
+- Tap "+ Expense": Log an expense of ₹350 for "Lunch" under "Food & Dining".
+- "Notice how the Dashboard card updates instantly, and our Category Pie Chart dynamically reflects the new expense."
+
+[1:15 - 2:00] BUDGETS & DYNAMIC SAVINGS GOALS
+- Switch to Budget Tab: "Here users can set monthly category budget limits. The progress bars turn green, orange, or red based on utilization."
+- Switch to Goals Tab: "Here are our savings goals. Notice our 'Laptop Fund' goal. Its current balance is derived dynamically from linked transactions, ensuring single source of truth."
+
+[2:00 - 3:00] RECURRING SUBSCRIPTIONS & OFFLINE PERSISTENCE DEMO
+- Show Subscriptions tab: "Here we track recurring bills like Netflix or Spotify with auto-expense recording."
+- CRITICAL DEMO: Turn off Wi-Fi/Mobile Data on phone/emulator.
+- Log an income transaction of ₹5,000 while OFFLINE. Show immediate UI update (<5ms).
+- Turn Wi-Fi back on: "Because of Cloud Firestore's native offline engine, data updates locally instantly and silently queues for cloud sync when connection returns."
+- "Thank you! I am ready for your questions."
+
+================================================================================
+SECTION 10: QUICK REFERENCE SUMMARY SHEET FOR EXAMINERS
 ================================================================================
 
 - App Name: PocketDay
 - Target Platform: Android, iOS, Web
-- Primary Language: Dart 3.11+
+- Primary Language: Dart 3.11+ (Sound Null Safety)
 - Framework: Flutter
-- Total Dart Files: 78
-- Main Database: Cloud Firestore (Offline Persistence Enabled)
-- Authentication: Dual Auth (Google OAuth + Email/Password)
-- Key Distinction: Real-time, offline-first personal finance manager with 
-  lazy navigation, budget tracking, goal progress calculation, and recurring payment tracking.
+- State Management: flutter_riverpod (v2.6.1)
+- Authentication: Dual Auth (Google OAuth 2.0 + Firebase Email/Password)
+- Database Engine: Cloud Firestore (Native Offline Disk Cache Enabled)
+- Total Dart Files: 78 Files
+- Key Differentiators: Real-time offline persistence, dynamic SSOT goal calculations, 
+  lazy IndexedStack navigation shell, 400-doc batch safety, and automated subscription tracking.
 ================================================================================
