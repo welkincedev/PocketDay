@@ -3,8 +3,6 @@
 // File: app_constants.dart
 // Purpose: Application design tokens, dimensions, and default category definitions.
 // Architecture: Core Layer
-// State Management: N/A
-// Storage: N/A
 // ============================================================================
 
 import 'package:flutter/material.dart';

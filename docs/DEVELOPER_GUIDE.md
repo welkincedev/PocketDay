@@ -1,243 +1,344 @@
-# PocketDay — Developer Guide
+# PocketDay — Comprehensive Developer Guide
 
-A practical guide for developers working on or learning the PocketDay codebase.
+> **Version**: 1.0.0+1  
+> **Target Framework**: Flutter 3.11+ / Dart 3.0+  
+> **Architecture**: Feature-First Clean Architecture + Riverpod 2.6+  
+> **Database Engine**: Cloud Firestore with Native Offline Persistence  
+> **Authentication**: Firebase Auth + Google OAuth  
+> **Last Updated**: September 2026
 
 ---
 
-## What is PocketDay?
+## 1. Project Overview & Architecture
 
-PocketDay is a personal money manager Flutter app. It is **offline-first** — all data is stored locally on the device using **Hive**. There is no server or cloud backend (Firebase sync is a future phase).
+PocketDay is an offline-first personal finance tracking application designed for high performance, responsive UI layout, and transparent financial tracking.
 
----
-
-## Project Structure
-
+```text
+┌─────────────────────────────────────────────────────────────┐
+│                      UI / View Layer                        │
+│   (ConsumerWidget, ConsumerStatefulWidget, BottomSheets)    │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ ref.watch() / ref.read()
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   State Management Layer                    │
+│     (Riverpod StateNotifiers: Transactions, Budget, etc.)   │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ Calls CRUD / Stream Methods
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      Repository Layer                       │
+│    (TransactionRepository, BudgetRepository, AuthRepo)      │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ Syncs & Persists
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   Cloud Firestore Database                  │
+│    (Native Offline Cache enabled, Unlimited Storage)        │
+└─────────────────────────────────────────────────────────────┘
 ```
+
+### Key Architectural Principles
+1. **Offline-First Storage**: Firestore native caching (`persistenceEnabled: true`, `CACHE_SIZE_UNLIMITED`) allows users to read and write financial records without an active internet connection. Writes queue locally and sync automatically when online.
+2. **State Management**: Powered by `flutter_riverpod`. State Notifiers hold immutable state classes (`TransactionsState`, `BudgetState`, `GoalsState`, `SubscriptionState`).
+3. **Lazy Navigation Shell**: [`app_main_navigation_screen.dart`](file:///d:/Luminar%20Flutter/Complete%20Apps/PocketDay/lib/features/dashboard/views/app_main_navigation_screen.dart) uses an `IndexedStack` with lazy mounting (`_visitedIndices`) to prevent loading all 5 main screens simultaneously on startup.
+4. **UID-Isolated Database**: All user data is partitioned under `users/{uid}/...` subcollections, secured via Firestore Security Rules matching `request.auth.uid == userId`.
+
+---
+
+## 2. Prerequisites & Environment Setup
+
+### Prerequisites
+- **Flutter SDK**: 3.11.0 or higher
+- **Dart SDK**: 3.0.0 or higher
+- **Firebase CLI**: Configured with your Firebase project
+- **IDE**: VS Code or Android Studio with Flutter & Dart plugins
+
+### Setup Steps
+1. Clone the repository and navigate to the project directory:
+   ```bash
+   cd PocketDay
+   ```
+2. Install dependencies:
+   ```bash
+   flutter pub get
+   ```
+3. Run static analysis to verify project health:
+   ```bash
+   flutter analyze
+   ```
+4. Run unit and widget tests:
+   ```bash
+   flutter test
+   ```
+5. Launch the application:
+   ```bash
+   flutter run
+   ```
+
+---
+
+## 3. Project Directory Map
+
+The codebase follows a **Feature-First** layout under `lib/`:
+
+```text
 lib/
-├── core/                    # Shared infrastructure
-│   ├── constants/           # AppColors, AppStrings, AppConstants
-│   ├── routes/              # Named route definitions (AppRoutes)
-│   ├── services/            # HiveService (persistence init + getters)
-│   ├── theme/               # AppTheme, ThemeProvider (Riverpod)
-│   ├── utils/               # CurrencyFormatter, DateFormatter
-│   └── widgets/             # Reusable UI: AppButton, AppCard, AppTextField, etc.
+├── main.dart                      # App entry point, Firebase init & ProviderScope
+├── firebase_options.dart          # Auto-generated Firebase CLI configuration
 │
-├── data/
-│   ├── models/              # Plain Dart data classes: TransactionModel, GoalModel, BudgetModel
-│   └── repositories/        # Hive read/write: TransactionRepository, GoalRepository, BudgetRepository
+├── core/                          # Cross-cutting application assets & services
+│   ├── constants/                 # AppColors, AppConstants, AppStrings
+│   ├── routes/                    # AppRoutes definition & route generator
+│   ├── services/                  # Global service placeholder directory
+│   ├── theme/                     # AppTheme (Material 3 light/dark) & ThemeProvider
+│   ├── utils/                     # AppErrorHandler, CurrencyFormatter, DateFormatter
+│   └── widgets/                   # AppButton, AppCard, AppTextField, SkeletonLoader, etc.
 │
-└── features/
-    ├── auth/                # Onboarding, Login, Register, ForgotPassword
-    ├── budget/              # Budget screen, Budget provider
-    ├── dashboard/           # Home screen, DashboardProvider, balance card widgets
-    ├── goals/               # Goals screen, GoalDetail, GoalsProvider
-    ├── profile/             # Profile settings screen
-    └── transactions/        # Transactions list, filters, TransactionsProvider
+├── data/                          # Data Layer contracts & Firestore implementations
+│   ├── models/                    # UserModel, TransactionModel, BudgetModel, GoalModel, SubscriptionModel
+│   └── repositories/              # AuthRepository, TransactionRepository, BudgetRepository, GoalRepository, SubscriptionRepository
+│
+└── features/                      # Feature modules (Views, Providers, Widgets)
+    ├── auth/                      # Login, Register, Splash, Onboarding, Forgot Password
+    ├── dashboard/                 # Overview Dashboard, Hero Balance Card, Spending Chart, Quick Actions
+    ├── transactions/              # History View, Category Filters, Transaction Details
+    ├── budget/                    # Monthly Budget Limits & Category Breakdown
+    ├── goals/                     # Savings Target Goals & Direct Contribution Sheets
+    ├── subscriptions/             # Recurring Payments Tracker & Auto-Expense Recording
+    └── profile/                   # User Profile, Theme Toggle, Data Reset & Account Deletion
 ```
 
 ---
 
-## Architecture
+## 4. Feature Execution Workflows & Data Flows
 
-PocketDay uses **Feature-First MVVM + Repository Pattern**:
+### 4.1 Transaction Creation Data Flow
 
-```
-UI (Widget / View)
-     │
-     │ ref.watch / ref.read
-     ▼
-Provider / Notifier   (lib/features/*/providers/)
-     │
-     │ calls
-     ▼
-Repository            (lib/data/repositories/)
-     │
-     │ reads / writes
-     ▼
-Hive Box              (local SQLite-like storage)
-```
-
-- **Widgets** render state and dispatch user actions.
-- **Providers / Notifiers** hold application state (Riverpod `StateNotifier`).
-- **Repositories** encapsulate all Hive I/O — notifiers never call Hive directly.
-- **Models** are plain Dart classes — no Flutter, no Riverpod, no Hive.
-
----
-
-## State Management: Riverpod
-
-All state is managed by **Riverpod providers** (`flutter_riverpod`).
-
-Key providers:
-
-| Provider | File | Purpose |
-|---|---|---|
-| `authProvider` | `features/auth/providers/auth_provider.dart` | Auth state (logged-in user) |
-| `dashboardProvider` | `features/dashboard/providers/dashboard_provider.dart` | Monthly income/expense totals |
-| `transactionsProvider` | `features/transactions/providers/transactions_provider.dart` | Full transaction list + filters |
-| `budgetProvider` | `features/budget/providers/budget_provider.dart` | Budget CRUD + monthly progress |
-| `goalsProvider` | `features/goals/providers/goals_provider.dart` | Goals CRUD + transaction-derived balance |
-| `themeProvider` | `core/theme/theme_provider.dart` | Dark / Light mode |
-
----
-
-## Persistence: Hive
-
-Hive is used as the local key-value / list store. All boxes are opened once at app start in `HiveService.init()`.
-
-| Box name | Key in AppConstants | Contents |
-|---|---|---|
-| `settingsBox` | `AppConstants.settingsBox` | isDarkMode, hasOnboarded |
-| `userBox` | `AppConstants.userBox` | Logged-in user data |
-| `transactionsBox` | `AppConstants.transactionsBox` | List of `TransactionModel` |
-| `budgetBox` | `AppConstants.budgetBox` | `BudgetModel` (single document) |
-| `goalsBox` | `AppConstants.goalsBox` | List of `GoalModel` |
-
-**Data format**: Models are serialised to `Map<String, dynamic>` and stored as Hive map values under UUID keys.
-
----
-
-## Data Flow: Adding a Transaction
-
-```
-User fills AddTransactionBottomSheet
-         │
-         │  calls repo.addTransaction(txn)
-         ▼
-TransactionRepository.addTransaction()
-         │
-         │  writes Map<String,dynamic> to Hive transactionsBox
-         ▼
-Hive (local storage)
-         │
-         │  onAdd callback triggers provider refresh
-         ▼
-transactionsProvider.loadTransactions()
-         │
-         │  reads updated list from Hive
-         ▼
-UI rebuilds:  TransactionsScreen, DashboardScreen, GoalsScreen (if goalId linked)
+```text
+User enters transaction details in AddTransactionBottomSheet
+                         │
+                         ▼
+Validation passes → ref.read(transactionsProvider.notifier).addTransaction()
+                         │
+                         ▼
+Instantiates TransactionModel (UUID assigned)
+                         │
+                         ▼
+TransactionRepository.addTransaction(model)
+                         │
+                         ▼
+Firestore Write: doc("users/{uid}/transactions/{id}").set(model.toMap())
+                         │
+                         ▼
+Local disk cache updates instantly & emits stream update
+                         │
+                         ▼
+transactionsProvider updates state → dashboardProvider recalculates balance metrics
+                         │
+                         ▼
+UI Components (DashboardCard, SpendingChart, TransactionList) rebuild
 ```
 
----
+### 4.2 Goal Balance Derivation Flow
 
-## Data Flow: Goal Balance Calculation
+Goals do not hardcode a static balance. Instead, goal progress is **dynamically derived** at runtime from linked transactions:
 
-Goals never store a current balance. It is always derived from transactions:
-
-```
-GoalsProvider watches transactionsProvider
-         │
-         │  When transactions change, GoalsProvider rebuilds
-         ▼
+```text
+goalsProvider watches transactionsProvider
+                         │
+                         ▼
+When transactions emit new data, goalsProvider recalculates
+                         │
+                         ▼
 GoalModelExtensions.calculateCurrentAmount(transactions)
-         │
-         │  contributions (income + goalId match) - expenses (expense + goalId match)
-         ▼
-GoalCard, GoalDetailScreen render correct balance without extra API calls
+                         │
+                         ▼
+Sums all transactions where txn.goalId == goal.id
+                         │
+                         ▼
+GoalCard & GoalDetailScreen render updated progress & balance
 ```
 
-**Rule**: An expense linked to a goal (`transaction.goalId == goal.id`) counts normally toward Dashboard totals AND reduces the goal balance. This is intentional — goal spending is real spending.
+### 4.3 Recurring Subscription Auto-Expense Flow
 
----
+When subscriptions are loaded in `SubscriptionNotifier`:
 
-## Data Flow: Budget Progress
-
+```text
+SubscriptionNotifier.checkAndAutoRecordExpenses()
+                         │
+                         ▼
+Iterates through active subscriptions where autoRecordExpense == true
+                         │
+                         ▼
+Checks if nextPaymentDate <= DateTime.now()
+                         │
+                         ▼
+If due: Creates a new TransactionModel (type: expense, category: subscription.category)
+                         │
+                         ▼
+Calls transactionRepository.addTransaction()
+                         │
+                         ▼
+Updates subscription's nextPaymentDate to the next cycle (Weekly, Monthly, Yearly)
+                         │
+                         ▼
+Saves updated SubscriptionModel to Firestore
 ```
-BudgetModel  (from budgetProvider)
-         +
-TransactionModel list (expenses this month, from transactionsProvider)
-         │
-         │  monthly spend per category
-         ▼
-BudgetProgressWidget / CategoryBudgetProgressWidget
+
+---
+
+## 5. Firebase Authentication & Firestore Database Schema
+
+### Firestore Hierarchy (`users/{uid}/...`)
+
+```text
+users (Collection)
+  └── {uid} (Document)
+        ├── displayName: String
+        ├── email: String
+        ├── photoUrl: String?
+        ├── createdAt: String (ISO-8601)
+        │
+        ├── transactions (Subcollection)
+        │     └── {transactionId}
+        │           ├── id: String
+        │           ├── title: String
+        │           ├── amount: double
+        │           ├── type: String ("income" | "expense")
+        │           ├── categoryId: String
+        │           ├── categoryName: String
+        │           ├── date: String (ISO-8601)
+        │           └── goalId: String?
+        │
+        ├── budgets (Subcollection)
+        │     └── {budgetId}
+        │           ├── id: String
+        │           ├── amount: double
+        │           ├── month: String ("YYYY-MM")
+        │           └── categoryId: String?
+        │
+        ├── goals (Subcollection)
+        │     └── {goalId}
+        │           ├── id: String
+        │           ├── name: String
+        │           ├── targetAmount: double
+        │           ├── emoji: String
+        │           └── targetDate: String?
+        │
+        └── subscriptions (Subcollection)
+              └── {subscriptionId}
+                    ├── id: String
+                    ├── name: String
+                    ├── amount: double
+                    ├── billingCycle: String ("weekly" | "monthly" | "quarterly" | "yearly")
+                    ├── nextPaymentDate: String (ISO-8601)
+                    └── autoRecordExpense: bool
 ```
 
 ---
 
-## Navigation / Routing
+## 6. Financial Calculation Formulas
 
-Named routes are defined in `AppRoutes` (`core/routes/app_router.dart`).
+### 1. Total Balance
+$$\text{Total Balance} = \sum \text{Income Amounts} - \sum \text{Expense Amounts}$$
 
-The main shell uses `IndexedStack` so each tab preserves its scroll position:
+### 2. Remaining Monthly Budget
+$$\text{Remaining Budget} = \text{Monthly Budget Limit} - \sum_{\text{Month}} \text{Expense Amounts}$$
 
-| Index | Tab |
-|---|---|
-| 0 | Dashboard (Home) |
-| 1 | Transactions |
-| 2 | Budget |
-| 3 | Goals |
-| 4 | Profile |
+### 3. Safe Daily Spending
+$$\text{Days Left} = \text{Total Days in Month} - \text{Current Day of Month} + 1$$
+$$\text{Safe Daily Spend} = \max\left(0, \frac{\text{Remaining Monthly Budget}}{\text{Days Left}}\right)$$
 
-Navigation within the shell is controlled by `navigationProvider` (a simple `StateProvider<int>`).
-
----
-
-## Theme System
-
-- Dark/Light mode is persisted to Hive via `ThemeProvider`.
-- All colours come from `AppColors` (dark and light variants).
-- Typography comes from `AppTheme` (`core/theme/app_theme.dart`) which configures `ThemeData`.
-- Do not hardcode colours or sizes in widget files — use `Theme.of(context)` or `AppColors`.
+### 4. Subscription Monthly Equivalent
+$$\text{Monthly Cost} = \begin{cases} 
+\text{Amount} \times \frac{52}{12} & \text{Weekly} \\
+\text{Amount} & \text{Monthly} \\
+\frac{\text{Amount}}{3} & \text{Quarterly} \\
+\frac{\text{Amount}}{12} & \text{Yearly}
+\end{cases}$$
 
 ---
 
-## Common Commands
+## 7. State Management Guidelines (Riverpod 2.6+)
 
+### Standard Notifier Structure Example
+When adding a new feature with state management:
+
+```dart
+class FeatureState {
+  final List<ItemModel> items;
+  final bool isLoading;
+  final String? error;
+
+  FeatureState({
+    required this.items,
+    this.isLoading = false,
+    this.error,
+  });
+
+  FeatureState copyWith({
+    List<ItemModel>? items,
+    bool? isLoading,
+    String? error,
+  }) {
+    return FeatureState(
+      items: items ?? this.items,
+      isLoading: isLoading ?? this.isLoading,
+      error: error,
+    );
+  }
+}
+
+class FeatureNotifier extends StateNotifier<FeatureState> {
+  final FeatureRepository _repository;
+
+  FeatureNotifier(this._repository) : super(FeatureState(items: [])) {
+    loadItems();
+  }
+
+  Future<void> loadItems() async {
+    state = state.copyWith(isLoading: true);
+    try {
+      final items = await _repository.fetchItems();
+      state = state.copyWith(items: items, isLoading: false);
+    } catch (e) {
+      state = state.copyWith(error: e.toString(), isLoading: false);
+    }
+  }
+}
+
+final featureProvider = StateNotifierProvider<FeatureNotifier, FeatureState>((ref) {
+  final repository = ref.watch(featureRepositoryProvider);
+  return FeatureNotifier(repository);
+});
+```
+
+---
+
+## 8. Common Developer Pitfalls & Best Practices
+
+1. **Do Not Hardcode Static Balances on Goals**:  
+   Always calculate goal progress dynamically via `GoalCalculations` extension methods using the transaction list.
+2. **Firestore Batch Operation Limit (500 Docs)**:  
+   When deleting app data (`resetAppData()`), operations must be chunked in max **400-document batches** to prevent exceeding Firestore limits.
+3. **Modal Bottom Sheets & Keyboard Overlaps**:  
+   Always wrap form content inside `SingleChildScrollView` and add padding using `MediaQuery.of(context).viewInsets.bottom` to prevent overflow when the soft keyboard opens.
+4. **Unawaited Async Profile Sync**:  
+   When updating non-critical user profile data upon login, use unawaited background futures so authentication flow never hangs on poor network conditions.
+
+---
+
+## 9. Testing & Quality Assurance
+
+Unit and integration tests are stored under `test/`:
+- `auth_session_test.dart`: Validates authentication state transitions and sessions.
+- `budget_test.dart`: Validates monthly budget calculations and limit utilization.
+- `transactions_test.dart`: Validates income vs expense balance calculations.
+- `goal_test.dart`: Validates goal progress percentages and remaining target calculations.
+- `subscription_test.dart`: Validates subscription renewal date calculations and monthly equivalents.
+
+Run tests via terminal:
 ```bash
-# Install/sync packages
-flutter pub get
-
-# Analyse for errors and warnings (should return "No issues found")
-flutter analyze
-
-# Run all unit tests
 flutter test
-
-# Run the app in debug mode (hot reload enabled)
-flutter run
-
-# Build Android APK (release)
-flutter build apk --release
-
-# Build for web
-flutter build web
 ```
-
----
-
-## Development Workflow
-
-1. `git pull` — get latest changes
-2. `flutter pub get` — sync packages
-3. `flutter analyze` — confirm clean baseline
-4. Make your changes
-5. `flutter test` — verify tests pass
-6. `flutter run` — test on device/emulator
-7. Check both **dark mode** and **light mode**
-8. Test on a **360×800** screen (smallest common Android)
-9. Commit with a descriptive message
-
----
-
-## Adding a New Feature
-
-Follow the pattern of Goals or Budget:
-
-1. Create a model in `lib/data/models/`.
-2. Create a repository in `lib/data/repositories/`.
-3. Create a provider in `lib/features/<feature>/providers/`.
-4. Create views in `lib/features/<feature>/views/`.
-5. Create widgets in `lib/features/<feature>/widgets/`.
-6. Register any new Hive box in `HiveService.init()` and `AppConstants`.
-7. Add navigation entry to `app_router.dart` or `main_shell_screen.dart`.
-8. Write unit tests in `test/`.
-
----
-
-## Known Gotchas
-
-- **Goal-linked expenses**: A transaction with `goalId != null` is still a normal expense globally. Do not filter it out of Dashboard or Budget calculations.
-- **Hive box names**: Must match exactly between `HiveService.init()`, `AppConstants`, and repository code. A mismatch causes a runtime exception.
-- **Riverpod ConsumerWidget vs ConsumerStatefulWidget**: Use `ConsumerWidget` for stateless/read-only views. Use `ConsumerStatefulWidget` when you need local state (forms, animations).
-- **`mounted` checks**: After any `async` call that may pop the widget, always check `if (mounted)` before calling `context` or `Navigator`.
