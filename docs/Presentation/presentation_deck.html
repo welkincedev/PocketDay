@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PocketDay — Project Presentation</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: #0F172A;
+      color: #F8FAFC;
+      user-select: none;
+    }
+    .slide-container {
+      min-height: calc(100vh - 100px);
+    }
+    .active-slide {
+      display: flex;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    .hidden-slide {
+      display: none !important;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .glow-accent {
+      box-shadow: 0 0 30px -5px rgba(16, 185, 129, 0.3);
+    }
+    .img-card-frame {
+      border: 1px solid rgba(51, 65, 85, 0.8);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    }
+  </style>
+</head>
+<body class="bg-[#0F172A] text-slate-100 flex flex-col min-h-screen justify-between overflow-x-hidden p-4 md:p-8">
+
+  <!-- TOP BAR / HEADER -->
+  <header class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+    <div class="flex items-center gap-3">
+      <!-- High Visibility PocketDay Logo Container -->
+      <div class="w-11 h-11 rounded-2xl bg-slate-800/90 border-2 border-emerald-500/60 p-1.5 flex items-center justify-center shadow-lg shadow-emerald-500/20 bg-gradient-to-b from-slate-800 to-slate-900">
+        <img src="app_logo.png" alt="PocketDay Logo" class="w-full h-full object-contain filter drop-shadow-md" />
+      </div>
+      <div>
+        <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+          PocketDay <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-semibold">Flutter + Firebase</span>
+        </h1>
+        <p class="text-xs text-slate-300 font-medium">Smart, simple personal finance management</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-4 text-sm font-medium text-slate-400">
+      <span id="slideIndicator" class="bg-slate-800/90 px-3 py-1.5 rounded-xl border border-slate-700/60 text-slate-200 font-mono font-semibold">
+        Slide 1 / 10
+      </span>
+    </div>
+  </header>
+
+  <!-- MAIN SLIDE DISPLAY AREA -->
+  <main class="flex-1 flex flex-col justify-center items-center relative">
+
+    <!-- SLIDE 1: TITLE SLIDE -->
+    <div id="slide-1" class="slide-container active-slide w-full max-w-5xl flex-col justify-center items-center text-center py-8">
+      <!-- Crisp, Vibrant PocketDay Brand Logo Ring -->
+      <div class="w-24 h-24 rounded-3xl bg-slate-800/90 border-2 border-emerald-400/80 p-3 shadow-2xl shadow-emerald-500/30 flex items-center justify-center mb-6 bg-gradient-to-b from-slate-800 to-slate-900 glow-accent">
+        <img src="app_logo.png" alt="PocketDay Logo" class="w-full h-full object-contain filter drop-shadow-lg" />
+      </div>
+
+      <h1 class="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-3">
+        Pocket<span class="text-emerald-400">Day</span>
+      </h1>
+      <p class="text-xl md:text-2xl font-semibold text-slate-200 mb-2">
+        Smart, simple personal finance management
+      </p>
+      <p class="text-emerald-400 text-sm md:text-base font-bold tracking-widest uppercase mb-8">
+        Track. Understand. Survive.
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-3xl text-left mt-2">
+        <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/70 backdrop-blur">
+          <div class="text-xs text-slate-400 uppercase font-semibold">Framework</div>
+          <div class="text-slate-100 font-bold mt-1">Flutter 3.x + Dart</div>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/70 backdrop-blur">
+          <div class="text-xs text-slate-400 uppercase font-semibold">Architecture</div>
+          <div class="text-slate-100 font-bold mt-1">MVVM + Riverpod</div>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/70 backdrop-blur">
+          <div class="text-xs text-slate-400 uppercase font-semibold">Backend</div>
+          <div class="text-slate-100 font-bold mt-1">Firebase & Firestore</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: PROBLEM STATEMENT -->
+    <div id="slide-2" class="slide-container hidden-slide w-full max-w-5xl flex-col justify-center py-6">
+      <div class="mb-6">
+        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">01. Problem Statement</span>
+        <h2 class="text-3xl font-extrabold text-white mt-1">The Financial Awareness Gap</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="space-y-4">
+          <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/70 flex items-start gap-4">
+            <div class="w-8 h-8 rounded-lg bg-red-500/15 border border-red-500/40 flex items-center justify-center text-red-400 flex-shrink-0 font-bold">!</div>
+            <div>
+              <h3 class="font-bold text-slate-100">Uncontrolled Daily Micro-Expenses</h3>
+              <p class="text-sm text-slate-400 mt-0.5">Small untracked daily purchases quietly drain monthly savings without warning.</p>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/70 flex items-start gap-4">
+            <div class="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-400 flex-shrink-0 font-bold">!</div>
+            <div>
+              <h3 class="font-bold text-slate-100">No Safe Daily Limit Clarity</h3>
+              <p class="text-sm text-slate-400 mt-0.5">Users lack visibility into how much they can safely spend today without exceeding monthly limits.</p>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/70 flex items-start gap-4">
+            <div class="w-8 h-8 rounded-lg bg-blue-500/15 border border-blue-500/40 flex items-center justify-center text-blue-400 flex-shrink-0 font-bold">!</div>
+            <div>
+              <h3 class="font-bold text-slate-100">Overly Complex Traditional Apps</h3>
+              <p class="text-sm text-slate-400 mt-0.5">Existing finance apps are cluttered with complex forms, rigid categories, and mandatory cloud sync delays.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Flow Visual -->
+        <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-center items-center text-center">
+          <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-4">Core User Impact</div>
+          <div class="w-full space-y-3">
+            <div class="p-3 bg-red-950/50 border border-red-500/40 rounded-xl text-red-300 text-sm font-semibold">
+              Untracked Spending Velocity
+            </div>
+            <div class="text-slate-500 text-lg">↓</div>
+            <div class="p-3 bg-amber-950/50 border border-amber-500/40 rounded-xl text-amber-300 text-sm font-semibold">
+              Unexpected Month-End Shortfalls
+            </div>
+            <div class="text-slate-500 text-lg">↓</div>
+            <div class="p-3 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-sm font-semibold">
+              Financial Anxiety & Missed Savings
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: PROPOSED SOLUTION -->
+    <div id="slide-3" class="slide-container hidden-slide w-full max-w-5xl flex-col justify-center py-6">
+      <div class="mb-4">
+        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">02. Proposed Solution</span>
+        <h2 class="text-3xl font-extrabold text-white mt-1">PocketDay — Smart, Zero-Lag Money Management</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-4">
+        <div class="p-4 rounded-xl bg-slate-800/70 border border-emerald-500/40 glow-accent">
+          <div class="w-9 h-9 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center mb-2 font-bold">1</div>
+          <h3 class="font-bold text-white mb-1">Instant Balance & Safe Spend</h3>
+          <p class="text-xs text-slate-300">Computes safe daily spend allowance dynamically based on remaining budget and days left in the month.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-800/70 border border-emerald-500/40 glow-accent">
+          <div class="w-9 h-9 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center mb-2 font-bold">2</div>
+          <h3 class="font-bold text-white mb-1">Survival Days Runway</h3>
+          <p class="text-xs text-slate-300">Provides a real-time runway metric calculating how many days current liquid funds will last based on spending velocity.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-800/70 border border-emerald-500/40 glow-accent">
+          <div class="w-9 h-9 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center mb-2 font-bold">3</div>
+          <h3 class="font-bold text-white mb-1">Zero-Lag Offline Sync</h3>
+          <p class="text-xs text-slate-300">Built with Firestore native local cache for instant 0ms UI responsiveness even in offline environments.</p>
+        </div>
+      </div>
+
+      <!-- Real Screen Mockup Row -->
+      <div class="w-full flex justify-center gap-4 max-h-48 overflow-hidden rounded-2xl border border-slate-800 p-2 bg-slate-900/60">
+        <img src="pdsplash.jpg" alt="Splash Screen" class="h-44 rounded-xl border border-slate-700 object-cover" />
+        <img src="pdonboard.jpg" alt="Onboarding Screen" class="h-44 rounded-xl border border-slate-700 object-cover" />
+        <img src="pdlogin.jpg" alt="Login Screen" class="h-44 rounded-xl border border-slate-700 object-cover" />
+        <img src="pdhome.jpg" alt="Home Dashboard" class="h-44 rounded-xl border border-slate-700 object-cover" />
+      </div>
+    </div>
+
+    <!-- SLIDE 4: KEY FEATURES -->
+    <div id="slide-4" class="slide-container hidden-slide w-full max-w-5xl flex-col justify-center py-6">
+      <div class="mb-5">
+        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">03. Features</span>
+        <h2 class="text-3xl font-extrabold text-white mt-1">Core Production Features</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700/70">
+          <div class="text-emerald-400 text-lg font-bold mb-1">📊 Financial Dashboard</div>
+          <p class="text-xs text-slate-300">Real-time metrics, spending velocity bar chart, and recent transaction history.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700/70">
+          <div class="text-emerald-400 text-lg font-bold mb-1">⚡ Quick Action Logging</div>
+          <p class="text-xs text-slate-300">Single-tap bottom sheet for adding income or expenses with category tagging.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700/70">
+          <div class="text-emerald-400 text-lg font-bold mb-1">🎯 Budget Management</div>
+          <p class="text-xs text-slate-300">Monthly overall limits and category-specific budget progress indicators.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700/70">
+          <div class="text-emerald-400 text-lg font-bold mb-1">💎 Savings Goals</div>
+          <p class="text-xs text-slate-300">Milestone progress tracking for target savings goals with auto-impact links.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700/70">
+          <div class="text-emerald-400 text-lg font-bold mb-1">🔄 Recurring Subscriptions</div>
+          <p class="text-xs text-slate-300">Tracker for recurring payments with automated, idempotent expense logging.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700/70">
+          <div class="text-emerald-400 text-lg font-bold mb-1">🛡️ Google OAuth & Sync</div>
+          <p class="text-xs text-slate-300">Single-click Google OAuth authentication with Cloud Firestore profile sync.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700/70">
+          <div class="text-emerald-400 text-lg font-bold mb-1">💡 Safe Daily Spending</div>
+          <p class="text-xs text-slate-300">Dynamic daily spending allowance calculated to ensure budget compliance.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700/70">
+          <div class="text-emerald-400 text-lg font-bold mb-1">⏳ Survival Days Metric</div>
+          <p class="text-xs text-slate-300">Calculates liquid runway based on active daily spending velocity.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: TECH STACK -->
+    <div id="slide-5" class="slide-container hidden-slide w-full max-w-5xl flex-col justify-center py-6">
+      <div class="mb-6">
+        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">04. Technology Stack</span>
+        <h2 class="text-3xl font-extrabold text-white mt-1">Verified Project Technologies</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="p-5 rounded-xl bg-slate-800/60 border border-slate-700">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2">Frontend & Language</h3>
+          <p class="text-xl font-extrabold text-white">Flutter 3.x + Dart</p>
+          <p class="text-xs text-slate-300 mt-2">Cross-platform UI framework with Sound Null Safety and Material 3 design system.</p>
+        </div>
+        <div class="p-5 rounded-xl bg-slate-800/60 border border-slate-700">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2">State Management</h3>
+          <p class="text-xl font-extrabold text-white">Flutter Riverpod</p>
+          <p class="text-xs text-slate-300 mt-2">Reactive state management using StateNotifierProvider, ref.watch, and ref.listen.</p>
+        </div>
+        <div class="p-5 rounded-xl bg-slate-800/60 border border-slate-700">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2">Backend & Storage</h3>
+          <p class="text-xl font-extrabold text-white">Firebase & Firestore</p>
+          <p class="text-xs text-slate-300 mt-2">Google OAuth authentication and Firestore native local disk persistence cache.</p>
+        </div>
+      </div>
+
+      <div class="mt-6 p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-wrap justify-between items-center text-xs text-slate-300">
+        <div><span class="text-slate-500 font-semibold">Analytics:</span> fl_chart</div>
+        <div><span class="text-slate-500 font-semibold">Fonts:</span> Google Fonts (Outfit)</div>
+        <div><span class="text-slate-500 font-semibold">Animations:</span> flutter_animate</div>
+        <div><span class="text-slate-500 font-semibold">Formatting:</span> intl (en_IN Rupee)</div>
+        <div><span class="text-slate-500 font-semibold">Local Prefs:</span> SharedPreferences</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: ARCHITECTURE -->
+    <div id="slide-6" class="slide-container hidden-slide w-full max-w-5xl flex-col justify-center py-6">
+      <div class="mb-6">
+        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">05. Architecture</span>
+        <h2 class="text-3xl font-extrabold text-white mt-1">Feature-First MVVM + Repository Pattern</h2>
+      </div>
+
+      <!-- Architecture Diagram -->
+      <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-center">
+          <div class="p-4 rounded-xl bg-slate-800 border border-slate-700">
+            <div class="text-xs font-bold text-emerald-400 uppercase">1. View (UI)</div>
+            <div class="text-sm font-bold text-slate-200 mt-1">Screens & Widgets</div>
+            <div class="text-xs text-slate-400 mt-1">ConsumerWidget</div>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-800 border border-slate-700">
+            <div class="text-xs font-bold text-emerald-400 uppercase">2. ViewModel (State)</div>
+            <div class="text-sm font-bold text-slate-200 mt-1">Riverpod Notifiers</div>
+            <div class="text-xs text-slate-400 mt-1">StateNotifier</div>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-800 border border-slate-700">
+            <div class="text-xs font-bold text-emerald-400 uppercase">3. Repository</div>
+            <div class="text-sm font-bold text-slate-200 mt-1">Data Abstraction</div>
+            <div class="text-xs text-slate-400 mt-1">Auth & Transaction Repos</div>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-800 border border-slate-700">
+            <div class="text-xs font-bold text-emerald-400 uppercase">4. Storage</div>
+            <div class="text-sm font-bold text-slate-200 mt-1">Firestore & Cache</div>
+            <div class="text-xs text-slate-400 mt-1">Native Offline Disk</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-300">
+        <div class="p-3.5 bg-slate-800/50 rounded-xl border border-slate-700/70">
+          <span class="font-bold text-emerald-400">Decoupled UI Layer:</span> UI widgets only display state and delegate business logic to Riverpod Notifiers.
+        </div>
+        <div class="p-3.5 bg-slate-800/50 rounded-xl border border-slate-700/70">
+          <span class="font-bold text-emerald-400">Offline Resilience:</span> Repositories write to Firestore native cache locally first, guaranteeing zero UI latency.
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: HOW POCKETDAY WORKS -->
+    <div id="slide-7" class="slide-container hidden-slide w-full max-w-5xl flex-col justify-center py-6">
+      <div class="mb-6">
+        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">06. Application Data Flow</span>
+        <h2 class="text-3xl font-extrabold text-white mt-1">How PocketDay Processes Information</h2>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 mb-4">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-3 text-center">
+          <div class="p-3 bg-slate-800 rounded-xl border border-slate-700 w-full">
+            <div class="text-xs text-emerald-400 font-bold">Step 1</div>
+            <div class="text-sm font-bold text-slate-200">Google OAuth Sign-In</div>
+          </div>
+          <div class="text-slate-500 font-bold hidden md:block">→</div>
+          <div class="p-3 bg-slate-800 rounded-xl border border-slate-700 w-full">
+            <div class="text-xs text-emerald-400 font-bold">Step 2</div>
+            <div class="text-sm font-bold text-slate-200">Instant Local Session</div>
+          </div>
+          <div class="text-slate-500 font-bold hidden md:block">→</div>
+          <div class="p-3 bg-slate-800 rounded-xl border border-slate-700 w-full">
+            <div class="text-xs text-emerald-400 font-bold">Step 3</div>
+            <div class="text-sm font-bold text-slate-200">Transaction Logged</div>
+          </div>
+          <div class="text-slate-500 font-bold hidden md:block">→</div>
+          <div class="p-3 bg-slate-800 rounded-xl border border-slate-700 w-full">
+            <div class="text-xs text-emerald-400 font-bold">Step 4</div>
+            <div class="text-sm font-bold text-slate-200">Metrics Recalculated</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: DASHBOARD REAL SCREENSHOT & IN-MEMORY ENGINE BREAKDOWN -->
+    <div id="slide-8" class="slide-container hidden-slide w-full max-w-5xl flex-col justify-center py-6">
+      <div class="mb-4">
+        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">07. Dashboard Architecture</span>
+        <h2 class="text-3xl font-extrabold text-white mt-1">Reactive In-Memory Metric Engine</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+        <!-- Actual Home Screen Mockup Frame -->
+        <div class="md:col-span-5 flex justify-center">
+          <div class="relative rounded-2xl overflow-hidden border-2 border-emerald-500/50 shadow-2xl glow-accent max-w-[220px]">
+            <img src="pdhome.jpg" alt="PocketDay Home Dashboard" class="w-full object-cover rounded-xl" />
+          </div>
+        </div>
+
+        <div class="md:col-span-7 space-y-3 text-xs text-slate-300">
+          <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800">
+            <div class="text-emerald-400 font-bold text-sm mb-1">⚡ In-Memory $O(N)$ Computation</div>
+            <p class="text-slate-300"><code class="text-emerald-400">DashboardNotifier</code> listens to transaction and budget streams via Riverpod's <code class="text-emerald-400">ref.listen()</code>, updating net balance and metrics dynamically without issuing Firestore aggregate queries.</p>
+          </div>
+          <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800">
+            <div class="text-emerald-400 font-bold text-sm mb-1">📊 Real-Time Financial Indicators</div>
+            <p class="text-slate-300">Calculates Total Balance ($Income - Expense$), Safe Daily Spend allowance, Survival Runway days, and renders daily spending velocity via <code class="text-emerald-400">fl_chart</code>.</p>
+          </div>
+          <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800">
+            <div class="text-emerald-400 font-bold text-sm mb-1">🎯 Budget & Subscriptions Integration</div>
+            <p class="text-slate-300">Tracks category-level spending progress and automatically processes recurring subscription payments on due dates.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 9: PRACTICAL ENGINEERING CHALLENGES -->
+    <div id="slide-9" class="slide-container hidden-slide w-full max-w-5xl flex-col justify-center py-6">
+      <div class="mb-6">
+        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">08. Engineering Challenges</span>
+        <h2 class="text-3xl font-extrabold text-white mt-1">Practical Code Solutions & Learnings</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-amber-400">Verified Code Challenges</h3>
+          <ul class="space-y-2 text-xs text-slate-300 list-disc list-inside">
+            <li><span class="font-semibold text-white">Preventing Firestore Read Costs:</span> Implemented <code class="text-emerald-400">ref.listen()</code> to compute <code class="text-slate-200">totalBalance</code> in memory in $O(N)$ time instead of expensive backend aggregations.</li>
+            <li><span class="font-semibold text-white">Splash Frame-1 Timing:</span> Resolved 10ms route pops by enforcing a concurrent 3s presentation window via <code class="text-emerald-400">Future.wait()</code>.</li>
+            <li><span class="font-semibold text-white">Double-Tap OAuth Guard:</span> Added <code class="text-slate-200">if (isLoading) return;</code> guards to block duplicate auth submissions during Google sign-in.</li>
+            <li><span class="font-semibold text-white">Android Task Manager Branding:</span> Configured standard <code class="text-slate-200">@mipmap/ic_launcher</code> XML adaptive icons across all density buckets.</li>
+          </ul>
+        </div>
+        <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-emerald-400">Key Engineering Learnings</h3>
+          <ul class="space-y-2 text-xs text-slate-300 list-disc list-inside">
+            <li><span class="font-semibold text-white">Reactive State Design:</span> Combining Riverpod providers for responsive, decoupled state propagation.</li>
+            <li><span class="font-semibold text-white">Local-First Storage:</span> Harnessing Cloud Firestore's native offline cache for 0ms UI startup latency.</li>
+            <li><span class="font-semibold text-white">Production Defensiveness:</span> Implementing lazy loading (<code class="text-slate-200">IndexedStack</code>) and unawaited background profile synchronization.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 10: CONCLUSION & ENHANCED THANK YOU SLIDE WITH APP SCREENSHOTS -->
+    <div id="slide-10" class="slide-container hidden-slide w-full max-w-5xl flex-col justify-center items-center text-center py-6">
+      <div class="flex items-center gap-3 mb-4">
+        <!-- PocketDay Logo Badge -->
+        <div class="w-12 h-12 rounded-2xl bg-slate-800/90 border-2 border-emerald-400 p-1.5 shadow-xl glow-accent">
+          <img src="app_logo.png" alt="PocketDay Logo" class="w-full h-full object-contain" />
+        </div>
+        <div class="text-left">
+          <h2 class="text-2xl font-extrabold text-white">PocketDay</h2>
+          <p class="text-xs text-emerald-400 font-semibold">Smart, simple personal finance management</p>
+        </div>
+      </div>
+
+      <!-- App Screenshots Feature Showcase Row -->
+      <div class="flex justify-center gap-4 mb-6">
+        <div class="rounded-xl overflow-hidden border border-emerald-500/40 shadow-xl max-w-[140px] transform hover:scale-105 transition">
+          <img src="pdhome.jpg" alt="Home Dashboard" class="w-full object-cover" />
+        </div>
+        <div class="rounded-xl overflow-hidden border border-slate-700 shadow-xl max-w-[140px] transform hover:scale-105 transition">
+          <img src="pdlogin.jpg" alt="Login Landing" class="w-full object-cover" />
+        </div>
+        <div class="rounded-xl overflow-hidden border border-slate-700 shadow-xl max-w-[140px] transform hover:scale-105 transition">
+          <img src="pdbudget.jpg" alt="Budget Screen" class="w-full object-cover" />
+        </div>
+        <div class="rounded-xl overflow-hidden border border-slate-700 shadow-xl max-w-[140px] transform hover:scale-105 transition">
+          <img src="pdsubscrption.jpg" alt="Subscriptions Screen" class="w-full object-cover" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 w-full max-w-3xl text-left mb-6">
+        <div class="p-3.5 rounded-xl bg-slate-800/50 border border-slate-700/60">
+          <div class="text-emerald-400 font-bold text-xs mb-0.5">🔔 Push Alerts</div>
+          <p class="text-xs text-slate-400">Real-time alerts when approaching category budget limits.</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-800/50 border border-slate-700/60">
+          <div class="text-emerald-400 font-bold text-xs mb-0.5">📄 Export Reports</div>
+          <p class="text-xs text-slate-400">Export financial summaries to PDF and CSV for tax archiving.</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-800/50 border border-slate-700/60">
+          <div class="text-emerald-400 font-bold text-xs mb-0.5">🤖 AI Insights</div>
+          <p class="text-xs text-slate-400">Automated spending recommendations based on monthly velocity.</p>
+        </div>
+      </div>
+
+      <div class="text-3xl font-extrabold text-white tracking-tight">
+        Thank You!
+      </div>
+      <p class="text-emerald-400 text-sm font-semibold mt-1">Questions & Answers</p>
+    </div>
+
+  </main>
+
+  <!-- CONTROLS & NAVIGATION FOOTER -->
+  <footer class="border-t border-slate-800 pt-4 mt-6 flex items-center justify-between">
+    <button id="prevBtn" onclick="changeSlide(-1)" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium border border-slate-700 transition disabled:opacity-40 disabled:cursor-not-allowed">
+      ← Previous
+    </button>
+    <div class="flex items-center gap-1.5" id="dotsContainer">
+      <!-- Dots injected dynamically -->
+    </div>
+    <button id="nextBtn" onclick="changeSlide(1)" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold shadow-lg shadow-emerald-600/20 transition disabled:opacity-40 disabled:cursor-not-allowed">
+      Next →
+    </button>
+  </footer>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 10;
+
+    function initDots() {
+      const container = document.getElementById('dotsContainer');
+      container.innerHTML = '';
+      for (let i = 1; i <= totalSlides; i++) {
+        const dot = document.createElement('button');
+        dot.className = `w-2.5 h-2.5 rounded-full transition-all ${i === currentSlide ? 'bg-emerald-400 w-6' : 'bg-slate-700 hover:bg-slate-600'}`;
+        dot.onclick = () => goToSlide(i);
+        container.appendChild(dot);
+      }
+    }
+
+    function updateSlide() {
+      for (let i = 1; i <= totalSlides; i++) {
+        const slide = document.getElementById(`slide-${i}`);
+        if (i === currentSlide) {
+          slide.classList.remove('hidden-slide');
+          slide.classList.add('active-slide');
+        } else {
+          slide.classList.remove('active-slide');
+          slide.classList.add('hidden-slide');
+        }
+      }
+      document.getElementById('slideIndicator').textContent = `Slide ${currentSlide} / ${totalSlides}`;
+      document.getElementById('prevBtn').disabled = currentSlide === 1;
+      document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+      initDots();
+    }
+
+    function changeSlide(direction) {
+      if (currentSlide + direction >= 1 && currentSlide + direction <= totalSlides) {
+        currentSlide += direction;
+        updateSlide();
+      }
+    }
+
+    function goToSlide(slideNum) {
+      currentSlide = slideNum;
+      updateSlide();
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        changeSlide(1);
+      } else if (e.key === 'ArrowLeft') {
+        changeSlide(-1);
+      }
+    });
+
+    initDots();
+    updateSlide();
+  </script>
+</body>
+</html>
