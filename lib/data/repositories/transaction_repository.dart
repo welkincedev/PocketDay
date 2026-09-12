@@ -54,10 +54,16 @@ abstract class TransactionRepository {
   Future<void> deleteTransaction(String id);
   Future<void> updateTransaction(TransactionModel transaction);
   Stream<List<TransactionModel>>? watchTransactions();
+  void clearLocalData();
 }
 
 class TransactionRepositoryImpl implements TransactionRepository {
   final List<TransactionModel> _memoryStore = [];
+
+  @override
+  void clearLocalData() {
+    _memoryStore.clear();
+  }
 
   FirebaseFirestore? get _firestore {
     try {
@@ -107,37 +113,26 @@ class TransactionRepositoryImpl implements TransactionRepository {
     if (uid != null && uid.isNotEmpty && _firestore != null) {
       try {
         // Cache-first read: Attempt reading from Firestore local cache for instant < 5ms rendering
-        QuerySnapshot<Map<String, dynamic>> snapshot;
-        try {
-          snapshot = await _firestore!
-              .collection('users')
-              .doc(uid)
-              .collection('transactions')
-              .get(const GetOptions(source: Source.cache));
-          
-          if (snapshot.docs.isEmpty) {
-            snapshot = await _firestore!
-                .collection('users')
-                .doc(uid)
-                .collection('transactions')
-                .get()
-                .timeout(const Duration(seconds: 3));
-          }
-        } catch (_) {
-          snapshot = await _firestore!
-              .collection('users')
-              .doc(uid)
-              .collection('transactions')
-              .get()
-              .timeout(const Duration(seconds: 3));
-        }
+        final snapshot = await _firestore!
+            .collection('users')
+            .doc(uid)
+            .collection('transactions')
+            .get(const GetOptions(source: Source.cache));
 
-        final List<TransactionModel> txns = [];
-        for (var doc in snapshot.docs) {
-          txns.add(TransactionModel.fromMap(doc.data()));
+        if (snapshot.docs.isNotEmpty) {
+          final List<TransactionModel> txns = [];
+          for (var doc in snapshot.docs) {
+            txns.add(TransactionModel.fromMap(doc.data()));
+          }
+          // Merge in-memory store items that may be in-flight or newly added
+          for (var m in _memoryStore) {
+            if (!txns.any((t) => t.id == m.id)) {
+              txns.add(m);
+            }
+          }
+          txns.sort((a, b) => b.date.compareTo(a.date));
+          return txns;
         }
-        txns.sort((a, b) => b.date.compareTo(a.date));
-        return txns;
       } catch (_) {}
     }
 

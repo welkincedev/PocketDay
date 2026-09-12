@@ -167,9 +167,6 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
       backgroundColor: Colors.transparent,
       builder: (context) => AddTransactionBottomSheet(
         initialType: type,
-        onAdd: (txn) {
-          ref.read(transactionsProvider.notifier).updateTransaction(txn);
-        },
       ),
     );
   }

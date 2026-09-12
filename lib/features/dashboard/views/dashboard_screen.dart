@@ -75,9 +75,6 @@ class DashboardScreen extends ConsumerWidget {
       backgroundColor: Colors.transparent,
       builder: (context) => AddTransactionBottomSheet(
         initialType: type,
-        onAdd: (txn) {
-          ref.read(dashboardProvider.notifier).addTransaction(txn);
-        },
       ),
     );
   }

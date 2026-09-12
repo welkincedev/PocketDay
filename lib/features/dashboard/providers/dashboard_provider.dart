@@ -202,7 +202,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   }
 
   Future<void> addTransaction(TransactionModel txn) async {
-    await _txnRepo.addTransaction(txn);
-    // In-memory update will trigger automatically via transactionsProvider listener
+    // In-memory recalculation occurs automatically via the transactionsProvider listener in dashboardProvider.
+    // This method is maintained for backwards compatibility.
   }
 }

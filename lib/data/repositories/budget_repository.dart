@@ -52,10 +52,16 @@ abstract class BudgetRepository {
   Future<void> saveBudget(BudgetModel budget);
   Future<void> deleteBudget(String id);
   Stream<List<BudgetModel>>? watchBudgets();
+  void clearLocalData();
 }
 
 class BudgetRepositoryImpl implements BudgetRepository {
   final List<BudgetModel> _memoryStore = [];
+
+  @override
+  void clearLocalData() {
+    _memoryStore.clear();
+  }
 
   FirebaseFirestore? get _firestore {
     try {
@@ -102,36 +108,24 @@ class BudgetRepositoryImpl implements BudgetRepository {
 
     if (uid != null && uid.isNotEmpty && _firestore != null) {
       try {
-        QuerySnapshot<Map<String, dynamic>> snapshot;
-        try {
-          snapshot = await _firestore!
-              .collection('users')
-              .doc(uid)
-              .collection('budgets')
-              .get(const GetOptions(source: Source.cache));
-          
-          if (snapshot.docs.isEmpty) {
-            snapshot = await _firestore!
-                .collection('users')
-                .doc(uid)
-                .collection('budgets')
-                .get()
-                .timeout(const Duration(seconds: 3));
-          }
-        } catch (_) {
-          snapshot = await _firestore!
-              .collection('users')
-              .doc(uid)
-              .collection('budgets')
-              .get()
-              .timeout(const Duration(seconds: 3));
-        }
+        final snapshot = await _firestore!
+            .collection('users')
+            .doc(uid)
+            .collection('budgets')
+            .get(const GetOptions(source: Source.cache));
 
-        final List<BudgetModel> budgets = [];
-        for (var doc in snapshot.docs) {
-          budgets.add(BudgetModel.fromMap(doc.data()));
+        if (snapshot.docs.isNotEmpty) {
+          final List<BudgetModel> budgets = [];
+          for (var doc in snapshot.docs) {
+            budgets.add(BudgetModel.fromMap(doc.data()));
+          }
+          for (var m in _memoryStore) {
+            if (!budgets.any((b) => b.id == m.id)) {
+              budgets.add(m);
+            }
+          }
+          return budgets;
         }
-        return budgets;
       } catch (_) {}
     }
 

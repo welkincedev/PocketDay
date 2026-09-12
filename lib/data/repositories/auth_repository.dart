@@ -383,30 +383,57 @@ class AuthRepositoryImpl implements AuthRepository {
     ];
 
     for (final col in collections) {
-      final snapshot = await _firestore!
-          .collection('users')
-          .doc(userId)
-          .collection(col)
-          .get();
-
-      if (snapshot.docs.isEmpty) continue;
-
-      WriteBatch batch = _firestore!.batch();
-      int count = 0;
-
-      for (final doc in snapshot.docs) {
-        batch.delete(doc.reference);
-        count++;
-        if (count >= 400) {
-          await batch.commit();
-          batch = _firestore!.batch();
-          count = 0;
+      try {
+        QuerySnapshot<Map<String, dynamic>> snapshot;
+        try {
+          snapshot = await _firestore!
+              .collection('users')
+              .doc(userId)
+              .collection(col)
+              .get(const GetOptions(source: Source.cache));
+          
+          if (snapshot.docs.isEmpty) {
+            snapshot = await _firestore!
+                .collection('users')
+                .doc(userId)
+                .collection(col)
+                .get()
+                .timeout(const Duration(seconds: 2));
+          }
+        } catch (_) {
+          snapshot = await _firestore!
+              .collection('users')
+              .doc(userId)
+              .collection(col)
+              .get()
+              .timeout(const Duration(seconds: 2));
         }
-      }
 
-      if (count > 0) {
-        await batch.commit();
-      }
+        if (snapshot.docs.isEmpty) continue;
+
+        WriteBatch batch = _firestore!.batch();
+        int count = 0;
+
+        for (final doc in snapshot.docs) {
+          batch.delete(doc.reference);
+          count++;
+          if (count >= 400) {
+            await batch
+                .commit()
+                .timeout(const Duration(seconds: 2))
+                .catchError((_) {});
+            batch = _firestore!.batch();
+            count = 0;
+          }
+        }
+
+        if (count > 0) {
+          await batch
+              .commit()
+              .timeout(const Duration(seconds: 2))
+              .catchError((_) {});
+        }
+      } catch (_) {}
     }
   }
 
@@ -420,15 +447,23 @@ class AuthRepositoryImpl implements AuthRepository {
     final user = _firebaseAuth?.currentUser;
     if (user == null) return;
 
-    await resetAppData();
+    try {
+      await resetAppData();
+    } catch (_) {}
 
     if (_firestore != null) {
       try {
-        await _firestore!.collection('users').doc(user.uid).delete();
+        await _firestore!
+            .collection('users')
+            .doc(user.uid)
+            .delete()
+            .timeout(const Duration(seconds: 2));
       } catch (_) {}
     }
 
-    await user.delete();
+    try {
+      await user.delete();
+    } catch (_) {}
     await logout();
   }
 

@@ -1,0 +1,77 @@
+Good morning everyone.
+
+I’m Welkince, and today I’m really happy to present my final project, **PocketDay**.
+
+Before I explain the technology behind the application, I want to start with a simple question.
+
+**Have you ever checked your bank balance and thought, “I had enough money… so where did it all go?”**
+
+Most of the time, the problem isn't one big expense.
+It's the small expenses we make every day — a coffee here, food there, transportation, subscriptions, and many other things that don't feel significant individually.
+
+But by the end of the month, those small expenses can become a much bigger problem.
+
+And that is the idea behind PocketDay.
+
+PocketDay is a **personal finance management application** designed to help users not just record their income and expenses, but actually **understand their financial situation on a daily basis**.
+
+One of the main ideas behind the application is simple:
+
+**Knowing your balance is not the same as knowing how much you can safely spend.**
+
+So PocketDay provides things like daily safe spending, budget tracking, savings goals, subscription tracking, spending analytics, and survival-day calculations.
+
+From a technical perspective, I built the application using **Flutter and Dart**, with **Riverpod for state management** and **Firebase Authentication and Cloud Firestore** for authentication and data storage.
+
+I also designed the application around an **offline-first approach**, so the user experience doesn't have to completely depend on having an active internet connection.
+
+Throughout this project, my focus wasn't only on making the screens look good. I wanted to understand how a real application is structured — how the UI communicates with the state layer, how data moves through repositories, how Firebase handles persistence, and how different parts of the application react when data changes.
+
+So today, I'll take you through the problem behind PocketDay, the solution, its major features, the technologies and architecture I used, how the data flows through the application, some of the challenges I faced, and finally what I learned from building it.
+
+So, let's take a look at **PocketDay**.
+
+_______________________________________________________________________________
+
+
+So, that brings me to the end of my presentation.
+
+PocketDay started as an idea to solve a very simple problem — **helping people understand where their money is going before it becomes a problem.**
+
+But for me, this project became much more than just a finance application.
+
+While building PocketDay, I learned that developing an application is not simply about creating screens and writing code.
+
+It is about understanding a problem, making decisions, facing things that don't work, finding out why they don't work, and improving them until the application becomes something you can actually be proud of.
+
+There were times when I didn't know how something should be implemented.
+There were bugs I didn't immediately understand.
+There were architectural decisions I had to rethink.
+
+But every one of those problems taught me something.
+
+Through PocketDay, I got practical experience with **Flutter, Dart, Riverpod, Firebase, Firestore, authentication, offline persistence, repositories, and application architecture**.
+
+But more importantly, I learned something beyond the technology:
+
+**I learned how to turn an idea into something real.**
+
+PocketDay may not be a huge product, and I know there is still a lot that can be improved — from notifications and report exports to smarter financial insights.
+
+But this project represents something important to me.
+
+It represents the point where I stopped just learning about software development and started **building software myself**.
+
+And I know this is only the beginning.
+
+There is still a lot for me to learn, a lot of code for me to write, and a lot of problems for me to solve.
+
+But that's exactly what I'm looking forward to.
+
+Because my goal isn't just to finish this project.
+
+**My goal is to keep building until I become the developer I want to be.**
+
+Thank you for listening to my presentation and for giving me the opportunity to present my work.
+
+**Thank you. I'm happy to answer any questions.**

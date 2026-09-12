@@ -50,10 +50,16 @@ abstract class SubscriptionRepository {
   Future<void> saveSubscription(SubscriptionModel subscription);
   Future<void> deleteSubscription(String id);
   Stream<List<SubscriptionModel>>? watchSubscriptions();
+  void clearLocalData();
 }
 
 class SubscriptionRepositoryImpl implements SubscriptionRepository {
   final List<SubscriptionModel> _memoryStore = [];
+
+  @override
+  void clearLocalData() {
+    _memoryStore.clear();
+  }
 
   FirebaseFirestore? get _firestore {
     try {
@@ -102,39 +108,27 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
     if (uid != null && uid.isNotEmpty && _firestore != null) {
       try {
-        QuerySnapshot<Map<String, dynamic>> snapshot;
-        try {
-          snapshot = await _firestore!
-              .collection('users')
-              .doc(uid)
-              .collection('subscriptions')
-              .get(const GetOptions(source: Source.cache));
-          
-          if (snapshot.docs.isEmpty) {
-            snapshot = await _firestore!
-                .collection('users')
-                .doc(uid)
-                .collection('subscriptions')
-                .get()
-                .timeout(const Duration(seconds: 3));
+        final snapshot = await _firestore!
+            .collection('users')
+            .doc(uid)
+            .collection('subscriptions')
+            .get(const GetOptions(source: Source.cache));
+        
+        if (snapshot.docs.isNotEmpty) {
+          final List<SubscriptionModel> subscriptions = [];
+          for (var doc in snapshot.docs) {
+            subscriptions.add(SubscriptionModel.fromMap(doc.data()));
           }
-        } catch (_) {
-          snapshot = await _firestore!
-              .collection('users')
-              .doc(uid)
-              .collection('subscriptions')
-              .get()
-              .timeout(const Duration(seconds: 3));
+          for (var m in _memoryStore) {
+            if (!subscriptions.any((s) => s.id == m.id)) {
+              subscriptions.add(m);
+            }
+          }
+          subscriptions.sort(
+            (a, b) => a.nextPaymentDate.compareTo(b.nextPaymentDate),
+          );
+          return subscriptions;
         }
-
-        final List<SubscriptionModel> subscriptions = [];
-        for (var doc in snapshot.docs) {
-          subscriptions.add(SubscriptionModel.fromMap(doc.data()));
-        }
-        subscriptions.sort(
-          (a, b) => a.nextPaymentDate.compareTo(b.nextPaymentDate),
-        );
-        return subscriptions;
       } catch (_) {}
     }
 

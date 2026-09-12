@@ -50,10 +50,16 @@ abstract class GoalRepository {
   Future<void> saveGoal(GoalModel goal);
   Future<void> deleteGoal(String id);
   Stream<List<GoalModel>>? watchGoals();
+  void clearLocalData();
 }
 
 class GoalRepositoryImpl implements GoalRepository {
   final List<GoalModel> _memoryStore = [];
+
+  @override
+  void clearLocalData() {
+    _memoryStore.clear();
+  }
 
   FirebaseFirestore? get _firestore {
     try {
@@ -100,36 +106,24 @@ class GoalRepositoryImpl implements GoalRepository {
 
     if (uid != null && uid.isNotEmpty && _firestore != null) {
       try {
-        QuerySnapshot<Map<String, dynamic>> snapshot;
-        try {
-          snapshot = await _firestore!
-              .collection('users')
-              .doc(uid)
-              .collection('goals')
-              .get(const GetOptions(source: Source.cache));
-          
-          if (snapshot.docs.isEmpty) {
-            snapshot = await _firestore!
-                .collection('users')
-                .doc(uid)
-                .collection('goals')
-                .get()
-                .timeout(const Duration(seconds: 3));
-          }
-        } catch (_) {
-          snapshot = await _firestore!
-              .collection('users')
-              .doc(uid)
-              .collection('goals')
-              .get()
-              .timeout(const Duration(seconds: 3));
-        }
+        final snapshot = await _firestore!
+            .collection('users')
+            .doc(uid)
+            .collection('goals')
+            .get(const GetOptions(source: Source.cache));
 
-        final List<GoalModel> goals = [];
-        for (var doc in snapshot.docs) {
-          goals.add(GoalModel.fromMap(doc.data()));
+        if (snapshot.docs.isNotEmpty) {
+          final List<GoalModel> goals = [];
+          for (var doc in snapshot.docs) {
+            goals.add(GoalModel.fromMap(doc.data()));
+          }
+          for (var m in _memoryStore) {
+            if (!goals.any((g) => g.id == m.id)) {
+              goals.add(m);
+            }
+          }
+          return goals;
         }
-        return goals;
       } catch (_) {}
     }
 

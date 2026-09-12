@@ -47,10 +47,16 @@ abstract class SavingsGoalRepository {
   Future<List<SavingsGoalModel>> getGoals();
   Future<void> saveGoal(SavingsGoalModel goal);
   Future<void> deleteGoal(String id);
+  void clearLocalData();
 }
 
 class SavingsGoalRepositoryImpl implements SavingsGoalRepository {
   final List<SavingsGoalModel> _memoryStore = [];
+
+  @override
+  void clearLocalData() {
+    _memoryStore.clear();
+  }
 
   FirebaseFirestore? get _firestore {
     try {
@@ -76,36 +82,24 @@ class SavingsGoalRepositoryImpl implements SavingsGoalRepository {
 
     if (uid != null && uid.isNotEmpty && _firestore != null) {
       try {
-        QuerySnapshot<Map<String, dynamic>> snapshot;
-        try {
-          snapshot = await _firestore!
-              .collection('users')
-              .doc(uid)
-              .collection('savings_goals')
-              .get(const GetOptions(source: Source.cache));
-          
-          if (snapshot.docs.isEmpty) {
-            snapshot = await _firestore!
-                .collection('users')
-                .doc(uid)
-                .collection('savings_goals')
-                .get()
-                .timeout(const Duration(seconds: 3));
-          }
-        } catch (_) {
-          snapshot = await _firestore!
-              .collection('users')
-              .doc(uid)
-              .collection('savings_goals')
-              .get()
-              .timeout(const Duration(seconds: 3));
-        }
+        final snapshot = await _firestore!
+            .collection('users')
+            .doc(uid)
+            .collection('savings_goals')
+            .get(const GetOptions(source: Source.cache));
 
-        final List<SavingsGoalModel> goals = [];
-        for (var doc in snapshot.docs) {
-          goals.add(SavingsGoalModel.fromMap(doc.data()));
+        if (snapshot.docs.isNotEmpty) {
+          final List<SavingsGoalModel> goals = [];
+          for (var doc in snapshot.docs) {
+            goals.add(SavingsGoalModel.fromMap(doc.data()));
+          }
+          for (var m in _memoryStore) {
+            if (!goals.any((g) => g.id == m.id)) {
+              goals.add(m);
+            }
+          }
+          return goals;
         }
-        return goals;
       } catch (_) {}
     }
 

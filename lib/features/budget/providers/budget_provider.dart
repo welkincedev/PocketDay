@@ -78,6 +78,12 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
     loadBudgets();
   }
 
+  void clearData() {
+    _repo.clearLocalData();
+    _transactions = [];
+    state = BudgetState(selectedMonth: DateTime.now());
+  }
+
   Future<void> loadBudgets() async {
     if (state.allBudgets.isEmpty) {
       state = state.copyWith(isLoading: true, error: null);

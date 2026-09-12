@@ -77,9 +77,6 @@ class TransactionDetailBottomSheet extends ConsumerWidget {
       builder: (context) => AddTransactionBottomSheet(
         initialType: transaction.type,
         transactionToEdit: transaction,
-        onAdd: (updatedTxn) {
-          ref.read(transactionsProvider.notifier).updateTransaction(updatedTxn);
-        },
       ),
     );
   }

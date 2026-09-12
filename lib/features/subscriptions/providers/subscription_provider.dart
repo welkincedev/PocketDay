@@ -131,6 +131,12 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionState> {
     loadSubscriptions();
   }
 
+  void clearData() {
+    _repo.clearLocalData();
+    _processedAutoKeys.clear();
+    state = SubscriptionState();
+  }
+
   Future<void> loadSubscriptions() async {
     if (state.subscriptions.isEmpty) {
       state = state.copyWith(isLoading: true, error: null);

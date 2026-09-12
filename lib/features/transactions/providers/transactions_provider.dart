@@ -80,6 +80,11 @@ class TransactionsNotifier extends StateNotifier<TransactionsState> {
     loadTransactions();
   }
 
+  void clearData() {
+    _repo.clearLocalData();
+    state = TransactionsState();
+  }
+
   Future<void> loadTransactions() async {
     if (state.transactions.isEmpty) {
       state = state.copyWith(isLoading: true, error: null);

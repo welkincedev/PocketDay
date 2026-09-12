@@ -64,6 +64,11 @@ class GoalsNotifier extends StateNotifier<GoalsState> {
     loadGoals();
   }
 
+  void clearData() {
+    _repo.clearLocalData();
+    state = GoalsState();
+  }
+
   void updateTransactions(List<TransactionModel> txns) {
     state = state.copyWith(transactions: txns);
   }

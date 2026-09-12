@@ -90,14 +90,13 @@ lib/
 ├── core/                          # Cross-cutting application assets & services
 │   ├── constants/                 # AppColors, AppConstants, AppStrings
 │   ├── routes/                    # AppRoutes definition & route generator
-│   ├── services/                  # Global service placeholder directory
 │   ├── theme/                     # AppTheme (Material 3 light/dark) & ThemeProvider
 │   ├── utils/                     # AppErrorHandler, CurrencyFormatter, DateFormatter
 │   └── widgets/                   # AppButton, AppCard, AppTextField, SkeletonLoader, etc.
 │
 ├── data/                          # Data Layer contracts & Firestore implementations
 │   ├── models/                    # UserModel, TransactionModel, BudgetModel, GoalModel, SubscriptionModel
-│   └── repositories/              # AuthRepository, TransactionRepository, BudgetRepository, GoalRepository, SubscriptionRepository
+│   └── repositories/              # AuthRepository, TransactionRepository, BudgetRepository, GoalRepository,SubscriptionRepository
 │
 └── features/                      # Feature modules (Views, Providers, Widgets)
     ├── auth/                      # Login, Register, Splash, Onboarding, Forgot Password
