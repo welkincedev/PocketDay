@@ -16,6 +16,7 @@ import 'core/theme/app_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'data/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,6 +30,11 @@ void main() async {
       persistenceEnabled: true,
       cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
     );
+  } catch (_) {}
+
+  // Initialize local notification service safely
+  try {
+    await NotificationService.instance.init();
   } catch (_) {}
 
   runApp(const ProviderScope(child: PocketDayApp()));

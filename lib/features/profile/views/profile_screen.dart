@@ -47,6 +47,8 @@ import '../../../core/routes/app_router.dart';
 import '../../../core/utils/app_error_handler.dart';
 import '../../../core/widgets/pocketday_logo.dart';
 
+import '../providers/notification_provider.dart';
+
 /// The Profile tab. Shows user account info, appearance settings,
 /// app metadata, and sign-out. Only displays functionality that actually exists.
 class ProfileScreen extends ConsumerWidget {
@@ -56,6 +58,8 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider).value;
     final isDark = ref.watch(themeProvider) == ThemeMode.dark;
+    final notificationState = ref.watch(notificationProvider);
+    final notificationNotifier = ref.read(notificationProvider.notifier);
     final textTheme = Theme.of(context).textTheme;
 
     final firstName = user?.displayName.split(' ').first ?? 'User';
@@ -155,6 +159,66 @@ class ProfileScreen extends ConsumerWidget {
 
               const _Divider(),
 
+              // ─── NOTIFICATIONS ────────────────────────────────────────────
+              _SectionLabel(label: 'NOTIFICATIONS', isDark: isDark),
+              _SettingsTile(
+                icon: Icons.notifications_none_rounded,
+                label: 'Daily spending reminder',
+                trailing: Switch.adaptive(
+                  value: notificationState.dailyReminderEnabled,
+                  activeTrackColor: AppColors.primary,
+                  onChanged: (val) {
+                    notificationNotifier.toggleDailyReminder(val);
+                  },
+                ),
+              ),
+              if (notificationState.dailyReminderEnabled)
+                _SettingsTile(
+                  icon: Icons.access_time_rounded,
+                  label: 'Reminder time',
+                  trailing: Text(
+                    notificationState.reminderTime.format(context),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  onTap: () async {
+                    final picked = await showTimePicker(
+                      context: context,
+                      initialTime: notificationState.reminderTime,
+                    );
+                    if (picked != null) {
+                      notificationNotifier.setReminderTime(picked);
+                    }
+                  },
+                ),
+              _SettingsTile(
+                icon: Icons.account_balance_wallet_outlined,
+                label: 'Budget alerts',
+                trailing: Switch.adaptive(
+                  value: notificationState.budgetAlertsEnabled,
+                  activeTrackColor: AppColors.primary,
+                  onChanged: (val) {
+                    notificationNotifier.toggleBudgetAlerts(val);
+                  },
+                ),
+              ),
+              _SettingsTile(
+                icon: Icons.savings_outlined,
+                label: 'Goal reminders',
+                trailing: Switch.adaptive(
+                  value: notificationState.goalRemindersEnabled,
+                  activeTrackColor: AppColors.primary,
+                  onChanged: (val) {
+                    notificationNotifier.toggleGoalReminders(val);
+                  },
+                ),
+              ),
+
+              const _Divider(),
+
               // ─── ABOUT ────────────────────────────────────────────────────
               _SectionLabel(label: 'ABOUT', isDark: isDark),
               _SettingsTile(
@@ -220,6 +284,9 @@ class ProfileScreen extends ConsumerWidget {
                     );
                     try {
                       await ref.read(authProvider.notifier).resetAppData();
+                      await ref
+                          .read(notificationProvider.notifier)
+                          .resetNotificationSettings();
                       await ref
                           .read(transactionsProvider.notifier)
                           .loadTransactions();
