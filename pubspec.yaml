@@ -45,6 +45,9 @@ dependencies:
   uuid: ^4.6.0
   shared_preferences: ^2.5.5
   google_sign_in: ^6.2.1
+  flutter_local_notifications: ^18.0.1
+  timezone: ^0.9.4
+  flutter_timezone: ^3.0.1
 
 dependency_overrides:
   firebase_core_web: 3.10.0
