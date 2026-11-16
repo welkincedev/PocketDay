@@ -1,22 +1,24 @@
 // ============================================================================
 // PocketDay
 // File: budget_provider.dart
-// Purpose: Monthly budget limits and spending progress state management.
+// Purpose: Monthly budget limits, financial period calculation, and spending progress state management.
 // Architecture: Presentation / State Management Layer
 // State Management: Riverpod
 // Storage: Cloud Firestore with Native Offline Cache
 // ============================================================================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../../../core/utils/app_error_handler.dart';
+import '../../../core/utils/financial_period.dart';
 import '../../../data/models/budget_model.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../data/repositories/budget_repository.dart';
 import '../../transactions/providers/transactions_provider.dart';
+import 'financial_month_provider.dart';
 
 class BudgetState {
   final DateTime selectedMonth;
+  final FinancialPeriod activePeriod;
   final List<BudgetModel> allBudgets;
   final List<BudgetModel> currentBudgets;
   final Map<String?, double> categorySpending;
@@ -25,6 +27,7 @@ class BudgetState {
 
   BudgetState({
     required this.selectedMonth,
+    required this.activePeriod,
     this.allBudgets = const [],
     this.currentBudgets = const [],
     this.categorySpending = const {},
@@ -34,6 +37,7 @@ class BudgetState {
 
   BudgetState copyWith({
     DateTime? selectedMonth,
+    FinancialPeriod? activePeriod,
     List<BudgetModel>? allBudgets,
     List<BudgetModel>? currentBudgets,
     Map<String?, double>? categorySpending,
@@ -42,6 +46,7 @@ class BudgetState {
   }) {
     return BudgetState(
       selectedMonth: selectedMonth ?? this.selectedMonth,
+      activePeriod: activePeriod ?? this.activePeriod,
       allBudgets: allBudgets ?? this.allBudgets,
       currentBudgets: currentBudgets ?? this.currentBudgets,
       categorySpending: categorySpending ?? this.categorySpending,
@@ -62,9 +67,18 @@ final budgetProvider = StateNotifierProvider<BudgetNotifier, BudgetState>((
     notifier.updateTransactions(next.transactions);
   });
 
+  // Listen to financial month settings to update calculations dynamically
+  ref.listen(financialMonthProvider, (previous, next) {
+    notifier.updateFinancialMonth(next);
+  });
+
   // Fetch initial transactions
   final initialTxns = ref.read(transactionsProvider).transactions;
   notifier.updateTransactions(initialTxns);
+
+  // Fetch initial financial month settings
+  final initialFinMonth = ref.read(financialMonthProvider);
+  notifier.updateFinancialMonth(initialFinMonth);
 
   return notifier;
 });
@@ -72,16 +86,28 @@ final budgetProvider = StateNotifierProvider<BudgetNotifier, BudgetState>((
 class BudgetNotifier extends StateNotifier<BudgetState> {
   final BudgetRepository _repo;
   List<TransactionModel> _transactions = [];
+  FinancialMonthState _financialMonth = const FinancialMonthState();
 
   BudgetNotifier(this._repo)
-    : super(BudgetState(selectedMonth: DateTime.now())) {
+    : super(BudgetState(
+        selectedMonth: DateTime.now(),
+        activePeriod: FinancialPeriod.fromDateTime(DateTime.now()),
+      )) {
     loadBudgets();
+  }
+
+  void updateFinancialMonth(FinancialMonthState financialMonth) {
+    _financialMonth = financialMonth;
+    _calculateAndApply();
   }
 
   void clearData() {
     _repo.clearLocalData();
     _transactions = [];
-    state = BudgetState(selectedMonth: DateTime.now());
+    state = BudgetState(
+      selectedMonth: DateTime.now(),
+      activePeriod: _financialMonth.currentPeriod,
+    );
   }
 
   Future<void> loadBudgets() async {
@@ -115,21 +141,23 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
   }
 
   void _calculateAndApply() {
-    final monthStr = DateFormat('yyyy-MM').format(state.selectedMonth);
+    final period = _financialMonth.periodForCycle(
+      state.selectedMonth.year,
+      state.selectedMonth.month,
+    );
+    final monthStr = period.cycleKey;
 
-    // Filter budgets for the selected month
+    // Filter budgets for the active financial period cycle
     final monthlyBudgets = state.allBudgets
         .where((b) => b.month == monthStr)
         .toList();
 
-    // Calculate spending per category
+    // Calculate spending per category within the active financial period boundaries
     final Map<String?, double> spending = {};
     double overallSpent = 0.0;
 
-    // Filter transactions for the selected month and type == expense
     final monthlyExpenses = _transactions.where((t) {
-      final tMonth = DateFormat('yyyy-MM').format(t.date);
-      return tMonth == monthStr && t.type == TransactionType.expense;
+      return period.contains(t.date) && t.type == TransactionType.expense;
     }).toList();
 
     for (var exp in monthlyExpenses) {
@@ -142,6 +170,7 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
     state = state.copyWith(
       currentBudgets: monthlyBudgets,
       categorySpending: spending,
+      activePeriod: period,
     );
   }
 

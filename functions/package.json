@@ -1,0 +1,15 @@
+{
+  "name": "pocketday-functions",
+  "description": "PocketDay Server-Side Functions & Contact Email Dispatcher",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^5.0.0",
+    "nodemailer": "^6.9.10"
+  }
+}
