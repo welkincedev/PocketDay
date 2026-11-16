@@ -19,7 +19,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -133,13 +132,12 @@ class BudgetDetailBottomSheet extends ConsumerWidget {
         ? AppColors.primary
         : (categoryMeta?['color'] as Color);
 
-    // Filter transactions for this month & category scope
+    // Filter transactions for this financial period & category scope
     final expenses = txnsState.transactions.where((t) {
-      final tMonth = DateFormat('yyyy-MM').format(t.date);
-      final monthMatches = tMonth == budget.month;
+      final periodMatches = budgetState.activePeriod.contains(t.date);
       final typeMatches = t.type == TransactionType.expense;
       final scopeMatches = isOverall || t.categoryId == budget.categoryId;
-      return monthMatches && typeMatches && scopeMatches;
+      return periodMatches && typeMatches && scopeMatches;
     }).toList();
 
     // Determine status description
@@ -219,7 +217,7 @@ class BudgetDetailBottomSheet extends ConsumerWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Budget Scope for ${DateFormat('MMMM yyyy').format(budgetState.selectedMonth)}',
+                      'Budget Scope for ${budgetState.activePeriod.displayLabel}',
                       style: TextStyle(
                         fontSize: 12,
                         color: isDark

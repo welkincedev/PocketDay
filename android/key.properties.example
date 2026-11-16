@@ -1,0 +1,8 @@
+# PocketDay Production Release Keystore Configuration
+# Copy this file to "android/key.properties" and replace with your actual keystore credentials.
+# IMPORTANT: Never commit "key.properties" or your ".jks" keystore to GitHub / version control!
+
+storePassword=YOUR_KEYSTORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=pocketday_upload_key
+storeFile=../pocketday-release.jks

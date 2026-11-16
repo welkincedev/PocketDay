@@ -18,6 +18,7 @@ import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../data/models/budget_model.dart';
 import '../providers/budget_provider.dart';
+import '../providers/financial_month_provider.dart';
 
 class AddBudgetBottomSheet extends ConsumerStatefulWidget {
   final DateTime month;
@@ -166,6 +167,7 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isEditing = widget.budgetToEdit != null || _existingBudget != null;
+    final finState = ref.watch(financialMonthProvider);
 
     final monthOptions = _getMonthOptions();
 
@@ -334,7 +336,8 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
                   1,
                 ),
                 decoration: InputDecoration(
-                  labelText: 'Budget Month',
+                  labelText:
+                      finState.isCustomEnabled ? 'Budget Cycle' : 'Budget Month',
                   labelStyle: TextStyle(
                     color: isDark
                         ? AppColors.darkTextSecondary
@@ -364,7 +367,9 @@ class _AddBudgetBottomSheetState extends ConsumerState<AddBudgetBottomSheet> {
                     ? AppColors.darkSurface
                     : AppColors.lightSurface,
                 items: monthOptions.map((date) {
-                  final text = DateFormat('MMMM yyyy').format(date);
+                  final text = finState
+                      .periodForCycle(date.year, date.month)
+                      .displayLabel;
                   return DropdownMenuItem<DateTime>(
                     value: DateTime(date.year, date.month, 1),
                     child: Text(

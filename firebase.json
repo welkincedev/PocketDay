@@ -1,1 +1,86 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"pocketday-1679a","appId":"1:104455039089:android:ff170940169db8258713d0","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"pocketday-1679a","configurations":{"android":"1:104455039089:android:ff170940169db8258713d0","ios":"1:104455039089:ios:5fc711acf1945e5f8713d0","web":"1:104455039089:web:16df935efd44e4f28713d0"}}}}}}
+{
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ],
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "cleanUrls": true,
+    "trailingSlash": false,
+    "rewrites": [
+      {
+        "source": "/api/sendContactEmail",
+        "function": {
+          "functionId": "sendContactEmail"
+        }
+      }
+    ],
+    "headers": [
+      {
+        "source": "**/*.@(jpg|jpeg|gif|png|svg|webp|js|css)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=604800"
+          }
+        ]
+      },
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "X-Content-Type-Options",
+            "value": "nosniff"
+          },
+          {
+            "key": "X-Frame-Options",
+            "value": "DENY"
+          },
+          {
+            "key": "X-XSS-Protection",
+            "value": "1; mode=block"
+          },
+          {
+            "key": "Referrer-Policy",
+            "value": "strict-origin-when-cross-origin"
+          }
+        ]
+      }
+    ]
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "pocketday-1679a",
+          "appId": "1:104455039089:android:ff170940169db8258713d0",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "pocketday-1679a",
+          "configurations": {
+            "android": "1:104455039089:android:ff170940169db8258713d0",
+            "ios": "1:104455039089:ios:5fc711acf1945e5f8713d0",
+            "web": "1:104455039089:web:16df935efd44e4f28713d0"
+          }
+        }
+      }
+    }
+  }
+}

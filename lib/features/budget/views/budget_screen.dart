@@ -40,7 +40,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/empty_state_widget.dart';
@@ -52,6 +51,7 @@ import '../providers/budget_provider.dart';
 import '../widgets/add_budget_bottom_sheet.dart';
 import '../widgets/budget_card_widget.dart';
 import '../widgets/budget_detail_bottom_sheet.dart';
+import '../widgets/financial_month_bottom_sheet.dart';
 
 class BudgetScreen extends ConsumerStatefulWidget {
   const BudgetScreen({super.key});
@@ -105,6 +105,15 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => BudgetDetailBottomSheet(budget: budget),
+    );
+  }
+
+  void _openFinancialMonthSettings(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const FinancialMonthBottomSheet(),
     );
   }
 
@@ -192,7 +201,8 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
           child: state.isLoading
               ? const Center(child: CircularProgressIndicator())
               : state.currentBudgets.isEmpty
-              ? _buildEmptyState(context, state.selectedMonth)
+                  ? _buildEmptyState(
+                      context, state.activePeriod.displayLabel, state.selectedMonth)
               : ListView(
                   padding: const EdgeInsets.all(16),
                   physics: const BouncingScrollPhysics(),
@@ -291,13 +301,33 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
               notifier.setSelectedMonth(prev);
             },
           ),
-          Text(
-            DateFormat('MMMM yyyy').format(state.selectedMonth),
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: isDark
-                  ? AppColors.darkTextPrimary
-                  : AppColors.lightTextPrimary,
+          InkWell(
+            onTap: () => _openFinancialMonthSettings(context),
+            borderRadius: BorderRadius.circular(8),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    state.activePeriod.displayLabel,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary,
+                        ),
+                  ),
+                  const SizedBox(width: 6),
+                  Icon(
+                    Icons.tune_rounded,
+                    size: 16,
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.lightTextSecondary,
+                  ),
+                ],
+              ),
             ),
           ),
           IconButton(
@@ -396,7 +426,8 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
     );
   }
 
-  Widget _buildEmptyState(BuildContext context, DateTime selectedMonth) {
+  Widget _buildEmptyState(
+      BuildContext context, String periodLabel, DateTime selectedMonth) {
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -405,10 +436,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen>
           children: [
             EmptyStateWidget(
               icon: Icons.pie_chart_rounded,
-              title:
-                  'No budget for ${DateFormat('MMMM').format(selectedMonth)}',
+              title: 'No budget for $periodLabel',
               description:
-                  'Set spending limits for this month to monitor your category expenses.',
+                  'Set spending limits for this period to monitor your category expenses.',
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(

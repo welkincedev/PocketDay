@@ -48,6 +48,8 @@ import '../../../core/utils/app_error_handler.dart';
 import '../../../core/widgets/pocketday_logo.dart';
 
 import '../providers/notification_provider.dart';
+import '../../budget/providers/financial_month_provider.dart';
+import '../../budget/widgets/financial_month_bottom_sheet.dart';
 
 /// The Profile tab. Shows user account info, appearance settings,
 /// app metadata, and sign-out. Only displays functionality that actually exists.
@@ -60,6 +62,8 @@ class ProfileScreen extends ConsumerWidget {
     final isDark = ref.watch(themeProvider) == ThemeMode.dark;
     final notificationState = ref.watch(notificationProvider);
     final notificationNotifier = ref.read(notificationProvider.notifier);
+    final financialMonthState = ref.watch(financialMonthProvider);
+    final financialMonthNotifier = ref.read(financialMonthProvider.notifier);
     final textTheme = Theme.of(context).textTheme;
 
     final firstName = user?.displayName.split(' ').first ?? 'User';
@@ -219,6 +223,89 @@ class ProfileScreen extends ConsumerWidget {
 
               const _Divider(),
 
+              // ─── FINANCIAL MONTH ──────────────────────────────────────────
+              _SectionLabel(label: 'FINANCIAL MONTH', isDark: isDark),
+              _SettingsTile(
+                icon: Icons.calendar_month_rounded,
+                label: 'Custom financial month',
+                trailing: Switch.adaptive(
+                  value: financialMonthState.isCustomEnabled,
+                  activeTrackColor: AppColors.primary,
+                  onChanged: (val) {
+                    financialMonthNotifier.setCustomEnabled(val);
+                  },
+                ),
+              ),
+              _SettingsTile(
+                icon: Icons.date_range_rounded,
+                label: 'Start day',
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      financialMonthState.isCustomEnabled
+                          ? 'Day ${financialMonthState.startDay}'
+                          : '1st (Calendar)',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: financialMonthState.isCustomEnabled
+                            ? AppColors.primary
+                            : (isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.chevron_right_rounded, size: 20),
+                  ],
+                ),
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => const FinancialMonthBottomSheet(),
+                  );
+                },
+              ),
+              _SettingsTile(
+                icon: Icons.preview_rounded,
+                label: 'Current cycle preview',
+                trailing: Text(
+                  financialMonthState.currentPeriod.previewLabel,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.lightTextSecondary,
+                  ),
+                ),
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => const FinancialMonthBottomSheet(),
+                  );
+                },
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                child: Text(
+                  'Your financial month follows your salary or income date instead of the calendar month.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.lightTextSecondary,
+                  ),
+                ),
+              ),
+
+              const _Divider(),
+
               // ─── ABOUT ────────────────────────────────────────────────────
               _SectionLabel(label: 'ABOUT', isDark: isDark),
               _SettingsTile(
@@ -287,6 +374,9 @@ class ProfileScreen extends ConsumerWidget {
                       await ref
                           .read(notificationProvider.notifier)
                           .resetNotificationSettings();
+                      await ref
+                          .read(financialMonthProvider.notifier)
+                          .reset();
                       await ref
                           .read(transactionsProvider.notifier)
                           .loadTransactions();

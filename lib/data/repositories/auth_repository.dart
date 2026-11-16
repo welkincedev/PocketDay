@@ -449,6 +449,24 @@ class AuthRepositoryImpl implements AuthRepository {
 
     try {
       await resetAppData();
+      // Ensure profile subcollection is also purged during complete account deletion
+      if (_firestore != null) {
+        try {
+          final profileDocs = await _firestore!
+              .collection('users')
+              .doc(user.uid)
+              .collection('profile')
+              .get()
+              .timeout(const Duration(seconds: 2));
+          if (profileDocs.docs.isNotEmpty) {
+            final batch = _firestore!.batch();
+            for (final doc in profileDocs.docs) {
+              batch.delete(doc.reference);
+            }
+            await batch.commit().timeout(const Duration(seconds: 2)).catchError((_) {});
+          }
+        } catch (_) {}
+      }
     } catch (_) {}
 
     if (_firestore != null) {

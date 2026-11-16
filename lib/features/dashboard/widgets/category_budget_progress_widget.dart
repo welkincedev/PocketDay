@@ -19,7 +19,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/app_card.dart';
@@ -64,7 +63,7 @@ class CategoryBudgetProgressWidget extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Text(
-                'No category budgets configured for ${DateFormat('MMMM yyyy').format(budgetState.selectedMonth)}. Go to the Budgets tab to set limit scopes.',
+                'No category budgets configured for ${budgetState.activePeriod.displayLabel}. Go to the Budgets tab to set limit scopes.',
                 style: TextStyle(
                   fontSize: 12,
                   color: isDark

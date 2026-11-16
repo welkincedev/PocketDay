@@ -1,0 +1,9 @@
+# PocketDay Robots.txt
+User-agent: *
+Allow: /
+Allow: /privacy-policy
+Allow: /delete-account
+Allow: /contact
+Allow: /terms
+
+Sitemap: https://pocketday-1679a.web.app/sitemap.xml

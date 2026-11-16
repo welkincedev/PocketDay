@@ -22,6 +22,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/widgets/app_card.dart';
+import '../../budget/providers/budget_provider.dart';
 import '../providers/dashboard_provider.dart';
 import '../providers/navigation_provider.dart';
 
@@ -32,10 +33,16 @@ class DashboardBudgetProgressWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final state = ref.watch(dashboardProvider);
+    final budgetState = ref.watch(budgetProvider);
 
     if (state.isLoading) {
       return const SizedBox.shrink();
     }
+
+    final period = budgetState.activePeriod;
+    final budgetTitle = period.isCustom
+        ? 'Cycle Budget (${period.shortLabel})'
+        : 'Monthly Budget';
 
     final limit = state.monthlyBudget;
     final spent = state.currentMonthExpense;
@@ -68,7 +75,7 @@ class DashboardBudgetProgressWidget extends ConsumerWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Monthly Budget',
+                  budgetTitle,
                   style: Theme.of(
                     context,
                   ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),

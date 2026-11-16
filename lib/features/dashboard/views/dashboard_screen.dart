@@ -166,8 +166,8 @@ class DashboardScreen extends ConsumerWidget {
                 ] else ...[
                   DashboardCardWidget(
                     balance: dashboardState.totalBalance,
-                    income: dashboardState.totalIncome,
-                    expense: dashboardState.totalExpense,
+                    income: dashboardState.periodIncome,
+                    expense: dashboardState.periodExpense,
                     budgetRemaining: dashboardState.remainingBudget,
                   ),
                 ],

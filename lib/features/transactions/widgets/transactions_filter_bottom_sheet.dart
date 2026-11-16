@@ -26,6 +26,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../data/models/transaction_model.dart';
+import '../../budget/providers/financial_month_provider.dart';
 import '../providers/transactions_provider.dart';
 
 class TransactionsFilterBottomSheet extends ConsumerWidget {
@@ -74,6 +75,7 @@ class TransactionsFilterBottomSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(transactionsProvider);
+    final finState = ref.watch(financialMonthProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final hasActiveFilters =
@@ -243,7 +245,7 @@ class TransactionsFilterBottomSheet extends ConsumerWidget {
                             .setDatePreset('week'),
                       ),
                       _buildChip(
-                        label: 'This Month',
+                        label: finState.isCustomEnabled ? 'This Cycle' : 'This Month',
                         selected: state.datePreset == 'month',
                         onSelected: (_) => ref
                             .read(transactionsProvider.notifier)

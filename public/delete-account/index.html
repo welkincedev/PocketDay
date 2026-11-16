@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <title>Account & Data Deletion Portal — PocketDay</title>
+  <meta name="description" content="Request the permanent deletion of your PocketDay account and all associated personal financial data in compliance with Google Play Store data policies.">
+  <link rel="canonical" href="https://pocketday-1679a.web.app/delete-account">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://pocketday-1679a.web.app/delete-account">
+  <meta property="og:title" content="Account Deletion — PocketDay">
+  <meta property="og:description" content="Request permanent deletion of your PocketDay account and all associated cloud data.">
+  <meta property="og:image" content="https://pocketday-1679a.web.app/assets/images/app_logo.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/favicon.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Design System CSS -->
+  <link rel="stylesheet" href="/assets/css/style.css">
+
+  <!-- Firebase Web SDK (v10 Compat for static web forms) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <!-- Site Navigation Header -->
+  <header class="site-header">
+    <div class="container header-container">
+      <a href="/" class="brand-link" aria-label="PocketDay Home">
+        <img src="/assets/images/app_logo.png" alt="PocketDay Logo" class="brand-logo-img">
+        <span class="brand-name">Pocket<span>Day</span></span>
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="nav-desktop" aria-label="Main Navigation">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/#features" class="nav-link">Features</a>
+        <a href="/privacy-policy" class="nav-link">Privacy Policy</a>
+        <a href="/delete-account" class="nav-link active">Account Deletion</a>
+        <a href="/terms" class="nav-link">Terms</a>
+        <a href="/contact" class="nav-link">Contact</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="/" class="btn btn-secondary btn-sm">Return Home</a>
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Open navigation menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+  <aside class="mobile-nav-drawer" id="mobileNavDrawer" aria-label="Mobile Navigation">
+    <div class="mobile-drawer-header">
+      <div class="brand-link">
+        <img src="/assets/images/app_logo.png" alt="PocketDay Logo" class="brand-logo-img">
+        <span class="brand-name">Pocket<span>Day</span></span>
+      </div>
+      <button class="mobile-menu-toggle" id="closeDrawer" aria-label="Close menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="mobile-nav-links">
+      <a href="/">Home</a>
+      <a href="/#features">Features</a>
+      <a href="/privacy-policy">Privacy Policy</a>
+      <a href="/delete-account" class="active">Account Deletion</a>
+      <a href="/terms">Terms of Service</a>
+      <a href="/contact">Contact Support</a>
+    </div>
+  </aside>
+
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="container page-header-content">
+      <div class="badge">Google Play Data Safety Compliance</div>
+      <h1 class="page-title">Delete your PocketDay account</h1>
+      <p class="section-subtitle">
+        We respect your control over your personal information. You can permanently delete your PocketDay account and all associated cloud financial records at any time without reinstalling the mobile application.
+      </p>
+    </div>
+  </section>
+
+  <!-- Main Deletion Portal Section -->
+  <main class="section">
+    <div class="container">
+      <div class="deletion-portal-card">
+        
+        <!-- Tabs -->
+        <div class="deletion-tabs" role="tablist">
+          <button class="deletion-tab-btn active" data-tab="selfServiceTab" role="tab" aria-selected="true">
+            Instant Self-Service Deletion
+          </button>
+          <button class="deletion-tab-btn" data-tab="assistedTab" role="tab" aria-selected="false">
+            Assisted Deletion Request
+          </button>
+        </div>
+
+        <!-- TAB 1: Instant Verified Self-Service Deletion -->
+        <div class="tab-pane active" id="selfServiceTab">
+          
+          <!-- Step 1: Authentication -->
+          <div id="deletionAuthStep">
+            <h3 style="margin-bottom: 8px;">Step 1: Verify Account Ownership</h3>
+            <p class="text-secondary" style="font-size: 0.9375rem; margin-bottom: 24px;">
+              To ensure unauthorized individuals cannot delete your financial records, please verify ownership by signing in with your PocketDay credentials.
+            </p>
+
+            <div id="authErrorMessage" class="alert-box alert-danger" style="display: none; padding: 12px 16px; margin-bottom: 20px; font-size: 0.875rem;"></div>
+
+            <form id="deletionLoginForm">
+              <div class="form-group">
+                <label for="accountEmail" class="form-label">Email Address</label>
+                <input type="email" id="accountEmail" class="form-input" placeholder="you@example.com" required autocomplete="email">
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <label for="accountPassword" class="form-label" style="margin-bottom: 0;">Password</label>
+                  <button type="button" id="sendResetEmailBtn" class="nav-link" style="background: none; border: none; font-size: 0.8125rem; color: var(--primary); cursor: pointer; padding: 0;">
+                    Forgot Password?
+                  </button>
+                </div>
+                <input type="password" id="accountPassword" class="form-input" placeholder="Your PocketDay password" required autocomplete="current-password">
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block" style="margin-bottom: 16px;">
+                Sign In to Verify Account
+              </button>
+            </form>
+
+            <div style="display: flex; align-items: center; gap: 12px; margin: 20px 0; color: var(--text-muted); font-size: 0.8125rem;">
+              <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
+              <span>OR</span>
+              <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
+            </div>
+
+            <button type="button" id="googleSignInBtn" class="btn btn-secondary btn-block">
+              <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.8s.2-2.1.4-2.8L1.9 6.3C.7 8.7 0 10.3 0 12s.7 3.3 1.9 5.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/></svg>
+              Verify with Google Account
+            </button>
+          </div>
+
+          <!-- Step 2: Confirmation Warning -->
+          <div id="deletionConfirmStep" style="display: none;">
+            <div class="alert-box alert-danger">
+              <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              <div>
+                <strong>Warning: This action is permanent and cannot be undone.</strong>
+                <p style="margin-top: 6px; font-size: 0.875rem;">
+                  You are about to delete the PocketDay account for: <br>
+                  <strong id="authenticatedUserEmail" style="color: #FFFFFF;"></strong> <br>
+                  <span class="text-muted" style="font-size: 0.75rem;">UID: <span id="authenticatedUserId"></span></span>
+                </p>
+              </div>
+            </div>
+
+            <h4 style="margin: 20px 0 12px 0;">The following items will be permanently deleted:</h4>
+            <ul class="prose" style="font-size: 0.9375rem; margin-bottom: 24px;">
+              <li>All recorded income and expense transactions</li>
+              <li>Monthly budget limits and category configurations</li>
+              <li>Target savings goals and linked progress</li>
+              <li>Recurring subscription records and tracking</li>
+              <li>User profile documents and preferences</li>
+              <li>Authentication credentials on Google Cloud</li>
+            </ul>
+
+            <div class="form-group">
+              <label for="confirmDeleteInput" class="form-label">
+                To confirm permanent deletion, type <strong>DELETE</strong> below:
+              </label>
+              <input type="text" id="confirmDeleteInput" class="form-input" placeholder="Type DELETE to confirm" autocomplete="off">
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+              <button type="button" id="cancelDeleteBtn" class="btn btn-secondary" style="flex: 1;">
+                Cancel
+              </button>
+              <button type="button" id="executeDeleteBtn" class="btn btn-danger" style="flex: 2;" disabled>
+                Permanently Delete Account
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 3: Progress State -->
+          <div id="deletionProgressStep" style="display: none;">
+            <h3 style="margin-bottom: 12px; text-align: center;">Deleting Account & Data...</h3>
+            <p class="text-secondary" style="text-align: center; font-size: 0.875rem; margin-bottom: 24px;">
+              Please do not close this window while we purge your financial records from Google Cloud Firestore.
+            </p>
+            <div class="progress-box">
+              <div class="progress-bar-wrapper">
+                <div class="progress-bar-fill" id="progressBarFill"></div>
+              </div>
+              <div class="progress-status-text" id="progressStatusText">
+                Connecting to database...
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4: Success State -->
+          <div id="deletionSuccessStep" style="display: none; text-align: center; padding: 20px 0;">
+            <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; color: var(--primary);">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <h2 style="font-size: 1.75rem; margin-bottom: 12px;">Account Successfully Deleted</h2>
+            <p class="text-secondary" style="margin-bottom: 28px; font-size: 1rem; line-height: 1.6;">
+              Your PocketDay account and all associated transactions, budgets, goals, and credentials have been permanently removed from our cloud databases.
+            </p>
+            <a href="/" class="btn btn-primary">Return to Homepage</a>
+          </div>
+
+        </div>
+
+        <!-- TAB 2: Assisted Deletion Request -->
+        <div class="tab-pane" id="assistedTab">
+          <h3 style="margin-bottom: 8px;">Submit an Assisted Deletion Request</h3>
+          <p class="text-secondary" style="font-size: 0.9375rem; margin-bottom: 24px;">
+            If you no longer have access to your account or encounter difficulties with the automated portal, submit this form and your request will be verified and processed within 7 business days.
+          </p>
+
+          <form id="assistedDeletionForm">
+            <div class="form-group">
+              <label for="assistedEmail" class="form-label">Account Email Address *</label>
+              <input type="email" id="assistedEmail" class="form-input" placeholder="you@example.com" required>
+              <div class="form-hint">Must match the email address registered with PocketDay.</div>
+            </div>
+
+            <div class="form-group">
+              <label for="assistedReason" class="form-label">Reason for Deletion (Optional)</label>
+              <select id="assistedReason" class="form-select">
+                <option value="no_longer_needed">No longer need the application</option>
+                <option value="privacy_concerns">Privacy or data concerns</option>
+                <option value="switching_device">Switching devices or platforms</option>
+                <option value="resetting_data">Want to start over with a fresh account</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="assistedNotes" class="form-label">Additional Verification Notes (Optional)</label>
+              <textarea id="assistedNotes" class="form-textarea" rows="3" placeholder="Provide any details to help verify your account ownership..."></textarea>
+            </div>
+
+            <div class="form-group" style="margin-top: 16px;">
+              <label style="display: flex; gap: 10px; font-size: 0.875rem; color: #CBD5E1; cursor: pointer;">
+                <input type="checkbox" required style="margin-top: 3px;">
+                <span>I confirm that I am the owner of this account and understand that all associated financial data will be permanently wiped.</span>
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+              Submit Deletion Request
+            </button>
+          </form>
+
+          <div id="assistedSuccessNotice" class="alert-box alert-info" style="display: none; margin-top: 24px;">
+            <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <div>
+              <strong>Deletion Request Received</strong>
+              <p style="margin-top: 6px; font-size: 0.875rem;">
+                Your request reference ID is <strong id="assistedRefId" style="color: #FFFFFF; font-family: var(--font-mono);"></strong>.
+                Account ownership will be verified and the complete data wipe processed within 7 business days. You will receive an email confirmation once finished.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Google Play Compliance Declaration Box -->
+      <div style="max-width: 640px; margin: 48px auto 0 auto;">
+        <div class="alert-box alert-info">
+          <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          <div style="font-size: 0.875rem;">
+            <strong>Google Play Policy Notice:</strong> This web resource satisfies Google Play's Account Deletion Requirement. Users can initiate deletion of their account and all stored personal data directly from this web page without installing or reinstalling the mobile application.
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2026 PocketDay. All rights reserved.</p>
+        <div class="footer-links" style="display:flex; gap:20px;">
+          <a href="/">Home</a>
+          <a href="/privacy-policy">Privacy Policy</a>
+          <a href="/delete-account">Account Deletion</a>
+          <a href="/terms">Terms</a>
+          <a href="/contact">Contact</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/assets/js/site-config.js"></script>
+  <script src="/assets/js/firebase-config.js"></script>
+  <script src="/assets/js/main.js"></script>
+  <script src="/assets/js/delete-account.js"></script>
+</body>
+</html>

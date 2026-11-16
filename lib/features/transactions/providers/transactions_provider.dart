@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/utils/app_error_handler.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../data/repositories/transaction_repository.dart';
+import '../../budget/providers/financial_month_provider.dart';
 
 enum TransactionSortBy { dateDesc, dateAsc, amountDesc, amountAsc }
 
@@ -70,14 +71,31 @@ class TransactionsState {
 final transactionsProvider =
     StateNotifierProvider<TransactionsNotifier, TransactionsState>((ref) {
       final repo = ref.watch(transactionRepositoryProvider);
-      return TransactionsNotifier(repo);
+      final notifier = TransactionsNotifier(repo);
+
+      ref.listen(financialMonthProvider, (previous, next) {
+        notifier.updateFinancialMonth(next);
+      });
+
+      final initialFinMonth = ref.read(financialMonthProvider);
+      notifier.updateFinancialMonth(initialFinMonth);
+
+      return notifier;
     });
 
 class TransactionsNotifier extends StateNotifier<TransactionsState> {
   final TransactionRepository _repo;
+  FinancialMonthState _financialMonth = const FinancialMonthState();
 
   TransactionsNotifier(this._repo) : super(TransactionsState()) {
     loadTransactions();
+  }
+
+  void updateFinancialMonth(FinancialMonthState financialMonth) {
+    _financialMonth = financialMonth;
+    if (state.datePreset == 'month') {
+      setDatePreset('month');
+    }
   }
 
   void clearData() {
@@ -193,7 +211,9 @@ class TransactionsNotifier extends StateNotifier<TransactionsState> {
           error: state.error,
         );
       } else if (preset == 'month') {
-        start = DateTime(now.year, now.month, 1);
+        final period = _financialMonth.currentPeriod;
+        start = period.startDate;
+        end = period.endDate;
         state = TransactionsState(
           transactions: state.transactions,
           searchQuery: state.searchQuery,
